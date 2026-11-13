@@ -1,0 +1,590 @@
+<!DOCTYPE html>
+<html lang="bs" data-lang="bs">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>GAMA Decision OS — Autonomous Agent Control Plane</title>
+<meta name="description" content="GAMA Decision OS: pre-action risk control (L0 <2 ms), hardware-isolated execution (runc / gVisor / Firecracker, 2.28 ms restore) and SHA-256 evidence for every agent action. EU AI Act ready.">
+<meta name="color-scheme" content="dark">
+<meta property="og:title" content="GAMA Decision OS — Autonomous Agent Control Plane">
+<meta property="og:description" content="Decide before the agent acts. Isolate execution. Prove every outcome.">
+<meta property="og:type" content="website">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%230b0f14'/%3E%3Cpath d='M20 44V20h11c7 0 11 4 11 12s-4 12-11 12H20z' fill='none' stroke='%2300d69a' stroke-width='4'/%3E%3Ccircle cx='46' cy='20' r='3' fill='%2300d69a'/%3E%3C/svg%3E">
+<style>
+  :root{
+    --bg:#080b10; --bg2:#0b1017; --panel:#0f1621; --panel2:#121b28;
+    --line:#1e2a3a; --line2:#2a3b52;
+    --txt:#e8eef6; --mut:#93a4b8; --dim:#5f7186;
+    --acc:#00d69a; --acc2:#38bdf8; --warn:#fbbf24; --bad:#fb7185;
+    --r:16px; --max:1180px;
+    --mono:ui-monospace,SFMono-Regular,Menlo,Consolas,"Liberation Mono",monospace;
+    --sans:system-ui,-apple-system,"Segoe UI",Roboto,Inter,Arial,sans-serif;
+  }
+  *{box-sizing:border-box}
+  html{scroll-behavior:smooth}
+  body{margin:0;background:var(--bg);color:var(--txt);font-family:var(--sans);line-height:1.6;-webkit-font-smoothing:antialiased}
+  a{color:inherit;text-decoration:none}
+  img,svg{max-width:100%}
+  .wrap{max-width:var(--max);margin:0 auto;padding:0 22px}
+  .skip{position:absolute;left:-9999px;top:0;background:var(--acc);color:#03130d;padding:10px 14px;border-radius:0 0 8px 0;z-index:100}
+  .skip:focus{left:0}
+  header{position:sticky;top:0;z-index:50;background:rgba(8,11,16,.82);backdrop-filter:blur(14px);border-bottom:1px solid var(--line)}
+  .nav{display:flex;align-items:center;gap:26px;height:66px}
+  .brand{display:flex;align-items:center;gap:11px;font-weight:700;letter-spacing:-.2px;white-space:nowrap}
+  .brand .mark{width:28px;height:28px;flex:0 0 28px}
+  .brand small{display:block;font-size:10px;font-weight:500;color:var(--mut);letter-spacing:.14em;text-transform:uppercase;line-height:1.2}
+  .navlinks{display:flex;gap:22px;margin-left:auto;font-size:14px;color:var(--mut)}
+  .navlinks a{padding:6px 0;border-bottom:1px solid transparent;transition:.2s}
+  .navlinks a:hover{color:var(--txt);border-color:var(--acc)}
+  .navtools{display:flex;align-items:center;gap:10px}
+  .btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;border:1px solid var(--line2);background:var(--panel);color:var(--txt);
+       padding:10px 16px;border-radius:10px;font:600 14px/1 var(--sans);cursor:pointer;transition:.18s;white-space:nowrap}
+  .btn:hover{border-color:var(--acc);transform:translateY(-1px)}
+  .btn.primary{background:var(--acc);border-color:var(--acc);color:#04140e}
+  .btn.primary:hover{box-shadow:0 8px 30px rgba(0,214,154,.22)}
+  .btn.ghost{background:transparent}
+  .btn.sm{padding:8px 12px;font-size:13px}
+  .lang{display:flex;border:1px solid var(--line2);border-radius:9px;overflow:hidden}
+  .lang button{background:transparent;border:0;color:var(--mut);font:600 12px/1 var(--sans);padding:8px 10px;cursor:pointer}
+  .lang button.on{background:var(--panel2);color:var(--acc)}
+  .burger{display:none;background:transparent;border:1px solid var(--line2);color:var(--txt);border-radius:9px;padding:8px 10px;cursor:pointer}
+  main{overflow:hidden}
+  .hero{position:relative;padding:78px 0 46px}
+  .hero:before{content:"";position:absolute;inset:-180px 0 auto 0;height:560px;
+    background:radial-gradient(58% 62% at 50% 0%,rgba(0,214,154,.13),transparent 70%),radial-gradient(40% 40% at 82% 8%,rgba(56,189,248,.10),transparent 70%);
+    pointer-events:none}
+  .hero .wrap{position:relative}
+  .eyebrow{display:inline-flex;align-items:center;gap:9px;font:600 12px/1 var(--sans);letter-spacing:.12em;text-transform:uppercase;color:var(--acc);
+    border:1px solid rgba(0,214,154,.32);background:rgba(0,214,154,.07);padding:8px 12px;border-radius:999px}
+  .dot{width:7px;height:7px;border-radius:50%;background:var(--acc);box-shadow:0 0 0 4px rgba(0,214,154,.12);animation:pulse 2.4s infinite}
+  @keyframes pulse{50%{box-shadow:0 0 0 8px rgba(0,214,154,0)}}
+  h1{font-size:clamp(38px,6.2vw,68px);line-height:1.02;letter-spacing:-.035em;margin:22px 0 0;font-weight:750;max-width:930px}
+  h1 .grad{background:linear-gradient(92deg,var(--acc),var(--acc2));-webkit-background-clip:text;background-clip:text;color:transparent}
+  .lede{font-size:clamp(16px,2vw,19.5px);color:var(--mut);max-width:760px;margin:20px 0 0}
+  .lede b{color:var(--txt);font-weight:600}
+  .cta{display:flex;flex-wrap:wrap;gap:12px;margin-top:30px}
+  .trust{display:flex;flex-wrap:wrap;gap:8px 20px;margin-top:26px;font-size:12.5px;color:var(--dim)}
+  .trust span{display:inline-flex;align-items:center;gap:7px}
+  .tick{color:var(--acc);font-weight:700}
+  .metrics{display:grid;grid-template-columns:repeat(5,1fr);gap:12px;margin:48px 0 0}
+  .metric{background:linear-gradient(180deg,var(--panel),rgba(15,22,33,.55));border:1px solid var(--line);border-radius:14px;padding:18px 16px}
+  .metric .v{font:700 clamp(21px,2.5vw,28px)/1.1 var(--mono);letter-spacing:-.02em;color:var(--txt)}
+  .metric .v em{font-style:normal;color:var(--acc);font-size:.62em;margin-left:3px}
+  .metric .k{font-size:11.5px;color:var(--mut);margin-top:7px;line-height:1.45}
+  .metric .tag{display:inline-block;margin-top:9px;font:600 9.5px/1 var(--sans);letter-spacing:.08em;text-transform:uppercase;color:var(--dim);border:1px solid var(--line);border-radius:999px;padding:4px 6px}
+  .metric .tag.live{color:var(--acc);border-color:rgba(0,214,154,.3)}
+  .metric .tag.cal{color:var(--warn);border-color:rgba(251,191,36,.3)}
+  section{padding:74px 0;border-top:1px solid var(--line)}
+  .shead{max-width:760px}
+  .kicker{font:700 11.5px/1 var(--sans);letter-spacing:.16em;text-transform:uppercase;color:var(--acc)}
+  h2{font-size:clamp(28px,4vw,44px);line-height:1.08;letter-spacing:-.03em;margin:14px 0 0;font-weight:730}
+  .sub{color:var(--mut);font-size:16.5px;margin:14px 0 0}
+  .pillars{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-top:38px}
+  .pillar{background:var(--panel);border:1px solid var(--line);border-radius:var(--r);padding:24px 22px;position:relative;overflow:hidden}
+  .pillar:after{content:"";position:absolute;inset:0 0 auto 0;height:2px;background:linear-gradient(90deg,transparent,var(--acc),transparent);opacity:.45}
+  .pillar .no{font:700 11px/1 var(--mono);color:var(--acc);letter-spacing:.1em}
+  .pillar h3{font-size:19px;letter-spacing:-.01em;margin:12px 0 8px}
+  .pillar p{color:var(--mut);font-size:14px;margin:0}
+  .pillar ul{margin:16px 0 0;padding:0;list-style:none;font-size:13px;color:var(--mut)}
+  .pillar li{padding:7px 0 7px 20px;position:relative;border-top:1px dashed var(--line)}
+  .pillar li:before{content:"›";position:absolute;left:2px;color:var(--acc);font-weight:700}
+  .code{margin-top:16px;background:#060a0f;border:1px solid var(--line);border-radius:10px;padding:12px 13px;font:12px/1.65 var(--mono);color:#b9cde2;overflow:auto}
+  .code .c{color:var(--dim)} .code .g{color:var(--acc)} .code .b{color:var(--acc2)}
+  .diagram{margin-top:36px;background:var(--panel);border:1px solid var(--line);border-radius:var(--r);padding:20px;overflow:auto}
+  .diagram pre{margin:0;font:12px/1.55 var(--mono);color:#a9c0d8;min-width:720px}
+  .diagram .a{color:var(--acc)} .diagram .b{color:var(--acc2)} .diagram .d{color:var(--dim)}
+  .bench{width:100%;border-collapse:collapse;margin-top:30px;font-size:14px}
+  .bench th,.bench td{padding:13px 12px;text-align:left;border-bottom:1px solid var(--line)}
+  .bench th{font:600 11.5px/1.3 var(--sans);letter-spacing:.1em;text-transform:uppercase;color:var(--mut);background:var(--panel2)}
+  .bench tr:hover td{background:rgba(255,255,255,.02)}
+  .bench td.num{font-family:var(--mono);font-size:13px;white-space:nowrap}
+  .bench .win{color:var(--acc);font-weight:700}
+  .note{font-size:12px;color:var(--dim);margin-top:12px}
+  .note a{color:var(--mut);text-decoration:underline;text-underline-offset:3px}
+  .pricing{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-top:38px;align-items:stretch}
+  .tier{display:flex;flex-direction:column;background:var(--panel);border:1px solid var(--line);border-radius:18px;padding:26px 22px;position:relative}
+  .tier.hot{border-color:rgba(0,214,154,.5);background:linear-gradient(180deg,rgba(0,214,154,.07),var(--panel) 42%)}
+  .tier .badge{position:absolute;top:-10px;left:22px;background:var(--acc);color:#04140e;font:700 10px/1 var(--sans);letter-spacing:.1em;text-transform:uppercase;padding:6px 9px;border-radius:999px}
+  .tier h3{font-size:18px;margin:0}
+  .tier .desc{font-size:13px;color:var(--mut);margin:7px 0 0;min-height:38px}
+  .price{font:750 38px/1 var(--sans);letter-spacing:-.03em;margin:18px 0 2px}
+  .price small{font:500 13px/1.3 var(--sans);color:var(--mut);letter-spacing:0}
+  .price-note{font-size:12px;color:var(--dim);min-height:18px}
+  .tier ul{list-style:none;margin:18px 0 22px;padding:0;font-size:13.5px;color:var(--mut);flex:1}
+  .tier li{padding:7px 0 7px 20px;position:relative}
+  .tier li:before{content:"✓";position:absolute;left:0;color:var(--acc);font-weight:700}
+  .tier li.off{opacity:.4} .tier li.off:before{content:"—";color:var(--dim)}
+  .tier .btn{width:100%}
+  .faq{margin-top:34px;display:grid;gap:10px}
+  details{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:0 18px}
+  details[open]{border-color:var(--line2)}
+  summary{cursor:pointer;padding:16px 0;font-weight:600;font-size:15px;list-style:none}
+  summary::-webkit-details-marker{display:none}
+  summary:after{content:"+";float:right;color:var(--acc);font-weight:700}
+  details[open] summary:after{content:"−"}
+  details p{color:var(--mut);font-size:14px;margin:0 0 16px}
+  .contact{display:grid;grid-template-columns:1.15fr .85fr;gap:18px;margin-top:36px}
+  .card{background:var(--panel);border:1px solid var(--line);border-radius:var(--r);padding:26px}
+  .card h3{margin:0 0 6px;font-size:19px}
+  .card p{color:var(--mut);font-size:14px;margin:0 0 18px}
+  .field{margin-bottom:13px}
+  label{display:block;font-size:12px;color:var(--mut);margin-bottom:6px}
+  input,select,textarea{width:100%;background:#070b10;border:1px solid var(--line2);border-radius:9px;color:var(--txt);padding:11px 12px;font:14px/1.4 var(--sans);outline:none}
+  input:focus,select:focus,textarea:focus{border-color:var(--acc);box-shadow:0 0 0 3px rgba(0,214,154,.1)}
+  textarea{resize:vertical;min-height:92px}
+  .formmsg{font-size:12.5px;margin-top:10px;min-height:18px;color:var(--mut)}
+  .contactlist{list-style:none;margin:0;padding:0;font-size:14px;color:var(--mut)}
+  .contactlist li{padding:11px 0;border-top:1px solid var(--line);display:flex;gap:10px;align-items:flex-start}
+  .contactlist b{color:var(--txt);display:block;font-size:13px}
+  .contactlist .ic{color:var(--acc);font-family:var(--mono);font-size:11px;padding-top:2px}
+  footer{border-top:1px solid var(--line);padding:34px 0 44px;color:var(--dim);font-size:12.5px}
+  .foot{display:flex;flex-wrap:wrap;gap:18px;align-items:center;justify-content:space-between}
+  .footlinks{display:flex;flex-wrap:wrap;gap:18px}
+  .footlinks a:hover{color:var(--txt)}
+  .fineprint{margin-top:18px;max-width:840px;line-height:1.6}
+  .reveal{opacity:0;transform:translateY(14px);transition:opacity .55s ease,transform .55s ease}
+  .reveal.in{opacity:1;transform:none}
+  @media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}.reveal{opacity:1;transform:none}}
+  @media (max-width:1000px){
+    .metrics{grid-template-columns:repeat(3,1fr)}
+    .pillars,.pricing{grid-template-columns:1fr 1fr}
+    .contact{grid-template-columns:1fr}
+  }
+  @media (max-width:760px){
+    .navlinks{display:none;position:absolute;left:0;right:0;top:66px;background:var(--bg2);border-bottom:1px solid var(--line);flex-direction:column;gap:0;padding:8px 22px 16px}
+    .navlinks.open{display:flex}
+    .navlinks a{padding:12px 0;border-bottom:1px solid var(--line)}
+    .burger{display:block}
+    .navtools .btn{display:none}
+    .hero{padding:52px 0 30px}
+    .metrics{grid-template-columns:1fr 1fr}
+    .pillars,.pricing{grid-template-columns:1fr}
+    section{padding:56px 0}
+  }
+  @media (max-width:420px){.metrics{grid-template-columns:1fr}}
+  [data-lang="bs"] .en,[data-lang="en"] .bs{display:none!important}
+</style>
+</head>
+<body>
+<a class="skip" href="#main">Preskoči na sadržaj / Skip to content</a>
+
+<header>
+  <div class="wrap nav">
+    <a class="brand" href="#top" aria-label="GAMA Decision OS">
+      <svg class="mark" viewBox="0 0 64 64" fill="none" aria-hidden="true">
+        <rect width="64" height="64" rx="14" fill="#0b0f14"/>
+        <path d="M20 44V20h11c7 0 11 4 11 12s-4 12-11 12H20z" stroke="#00d69a" stroke-width="4"/>
+        <circle cx="46" cy="20" r="3" fill="#00d69a"/>
+      </svg>
+      <span>GAMA Decision OS<small>Agent Control Plane</small></span>
+    </a>
+    <nav class="navlinks" id="navlinks" aria-label="Glavna navigacija">
+      <a href="#product"><span class="bs">Proizvod</span><span class="en">Product</span></a>
+      <a href="#bench"><span class="bs">Benchmark</span><span class="en">Benchmarks</span></a>
+      <a href="#pricing"><span class="bs">Cijene</span><span class="en">Pricing</span></a>
+      <a href="#faq">FAQ</a>
+      <a href="#demo"><span class="bs">Kontakt</span><span class="en">Contact</span></a>
+    </nav>
+    <div class="navtools">
+      <div class="lang" role="group" aria-label="Jezik / Language">
+        <button type="button" data-setlang="bs" class="on">BS</button>
+        <button type="button" data-setlang="en">EN</button>
+      </div>
+      <a class="btn primary sm" href="#demo"><span class="bs">Zatraži demo</span><span class="en">Book a demo</span></a>
+      <button class="burger" id="burger" aria-label="Meni" aria-expanded="false">☰</button>
+    </div>
+  </div>
+</header>
+
+<main id="main">
+  <section class="hero" id="top">
+    <div class="wrap">
+      <span class="eyebrow"><span class="dot"></span><span class="bs">Open-core · Apache-2.0 jezgro</span><span class="en">Open-core · Apache-2.0 core</span></span>
+      <h1>
+        <span class="bs">GAMA Decision OS — <span class="grad">autonomni kontrolni nivo za agente</span></span>
+        <span class="en">GAMA Decision OS — <span class="grad">Autonomous Agent Control Plane</span></span>
+      </h1>
+      <p class="lede">
+        <span class="bs">Agenti sve više <b>izvršavaju</b>, a ne samo odgovaraju. GAMA Decision OS stoji između modela i vašeg ERP-a, baze i e-maila: procijeni rizik <b>prije</b> akcije, izoluje izvršenje u hardverski sandbox i vrati <b>dokaz</b> koji se može provjeriti. Bez lažnog „done&ldquo;.</span>
+        <span class="en">Agents now <b>execute</b>, not just answer. GAMA Decision OS sits between the model and your ERP, database and email: it scores risk <b>before</b> the action, isolates execution in a hardware sandbox, and returns verifiable <b>evidence</b>. No fake &ldquo;done&rdquo;.</span>
+      </p>
+      <div class="cta">
+        <a class="btn primary" href="#demo"><span class="bs">Zakaži 20-min demo</span><span class="en">Book a 20-min demo</span> →</a>
+        <a class="btn ghost" href="#pricing"><span class="bs">Pogledaj cijene</span><span class="en">See pricing</span></a>
+        <a class="btn ghost" href="#bench"><span class="bs">Benchmark dokazi</span><span class="en">Benchmark evidence</span></a>
+      </div>
+      <div class="trust">
+        <span><span class="tick">✓</span><span class="bs">Self-hosted / air-gapped</span><span class="en">Self-hosted / air-gapped</span></span>
+        <span><span class="tick">✓</span><span class="bs">EU AI Act dokazni paket</span><span class="en">EU AI Act evidence pack</span></span>
+        <span><span class="tick">✓</span><span class="bs">SQL / ERP konektori</span><span class="en">SQL / ERP connectors</span></span>
+        <span><span class="tick">✓</span><span class="bs">Bez vendor lock-in-a</span><span class="en">No vendor lock-in</span></span>
+      </div>
+
+      <div class="metrics" aria-label="Ključne metrike">
+        <div class="metric reveal">
+          <div class="v">0.05<em>ms</em></div>
+          <div class="k"><span class="bs">L0 prethodna provjera rizika</span><span class="en">L0 pre-action risk check</span></div>
+          <div class="tag live"><span class="bs">izmjereno</span><span class="en">measured</span></div>
+        </div>
+        <div class="metric reveal">
+          <div class="v">2.28<em>ms</em></div>
+          <div class="k"><span class="bs">Firecracker snapshot restore</span><span class="en">Firecracker snapshot restore</span></div>
+          <div class="tag live"><span class="bs">izmjereno</span><span class="en">measured</span></div>
+        </div>
+        <div class="metric reveal">
+          <div class="v">86.2<em>%</em></div>
+          <div class="k"><span class="bs">Manje prompt tokena (deferred tools)</span><span class="en">Fewer prompt tokens (deferred tools)</span></div>
+          <div class="tag live"><span class="bs">A/B izmjereno</span><span class="en">A/B measured</span></div>
+        </div>
+        <div class="metric reveal">
+          <div class="v">10/10</div>
+          <div class="k"><span class="bs">SWE-lite zadataka, nezavisni pytest</span><span class="en">SWE-lite tasks, independent pytest</span></div>
+          <div class="tag live"><span class="bs">0 false-success</span><span class="en">0 false-success</span></div>
+        </div>
+        <div class="metric reveal">
+          <div class="v">ECE&nbsp;≤&nbsp;0.05</div>
+          <div class="k"><span class="bs">Cilj kalibracije pouzdanja</span><span class="en">Confidence calibration target</span></div>
+          <div class="tag cal"><span class="bs">kalibracija u toku</span><span class="en">calibration in progress</span></div>
+        </div>
+      </div>
+      <p class="note">
+        <span class="bs">Izmjereno interno na našoj test infrastrukturi, 13.11.2026. ECE broj se objavljuje tek nakon evaluacije adaptera — do tada je prikazan cilj, ne rezultat. Metodologija u repozitoriju.</span>
+        <span class="en">Measured internally on our test infrastructure, 13 Nov 2026. The ECE value is published only after adapter evaluation — until then this is a target, not a result. Methodology in the repository.</span>
+      </p>
+    </div>
+  </section>
+
+  <section id="product">
+    <div class="wrap">
+      <div class="shead">
+        <div class="kicker"><span class="bs">Tri stuba kontrole</span><span class="en">Three pillars of control</span></div>
+        <h2><span class="bs">Prije akcije. Unutar sandboxa. Sa dokazom.</span><span class="en">Before the action. Inside a sandbox. With proof.</span></h2>
+        <p class="sub"><span class="bs">Jedan kontrolni sloj koji se ubacuje između bilo kog agenta (OpenCode, Claude Code, vlastiti loop) i vaših sistema.</span><span class="en">One control layer between any agent (OpenCode, Claude Code, your own loop) and your systems.</span></p>
+      </div>
+
+      <div class="pillars">
+        <article class="pillar reveal">
+          <div class="no">01 / PRE-ACTION</div>
+          <h3><span class="bs">Decision L0 — rizik prije akcije</span><span class="en">Decision L0 — risk before action</span></h3>
+          <p><span class="bs">Deterministički precheck i kalibrisani model klasifikuju svaku akciju u READ / DRAFT / SEND / IRREVERSIBLE, uz očekivani dokaz i prag povjerenja.</span><span class="en">Deterministic precheck plus a calibrated model classify every action as READ / DRAFT / SEND / IRREVERSIBLE, with expected evidence and a confidence threshold.</span></p>
+          <ul>
+            <li><span class="bs">Latencija prechecka 0.05 ms — bez LLM poziva</span><span class="en">0.05 ms precheck — no LLM call</span></li>
+            <li><span class="bs">Mutating alati blokirani u READ tieru</span><span class="en">Mutating tools blocked in READ tier</span></li>
+            <li><span class="bs">Abstention: agent pita kad nije siguran</span><span class="en">Abstention: the agent asks when unsure</span></li>
+          </ul>
+          <div class="code"><span class="c">// risk gate, prije izvršenja</span><br><span class="g">READ</span> → allow 0.05 &nbsp;|&nbsp; <span class="b">DRAFT</span> → allow 0.25<br><span class="c">// SEND / IRREVERSIBLE</span> → <span style="color:#fb7185">human approval</span></div>
+        </article>
+
+        <article class="pillar reveal">
+          <div class="no">02 / EXECUTION</div>
+          <h3><span class="bs">TSR — trostruki sandbox runtime</span><span class="en">TSR — triple sandbox runtime</span></h3>
+          <p><span class="bs">Rizik bira izolaciju: runc za brze interne skripte, gVisor za nepouzdanu mrežu, Firecracker mikro-VM za transakcije. Snapshot restore u 2.28 ms.</span><span class="en">Risk selects isolation: runc for fast internal scripts, gVisor for untrusted network code, Firecracker microVMs for transactions. Snapshot restore in 2.28 ms.</span></p>
+          <ul>
+            <li><span class="bs">runc 110 ns/syscall · gVisor 751 ns · Firecracker 54 ns</span><span class="en">runc 110 ns/syscall · gVisor 751 ns · Firecracker 54 ns</span></li>
+            <li><span class="bs">Hardverska KVM izolacija po transakciji</span><span class="en">Hardware KVM isolation per transaction</span></li>
+            <li><span class="bs">Bez Docker daemon privilegija na hostu</span><span class="en">No privileged Docker daemon on the host</span></li>
+          </ul>
+          <div class="code"><span class="c"># izbor runtime-a po riziku</span><br>L0/L1 → <span class="g">runc</span> &nbsp; L2 → <span class="b">gVisor</span> &nbsp; L3 → <span class="g">firecracker</span><br><span class="c"># restore: 2.28 ms do prve instrukcije</span></div>
+        </article>
+
+        <article class="pillar reveal">
+          <div class="no">03 / POST-ACTION</div>
+          <h3><span class="bs">Evidence Gate — dokaz ili rollback</span><span class="en">Evidence Gate — proof or rollback</span></h3>
+          <p><span class="bs">Svaki rezultat dobija SHA-256 hash, Ed25519 potpis i zapis u nepromjenjivi lanac. Nema dokaza — nema „gotovo&ldquo;; stanje se vraća.</span><span class="en">Every result gets a SHA-256 hash, an Ed25519 signature and an append-only chain entry. No evidence — no &ldquo;done&rdquo;; state is rolled back.</span></p>
+          <ul>
+            <li><span class="bs">Vezani hash-lanac (prev_hash → hash)</span><span class="en">Chained hashes (prev_hash → hash)</span></li>
+            <li><span class="bs">Automatski checkpoint i rollback</span><span class="en">Automatic checkpoint and rollback</span></li>
+            <li><span class="bs">Izvoz dokaza za EU AI Act čl. 12/15</span><span class="en">Evidence export for EU AI Act Art. 12/15</span></li>
+          </ul>
+          <div class="code"><span class="c">// receipt</span><br>{ ok:<span class="g">true</span>, sha256:<span class="b">"9f2c…"</span>,<br>&nbsp; prev:<span class="b">"41ab…"</span>, sig:<span class="g">"ed25519:…"</span> }</div>
+        </article>
+      </div>
+
+      <div class="diagram reveal" role="img" aria-label="Arhitektura dijagram">
+<pre>
+  <span class="d">Agent / LLM</span> ──▶ ┌─────────────────────────── GAMA Decision OS ───────────────────────────┐
+                │                                                                            │
+                │  <span class="a">Gate L0</span>  risk + expected_evidence          <span class="a">Audit</span>  hash chain + signatures     │
+                │     │                                                                      │
+                │     ├── READ / DRAFT ──────────▶ <span class="b">TSR Router</span> ──▶ runc / gVisor / FC-µVM │
+                │     │                                              │                       │
+                │     └── SEND / IRREVERSIBLE ──▶ <span class="b">Human approval</span> ──┘                       │
+                │                                                    │                       │
+                │                              <span class="a">Evidence Gate</span> ◀──┘  sha256 + Ed25519      │
+                │                                    │                                       │
+                └────────────────────────────────────┼───────────────────────────────────────┘
+                                                     ▼
+                                     <span class="a">PASS</span> → commit + receipt   |   <span style="color:#fb7185">FAIL</span> → rollback + alert
+</pre>
+      </div>
+    </div>
+  </section>
+
+  <section id="bench">
+    <div class="wrap">
+      <div class="shead">
+        <div class="kicker"><span class="bs">Dokazi, ne obećanja</span><span class="en">Evidence, not promises</span></div>
+        <h2><span class="bs">Benchmark rezultati</span><span class="en">Benchmark results</span></h2>
+        <p class="sub"><span class="bs">Sve brojke dolaze iz reproducibilnih runova u repozitoriju. Gdje mjerenje nije završeno, to je eksplicitno označeno.</span><span class="en">Every number comes from reproducible runs in the repository. Where a measurement is incomplete, it is explicitly marked.</span></p>
+      </div>
+
+      <div class="diagram reveal" style="padding:0;border:0;background:transparent">
+      <table class="bench">
+        <thead>
+          <tr>
+            <th><span class="bs">Metrika</span><span class="en">Metric</span></th>
+            <th><span class="bs">Rezultat</span><span class="en">Result</span></th>
+            <th><span class="bs">Uslov / metod</span><span class="en">Condition / method</span></th>
+            <th><span class="bs">Status</span><span class="en">Status</span></th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr><td>L0 risk precheck</td><td class="num win">0.05 ms</td><td class="num">READ allow · p50</td><td><span class="bs">izmjereno</span><span class="en">measured</span></td></tr>
+          <tr><td>IRREVERSIBLE routing</td><td class="num">0.92 ms</td><td class="num">ask + rationale</td><td><span class="bs">izmjereno</span><span class="en">measured</span></td></tr>
+          <tr><td>Firecracker snapshot restore</td><td class="num win">2.28 ms</td><td class="num">pre-warm + mmap</td><td><span class="bs">izmjereno</span><span class="en">measured</span></td></tr>
+          <tr><td>Firecracker syscall latency</td><td class="num">54 ns/op</td><td class="num">vs bare metal 92 ns</td><td><span class="bs">izmjereno</span><span class="en">measured</span></td></tr>
+          <tr><td>gVisor syscall latency</td><td class="num">751 ns/op</td><td class="num">Sentry interception</td><td><span class="bs">izmjereno</span><span class="en">measured</span></td></tr>
+          <tr><td>Prompt token reduction</td><td class="num win">−86.2 %</td><td class="num">544,470 → 75,113 · 405→34–66 schemas</td><td><span class="bs">A/B izmjereno</span><span class="en">A/B measured</span></td></tr>
+          <tr><td>SWE-bench-lite (10)</td><td class="num win">10/10</td><td class="num">independent pytest, tests restored</td><td><span class="bs">0 false-success</span><span class="en">0 false-success</span></td></tr>
+          <tr><td>Harness stability soak</td><td class="num">20/20 ok</td><td class="num">30 min · 0 retry</td><td><span class="bs">izmjereno</span><span class="en">measured</span></td></tr>
+          <tr><td>Evidence calibration (ECE)</td><td class="num" style="color:#fbbf24">target &lt; 0.05</td><td class="num">RLDF adapter eval pending</td><td><span class="bs">u toku</span><span class="en">in progress</span></td></tr>
+        </tbody>
+      </table>
+      </div>
+      <p class="note">
+        <span class="bs">Izvori: interni benchmark (10 vCPU / 33 GB / GTX 1660S), soak i SWE-lite run od 13.11.2026. Mjerenja su za internu flotu; vanjska reprodukcija je dobrodošla — uputstvo u README_PUBLIC.md.</span>
+        <span class="en">Sources: an internal benchmark (10 vCPU / 33 GB / GTX 1660S), soak and the 13 Nov 2026 SWE-lite run. Measurements are from our fleet; external reproduction is welcome — see README_PUBLIC.md.</span>
+      </p>
+    </div>
+  </section>
+
+  <section id="pricing">
+    <div class="wrap">
+      <div class="shead">
+        <div class="kicker"><span class="bs">Transparentno</span><span class="en">Transparent</span></div>
+        <h2><span class="bs">Cijene</span><span class="en">Pricing</span></h2>
+        <p class="sub"><span class="bs">Jezgro je besplatno i otvoreno. Plaćate kontrolu, podršku i usklađenost — ne zaključavanje.</span><span class="en">The core is free and open. You pay for control, support and compliance — not lock-in.</span></p>
+      </div>
+
+      <div class="pricing">
+        <article class="tier reveal">
+          <h3>Community</h3>
+          <p class="desc"><span class="bs">Za pojedince, istraživanje i prve prototipe.</span><span class="en">For individuals, research and first prototypes.</span></p>
+          <div class="price">€0</div>
+          <div class="price-note">Apache-2.0 · <span class="bs">zauvijek</span><span class="en">forever</span></div>
+          <ul>
+            <li><span class="bs">L0, TSR i Evidence Gate jezgro</span><span class="en">L0, TSR and Evidence Gate core</span></li>
+            <li><span class="bs">1 čvor, neograničeni lokalni runovi</span><span class="en">1 node, unlimited local runs</span></li>
+            <li><span class="bs">CLI, REST i Python SDK</span><span class="en">CLI, REST and Python SDK</span></li>
+            <li><span class="bs">Community podrška (GitHub)</span><span class="en">Community support (GitHub)</span></li>
+            <li class="off"><span class="bs">SSO, audit izvoz, SLA</span><span class="en">SSO, audit export, SLA</span></li>
+          </ul>
+          <a class="btn ghost" href="#demo"><span class="bs">Počni besplatno</span><span class="en">Start free</span></a>
+        </article>
+
+        <article class="tier hot reveal">
+          <span class="badge"><span class="bs">Najpopularnije</span><span class="en">Most popular</span></span>
+          <h3>Pro</h3>
+          <p class="desc"><span class="bs">Za timove koji puštaju agente u produkciju na vlastitoj infrastrukturi.</span><span class="en">For teams running agents in production on their own infrastructure.</span></p>
+          <div class="price">€299<small>/<span class="bs">čvor/mj</span><span class="en">node/mo</span></small></div>
+          <div class="price-note"><span class="bs">godišnje · min. 2 čvora · ili €349 mjesečno</span><span class="en">annual · min. 2 nodes · or €349 monthly</span></div>
+          <ul>
+            <li><span class="bs">Sve iz Community + produkcijski build</span><span class="en">Everything in Community + production build</span></li>
+            <li><span class="bs">Neograničeni agenti i sesije</span><span class="en">Unlimited agents and sessions</span></li>
+            <li><span class="bs">Evidence export (JSON/CSV, potpisi)</span><span class="en">Evidence export (JSON/CSV, signatures)</span></li>
+            <li><span class="bs">SQL i REST konektori (2 uključena)</span><span class="en">SQL and REST connectors (2 included)</span></li>
+            <li><span class="bs">E-mail podrška, 2 radna dana</span><span class="en">Email support, 2 business days</span></li>
+            <li><span class="bs">Besplatni upgrade-i unutar glavne verzije</span><span class="en">Free upgrades within major version</span></li>
+          </ul>
+          <a class="btn primary" href="#demo"><span class="bs">Zatraži probni ključ</span><span class="en">Request trial key</span></a>
+        </article>
+
+        <article class="tier reveal">
+          <h3>Enterprise</h3>
+          <p class="desc"><span class="bs">Za regulisane firme: banke, osiguranja, ERP, javni sektor.</span><span class="en">For regulated firms: banking, insurance, ERP, public sector.</span></p>
+          <div class="price">€24k<small>+ / <span class="bs">god.</span><span class="en">yr</span></small></div>
+          <div class="price-note"><span class="bs">do 10 čvorova · onboarding €7.500</span><span class="en">up to 10 nodes · €7,500 onboarding</span></div>
+          <ul>
+            <li><span class="bs">Sve iz Pro + air-gapped instalacija</span><span class="en">Everything in Pro + air-gapped install</span></li>
+            <li><span class="bs">EU AI Act dokazni paket i mapiranje čl. 9–15</span><span class="en">EU AI Act evidence pack and Art. 9–15 mapping</span></li>
+            <li><span class="bs">SSO/SCIM, RBAC, više tenanata</span><span class="en">SSO/SCIM, RBAC, multi-tenant</span></li>
+            <li><span class="bs">ERP konektori (SAP, Odoo, Dynamics, custom)</span><span class="en">ERP connectors (SAP, Odoo, Dynamics, custom)</span></li>
+            <li><span class="bs">SLA 99.9 %, 24/7 eskalacija, DPA</span><span class="en">99.9% SLA, 24/7 escalation, DPA</span></li>
+            <li><span class="bs">Arhitektonski pregled i godišnji audit</span><span class="en">Architecture review and annual audit</span></li>
+          </ul>
+          <a class="btn ghost" href="#demo"><span class="bs">Razgovaraj s nama</span><span class="en">Talk to us</span></a>
+        </article>
+      </div>
+      <p class="note"><span class="bs">Sve cijene bez PDV-a. Fiksni kurs €1 = 1,95583 BAM. Godišnje licence: 2 mjeseca gratis. Start-up i akademski popust 50 % (Pro).</span><span class="en">All prices exclude VAT. Fixed rate €1 = 1.95583 BAM. Annual licences: 2 months free. Startup and academic discount 50% (Pro).</span></p>
+    </div>
+  </section>
+
+  <section id="faq">
+    <div class="wrap">
+      <div class="shead">
+        <div class="kicker">FAQ</div>
+        <h2><span class="bs">Česta pitanja</span><span class="en">Common questions</span></h2>
+      </div>
+      <div class="faq">
+        <details><summary><span class="bs">Da li Decision OS zamjenjuje našeg agenta?</span><span class="en">Does Decision OS replace our agent?</span></summary>
+          <p><span class="bs">Ne. To je kontrolni sloj: agent ostaje isti (OpenCode, Claude Code, LangGraph, vlastiti loop), a poziva L0 prije alata i Evidence Gate poslije. Integracija je jedan middleware poziv ili REST endpoint.</span><span class="en">No. It is a control layer: your agent stays the same (OpenCode, Claude Code, LangGraph, custom loop) and calls L0 before a tool and the Evidence Gate after. Integration is one middleware call or a REST endpoint.</span></p></details>
+        <details><summary><span class="bs">Kako se dokazuje „0 false-success&ldquo;?</span><span class="en">How is &ldquo;0 false-success&rdquo; proven?</span></summary>
+          <p><span class="bs">Agentov `ok` se ne računa. Nezavisni pytest (fail-to-pass + pass-to-pass) odlučuje o uspjehu, a `tests/` se vraća na pristine prije provjere. Rezultat: 10/10 na SWE-bench-lite, 0 lažnih potvrda.</span><span class="en">The agent's `ok` is not counted. Independent pytest (fail-to-pass + pass-to-pass) decides success, and `tests/` is restored to pristine before verification. Result: 10/10 on SWE-bench-lite, 0 false confirmations.</span></p></details>
+        <details><summary><span class="bs">Šta je zapravo open-source?</span><span class="en">What is actually open source?</span></summary>
+          <p><span class="bs">Jezgro (L0, TSR adapteri, Evidence Gate, CLI/SDK) je Apache-2.0. Enterprise dodaje SSO/SCIM, multi-tenant, EU AI Act paket, ERP konektore i SLA. Nema „open-core zamke&ldquo;: sve što je potrebno za produkciju jednog tima je u jezgru.</span><span class="en">The core (L0, TSR adapters, Evidence Gate, CLI/SDK) is Apache-2.0. Enterprise adds SSO/SCIM, multi-tenant, the EU AI Act pack, ERP connectors and SLA. No open-core trap: everything needed to run production for one team is in the core.</span></p></details>
+        <details><summary><span class="bs">Radi li air-gapped?</span><span class="en">Does it work air-gapped?</span></summary>
+          <p><span class="bs">Da. Nijedan dio ne traži spoljni servis; modeli mogu biti lokalni (Ollama/vLLM), a licence se validiraju offline potpisanim tokenom.</span><span class="en">Yes. No component requires an external service; models can be local (Ollama/vLLM) and licences validate offline with a signed token.</span></p></details>
+        <details><summary><span class="bs">Koliko traje uvođenje?</span><span class="en">How long is onboarding?</span></summary>
+          <p><span class="bs">Community: 15 minuta (pip/Docker). Pro: 1–2 dana uz naš pregled. Enterprise: 2–4 sedmice uključujući ERP konektor, SSO i dokazni paket.</span><span class="en">Community: 15 minutes (pip/Docker). Pro: 1–2 days with our review. Enterprise: 2–4 weeks including ERP connector, SSO and evidence pack.</span></p></details>
+      </div>
+    </div>
+  </section>
+
+  <section id="demo">
+    <div class="wrap">
+      <div class="shead">
+        <div class="kicker"><span class="bs">Demo</span><span class="en">Demo</span></div>
+        <h2><span class="bs">Vidite kontrolu na svom scenariju</span><span class="en">See control on your own scenario</span></h2>
+        <p class="sub"><span class="bs">20 minuta, bez slajdova: vaš agent, vaš alat, naš gate. Pokažemo L0 odluku, sandbox i dokaz — ili kažemo da ne možemo.</span><span class="en">20 minutes, no slides: your agent, your tool, our gate. We show the L0 decision, the sandbox and the evidence — or we say we cannot.</span></p>
+      </div>
+      <div class="contact">
+        <form class="card" id="demoform" novalidate>
+          <h3><span class="bs">Zatraži demo</span><span class="en">Request a demo</span></h3>
+          <p><span class="bs">Odgovaramo u jednom radnom danu.</span><span class="en">We reply within one business day.</span></p>
+          <div class="field">
+            <label for="f-name"><span class="bs">Ime i firma</span><span class="en">Name and company</span></label>
+            <input id="f-name" name="name" autocomplete="name" required placeholder="Amina Hodžić · ACME d.o.o.">
+          </div>
+          <div class="field">
+            <label for="f-email">E-mail</label>
+            <input id="f-email" name="email" type="email" autocomplete="email" required placeholder="amina@acme.ba">
+          </div>
+          <div class="field">
+            <label for="f-size"><span class="bs">Veličina tima</span><span class="en">Team size</span></label>
+            <select id="f-size" name="size">
+              <option>1–5</option><option>6–20</option><option>21–100</option><option>100+</option>
+            </select>
+          </div>
+          <div class="field">
+            <label for="f-msg"><span class="bs">Scenarij (opciono)</span><span class="en">Scenario (optional)</span></label>
+            <textarea id="f-msg" name="msg" placeholder="npr. agent puni ponude u ERP, treba approval za SEND"></textarea>
+          </div>
+          <button class="btn primary" type="submit" style="width:100%"><span class="bs">Pošalji zahtjev</span><span class="en">Send request</span></button>
+          <div class="formmsg" id="formmsg" role="status" aria-live="polite"></div>
+        </form>
+
+        <div class="card">
+          <h3><span class="bs">Direktan kontakt</span><span class="en">Direct contact</span></h3>
+          <p><span class="bs">Za Enterprise, partnerstva i sigurnosna pitanja.</span><span class="en">For Enterprise, partnerships and security questions.</span></p>
+          <ul class="contactlist">
+            <li><span class="ic">@</span><div><b>prodaja@gamai.io</b><span class="bs">prodaja i demo</span><span class="en">sales and demos</span></div></li>
+            <li><span class="ic">SEC</span><div><b>security@gamai.io</b><span class="bs">odgovorno prijavljivanje ranjivosti</span><span class="en">responsible disclosure</span></div></li>
+            <li><span class="ic">LOC</span><div><b>Sarajevo · BiH</b><span class="bs">EU vremenska zona · remote-first</span><span class="en">EU timezone · remote-first</span></div></li>
+            <li><span class="ic">DOC</span><div><b>github.com/gama-ai/decision-os</b><span class="bs">jezgro, izdanja, benchmark</span><span class="en">core, releases, benchmarks</span></div></li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </section>
+</main>
+
+<footer>
+  <div class="wrap">
+    <div class="foot">
+      <div class="brand" style="font-size:13px">
+        <svg class="mark" viewBox="0 0 64 64" fill="none" aria-hidden="true"><rect width="64" height="64" rx="14" fill="#0b0f14"/><path d="M20 44V20h11c7 0 11 4 11 12s-4 12-11 12H20z" stroke="#00d69a" stroke-width="4"/><circle cx="46" cy="20" r="3" fill="#00d69a"/></svg>
+        GAMA Decision OS
+      </div>
+      <div class="footlinks">
+        <a href="#product"><span class="bs">Proizvod</span><span class="en">Product</span></a>
+        <a href="#pricing"><span class="bs">Cijene</span><span class="en">Pricing</span></a>
+        <a href="LICENSE-CORE">Apache-2.0</a>
+        <a href="LICENSE-ENTERPRISE.md">Enterprise</a>
+        <a href="README_PUBLIC.md">Docs</a>
+        <a href="mailto:security@gamai.io">Security</a>
+      </div>
+    </div>
+    <div class="fineprint">
+      <span class="bs">© 2026 GAMA. GAMA Decision OS je znak GAMA-e. Svi benchmark rezultati su interni i reproducibilni; ECE je ciljna vrijednost do završetka evaluacije. Sadržaj ove stranice nije pravni savjet.</span>
+      <span class="en">© 2026 GAMA. GAMA Decision OS is a GAMA trademark. All benchmark results are internal and reproducible; ECE is a target until evaluation completes. Nothing on this page is legal advice.</span>
+    </div>
+  </div>
+</footer>
+
+<script>
+(function(){
+  "use strict";
+  var root=document.documentElement;
+  var KEY="gama_lang";
+  function setLang(l){
+    root.setAttribute("data-lang",l);
+    root.setAttribute("lang",l);
+    try{localStorage.setItem(KEY,l)}catch(e){}
+    document.querySelectorAll("[data-setlang]").forEach(function(b){
+      b.classList.toggle("on",b.getAttribute("data-setlang")===l);
+    });
+  }
+  var saved=null; try{saved=localStorage.getItem(KEY)}catch(e){}
+  if(saved==="en"||saved==="bs") setLang(saved);
+  document.querySelectorAll("[data-setlang]").forEach(function(b){
+    b.addEventListener("click",function(){setLang(b.getAttribute("data-setlang"))});
+  });
+
+  var burger=document.getElementById("burger");
+  var links=document.getElementById("navlinks");
+  if(burger&&links){
+    burger.addEventListener("click",function(){
+      var open=links.classList.toggle("open");
+      burger.setAttribute("aria-expanded",String(open));
+      burger.textContent=open?"✕":"☰";
+    });
+    links.addEventListener("click",function(e){
+      if(e.target.closest("a")){links.classList.remove("open");burger.setAttribute("aria-expanded","false");burger.textContent="☰";}
+    });
+  }
+
+  var io=null;
+  if("IntersectionObserver" in window){
+    io=new IntersectionObserver(function(entries){
+      entries.forEach(function(en){if(en.isIntersecting){en.target.classList.add("in");io.unobserve(en.target)}});
+    },{threshold:.12});
+    document.querySelectorAll(".reveal").forEach(function(el){io.observe(el)});
+  }else{
+    document.querySelectorAll(".reveal").forEach(function(el){el.classList.add("in")});
+  }
+
+  var form=document.getElementById("demoform");
+  var msg=document.getElementById("formmsg");
+  if(form){
+    form.addEventListener("submit",function(e){
+      e.preventDefault();
+      var name=form.name.value.trim();
+      var email=form.email.value.trim();
+      var size=form.size.value;
+      var text=form.msg.value.trim();
+      if(!name||!email||email.indexOf("@")<1){
+        msg.textContent=root.getAttribute("data-lang")==="en"?"Please enter a name and a valid email.":"Unesite ime i ispravan e-mail.";
+        msg.style.color="#fb7185"; return;
+      }
+      var subject="Demo request — "+name;
+      var body="Name/company: "+name+"\nEmail: "+email+"\nTeam size: "+size+"\n\nScenario:\n"+text;
+      var href="mailto:prodaja@gamai.io?subject="+encodeURIComponent(subject)+"&body="+encodeURIComponent(body);
+      window.location.href=href;
+      msg.style.color="#00d69a";
+      msg.textContent=root.getAttribute("data-lang")==="en"?"Opening your mail client… If nothing happens, write to prodaja@gamai.io.":"Otvaramo vaš mail klijent… Ako se ništa ne dogodi, pišite na prodaja@gamai.io.";
+    });
+  }
+
+  document.querySelectorAll('a[href^="#"]').forEach(function(a){
+    a.addEventListener("click",function(e){
+      var id=a.getAttribute("href");
+      if(id.length>1){
+        var t=document.querySelector(id);
+        if(t){e.preventDefault();t.scrollIntoView({behavior:"smooth",block:"start"});history.replaceState(null,"",id);}
+      }
+    });
+  });
+})();
+</script>
+</body>
+</html>

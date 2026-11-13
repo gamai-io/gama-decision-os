@@ -1,0 +1,40 @@
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.eggs/
+build/
+dist/
+.venv/
+venv/
+.pytest_cache/
+.ruff_cache/
+.mypy_cache/
+.coverage
+.coverage.*
+htmlcov/
+
+# Local data / outputs
+*.db
+*.db-shm
+*.db-wal
+*.jsonl
+!examples/*.jsonl
+calibration.json
+models/
+receipts.db
+dpo_*.json
+eval_adapter_ece.json
+
+# Editors / OS
+.idea/
+.vscode/
+.DS_Store
+*.swp
+
+# Secrets
+.env
+.env.*
+!.env.example
+*.pem
+*.key

@@ -1,0 +1,35 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "gama-decision-l0"
+version = "1.2.2"
+description = "Open-core three-gate decision runtime for autonomous agents: pre-action risk, tool gating, and evidence receipts."
+readme = "README.md"
+requires-python = ">=3.9"
+license = { text = "Apache-2.0" }
+authors = [{ name = "GAMA" }]
+keywords = ["agents", "safety", "decision", "calibration", "evidence", "llm"]
+classifiers = [
+    "License :: OSI Approved :: Apache Software License",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3 :: Only",
+    "Operating System :: OS Independent",
+]
+dependencies = []
+
+[project.optional-dependencies]
+test = ["pytest>=7"]
+calibration = ["scipy>=1.10"]
+
+[project.urls]
+Homepage = "https://gamai.io"
+Organization = "https://github.com/xnet-ba"
+
+[tool.setuptools]
+packages = ["gama_decision"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "-q"
