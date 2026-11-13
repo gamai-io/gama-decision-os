@@ -248,6 +248,7 @@
       <a href="decision-os.html" aria-current="page">Decision OS</a>
       <a href="sigil.html">SIGIL</a>
       <a href="gamacode.html">GAMACODE</a>
+      <a href="benchmarks.html">Benchmark</a>
       <a href="gamacode.html#docs">Docs</a>
       <a href="pricing.html">Pricing</a>
       <a href="verify.html">Verify</a>
@@ -427,7 +428,7 @@
         čitati kao garanciju na težim, realnim greškama. Sljedeći korak je re-fit na setu sa stvarnim greškama
         i objava novog broja — do tada je ovo jedini ECE koji tvrdimo.
       </div>
-      <p class="note">Puni eval adaptera prije temperature scalinga: ECE 0.299211, Brier 0.094742, accuracy 1.000, n=1200 (internal evaluation run). Kalibracija je rađena naknadno na istom izvoru, sa <code>fit_method=scipy.bounded</code>.</p>
+      <p class="note">Puni eval adaptera prije temperature scalinga: ECE 0.299211, Brier 0.094742, accuracy 1.000, n=1200 (LUMI job 23715009). Kalibracija je rađena naknadno na istom izvoru, sa <code>fit_method=scipy.bounded</code>.</p>
     </div>
   </section>
 
@@ -444,7 +445,7 @@
         <div class="step reveal"><div class="n">03</div><div><h3>Adapter + realni eval</h3><p>LoRA adapter se evaluira na held-out setu: train loss 0.10052; ECE 0.2992, Brier 0.0947, accuracy 1.0 (n=1200).</p></div></div>
         <div class="step reveal"><div class="n">04</div><div><h3>Kalibracija i pragovi</h3><p>Temperature scaling spušta ECE na 0.0347; novi pragovi ulaze u Gate 1 tek nakon što prođu iste testove.</p></div></div>
       </div>
-      <p class="note">RLDF ciklus je dokumentovan u repozitoriju (scripts and two internal evaluation runs). Petlja je namjerno spora: nijedan novi prag ne ide u produkciju bez ponovljenog eval-a.</p>
+      <p class="note">RLDF ciklus je dokumentovan u repozitoriju (skripte + LUMI jobovi 23714934 i 23715009). Petlja je namjerno spora: nijedan novi prag ne ide u produkciju bez ponovljenog eval-a.</p>
     </div>
   </section>
 
@@ -557,9 +558,18 @@ receipt = D0.verify_evidence(env, <span class="g">"fs_write"</span>, result)
         <h4>Resursi</h4>
         <ul>
           <li><a href="gamacode.html#docs">Dokumentacija</a></li>
+          <li><a href="benchmarks.html">Benchmark i open source</a></li>
           <li><a href="verify.html">Verifikacija dokaza</a></li>
           <li><a href="pricing.html">Cijene</a></li>
           <li><a href="contact.html">Kontakt</a></li>
+          <li><a href="docs.html">Docs (tehnički)</a></li>
+          <li><a href="mcp.html">MCP</a></li>
+          <li><a href="skills.html">Vještine</a></li>
+          <li><a href="experts.html">Persone</a></li>
+          <li><a href="tools.html">Alati</a></li>
+          <li><a href="product.html">Proizvod</a></li>
+          <li><a href="news.html">Novosti</a></li>
+          <li><a href="index-en.html">English</a></li>
         </ul>
       </div>
       <div>
@@ -568,6 +578,8 @@ receipt = D0.verify_evidence(env, <span class="g">"fs_write"</span>, result)
           <li><a href="pricing.html#licence">Licenca (Apache-2.0 / Enterprise)</a></li>
           <li><a href="contact.html#uslovi">Uslovi korištenja</a></li>
           <li><a href="contact.html#privatnost">Privatnost</a></li>
+          <li><a href="legal.html">Pravni centar</a></li>
+          <li><a href="privacy.html">Privacy policy</a></li>
           <li><a href="robots.txt">robots.txt</a></li>
         </ul>
       </div>

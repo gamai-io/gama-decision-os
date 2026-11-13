@@ -248,6 +248,7 @@
       <a href="decision-os.html">Decision OS</a>
       <a href="sigil.html">SIGIL</a>
       <a href="gamacode.html" aria-current="page">GAMACODE</a>
+      <a href="benchmarks.html">Benchmark</a>
       <a href="gamacode.html#docs">Docs</a>
       <a href="pricing.html">Pricing</a>
       <a href="verify.html">Verify</a>
@@ -305,27 +306,73 @@
     </div>
   </section>
 
+  <section id="alati" class="anchor">
+    <div class="wrap">
+      <div class="shead">
+        <div class="kicker">Alati i MCP</div>
+        <h2>Katalog koji harness koristi</h2>
+        <p class="sub">Live katalog (11.11.2026) navodi 178 alata; harness 1.2.2 ima 294 alata i 1.172 testa (code-bench 6/6 u ~16 s). Stariji broj ostaje zabilježen radi poređenja — nijedan alat nije izgubljen prelaskom na 1.2.2.</p>
+      </div>
+      <div class="grid3">
+        <div class="panel reveal"><h3>Generatori — 396</h3><p>42 grupe · 252 alata · BS/EN prekidač: kod, istraživanje sa citatima, prevod, sažimanje, ugovori, predračun sa PDV-om, OCR, PDF, slika, audio, video, 3D (Blender, FreeCAD).</p></div>
+        <div class="panel reveal"><h3>Klijentski alati — 50+</h3><p>Rade u browseru bez servera: lozinke, SHA-256, Base64, JSON, brojač riječi, konverteri, PDV 17%, kredit, BMI, UUID, CSV, QR, regex, subnet, TTS, Markdown.</p></div>
+        <div class="panel reveal"><h3>AI alati — 22</h3><p>Na jednom mjestu: kalkulator, web pretraga, vještine, provjera, kod, istraga, duboka istraga, Python sandbox (30 s) i Skill Audit (sigurnosni sken <code>SKILL.md</code>).</p></div>
+        <div class="panel reveal"><h3>MCP alati</h3><p><code>search_skills</code> (1.000), <code>make_page</code>, <code>ocr</code>, <code>to_pdf</code>, <code>make_qr</code>, <code>text_to_speech</code>, <code>run_python</code>, <code>merge_pdfs</code>. Zavisnost: <code>pip install mcp</code> (Python 3.10+).</p></div>
+        <div class="panel reveal"><h3>Integracije</h3><p>OpenCode, Claude Code, Codex, Gemini CLI, Qwen Code, Crush, Goose, Cursor, Windsurf, Cline, Continue, Zed i generički MCP.</p></div>
+        <div class="panel reveal"><h3>Vještine i persone</h3><p>992 open-source vještine (<code>gamai-skills</code>) i 364 persone. Katalog vještina prikazuje 1.000; svaka se izvršava na GPU radniku.</p></div>
+      </div>
+      <div class="panel reveal" style="margin-top:16px">
+        <h3>Puni live katalog (imena)</h3>
+        <p class="small"><b>Server alati:</b> Kalkulator · Web pretraga · Vještine · Provjera · Kod · Istraga · Generiši kod · Istraži (izvori) · Duboka istraga · Prevod · Sažmi tekst · Gramatika · Poslovni email · Opis proizvoda · Napravi CV · Objava za mreže · Blog članak · Reklamni tekst · Prepiši tekst · Ideje · Ugovor / NDA · Motivaciono pismo · Formalni dopis · Email potpis · Predračun · Izvještaj · Checklista · Pravna napomena · OCR · OCR dokument · OCR tabela · Prevod dokumenta · Doc → PDF · PDF alati · Spoji PDF · Doc konverzija · Uredi sliku · Magick · SVG → PNG · Upscale · Ukloni pozadinu · QR kod · Tekst → slika · Tekst → govor · Audio → tekst · Audio edit · Spoji audio · Video obrada · Video edit · Tekst → video · Python sandbox · Blender 3D · FreeCAD · Skill Audit · gamAI MCP · Experts · Ured &amp; dokumenti · Slika paket · Audio paket · Video paket · Dev &amp; 3D paket · Svi AI alati.</p>
+        <p class="small" style="margin-top:10px"><b>Klijentski alati:</b> Generator lozinki · SHA-256 hash · Base64 encode/decode · JSON formatter · Brojač riječi · Velika/mala slova · Konverter jedinica · Boja → HEX/RGB · Lorem ipsum · PDV kalkulator (17%) · Kredit kalkulator · BMI kalkulator · Postotak · Razlika datuma · Kocka / novčić · UUID generator · Slug generator · CSV → tabela · Slika → Base64 · Broj → riječima (bs) · Štoperica · Morse kod · MD5-lite / DJB2 · URL encode/decode · HEX / Binarno · ROT13 / Caesar · Sortiraj / ukloni duplikate · Regex tester · Subnet kalkulator · Govor (browser TTS) · Kompresuj sliku · Odbrojavanje · ASCII / Unicode kodovi · Markdown preview.</p>
+      </div>
+      <div class="split" style="margin-top:16px">
+        <div class="panel reveal">
+          <h3>Instalacija MCP-a</h3>
+          <div class="code">pip install mcp
+curl -sL https://gamai.io/mcp/gamai_mcp.py -o gamai_mcp.py
+
+<span class="c"># Claude Code</span>
+claude mcp add gamai -- python /putanja/gamai_mcp.py</div>
+        </div>
+        <div class="panel reveal">
+          <h3>OpenCode / Cursor config</h3>
+          <div class="code"><span class="c"># ~/.config/opencode/opencode.jsonc</span>
+{ <span class="b">"mcp"</span>: { <span class="b">"gamai"</span>: {
+  <span class="b">"type"</span>: <span class="g">"local"</span>,
+  <span class="b">"command"</span>: [<span class="g">"python"</span>, <span class="g">"gamai_mcp.py"</span>],
+  <span class="b">"enabled"</span>: true } } }
+
+<span class="c"># .cursor/mcp.json</span>
+{ <span class="b">"mcpServers"</span>: { <span class="b">"gamai"</span>: {
+  <span class="b">"command"</span>: <span class="g">"python"</span>,
+  <span class="b">"args"</span>: [<span class="g">"/putanja/gamai_mcp.py"</span>] } } }</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
   <section id="flota" class="anchor">
     <div class="wrap">
       <div class="shead">
         <div class="kicker">Flota</div>
-        <h2>Jedan interfejs, više izvršnih ciljeva</h2>
-        <p class="sub">Ista komanda radi na Linuxu i Windowsu. Izvršni cilj se bira po riziku, a ne po unaprijed zakovanom hostu.</p>
+        <h2>Šest čvorova, jedan interfejs</h2>
+        <p class="sub">Ista komanda radi na Linuxu i Windowsu. Uloge su operativne — mijenjaju se po potrebi, ne po ugovoru.</p>
       </div>
       <div class="tw reveal">
         <table class="bench">
-          <thead><tr><th>Cilj</th><th>Platforma</th><th>Uloga</th><th>Status</th></tr></thead>
+          <thead><tr><th>Čvor</th><th>Platforma</th><th>Uloga u floti</th><th>Provjereno</th></tr></thead>
           <tbody>
-            <tr><td><b>Shell / CI</b></td><td>Linux</td><td>determinističke komande, testovi, build</td><td><span class="badge2 ok">podržano</span></td></tr>
-            <tr><td><b>GUI sesija</b></td><td>Windows / Linux</td><td>aplikacije bez API-ja, uz potvrdu operatera</td><td><span class="badge2 ok">podržano</span></td></tr>
-            <tr><td><b>Sandbox</b></td><td>Linux</td><td>izolovano izvršavanje nepouzdanog koda</td><td><span class="badge2 ok">podržano</span></td></tr>
-            <tr><td><b>GPU burst</b></td><td>Linux</td><td>povremeni trening i evaluacija</td><td><span class="badge2 ok">opciono</span></td></tr>
-            <tr><td><b>Batch / HPC</b></td><td>Linux</td><td>dugi poslovi, dataset i kalibracija</td><td><span class="badge2 ok">opciono</span></td></tr>
-            <tr><td><b>Edge</b></td><td>Linux</td><td>lokalni gateway i provjera dokaza</td><td><span class="badge2 ok">opciono</span></td></tr>
+            <tr><td><b>Oracle</b></td><td>Linux</td><td>izvršni čvor, HC, gateway za LUMI batch</td><td><span class="badge2 ok">aktivan</span></td></tr>
+            <tr><td><b>Contabo</b></td><td>Linux</td><td>primarni harness :7125, javni sajt, baza znanja</td><td><span class="badge2 ok">aktivan</span></td></tr>
+            <tr><td><b>linux3</b></td><td>Linux</td><td>browser automatizacija i GUI sesije</td><td><span class="badge2 ok">aktivan</span></td></tr>
+            <tr><td><b>dispečer</b></td><td>Windows</td><td>korisnikov ekran, GUI/HC akcije uz pitanje</td><td><span class="badge2 ok">aktivan</span></td></tr>
+            <tr><td><b>gama-lab-fra</b></td><td>Linux (Vultr)</td><td>laboratorij, testovi, izolovani eksperimenti</td><td><span class="badge2 ok">aktivan</span></td></tr>
+            <tr><td><b>Crusoe</b></td><td>Linux (GPU/CPU)</td><td>povremeni burst za trening i evaluaciju</td><td><span class="badge2 ok">aktivan</span></td></tr>
           </tbody>
         </table>
       </div>
-      <p class="note">Izvršni cilj se bira po riziku i dostupnosti; ako cilj ne odgovori, akcija se odbija ili eskalira, nikad se ne izvršava „naslijepo".</p>
+      <p class="note">Stanje flote se provjerava komandom <code>gama who</code>; čvor koji ne odgovori se preskače, a zadnji fallback je Contabo. Broj „6" je broj čvorova u produkcijskoj floti u trenutku pisanja (13.11.2026).</p>
     </div>
   </section>
 
@@ -351,7 +398,7 @@
         <div class="panel reveal"><h3>Firecracker</h3><p>Pun boot <b>1.846 s</b>, snapshot restore <b>2.28 ms</b>. Mikro-VM u lab mreži preko <code>fctap0</code>; bez NAT-a na hostu.</p></div>
         <div class="panel reveal"><h3>gVisor</h3><p>Sentry presreće syscall-e; sporiji je i do 13× na mikro-benchu, ali drastično smanjuje blast radius za nepoznat kod.</p></div>
       </div>
-      <p class="note">Mjerenja: test lab (10 vCPU / 33 GB / GTX 1660S), 2026-10-31. Apsolutni brojevi zavise od kernela i hardvera; odnos je ono što je stabilno.</p>
+      <p class="note">Mjerenja: vmlab (10 vCPU / 33 GB / GTX 1660S), 2026-10-31. Apsolutni brojevi zavise od kernela i hardvera; odnos je ono što je stabilno.</p>
     </div>
   </section>
 
@@ -530,9 +577,18 @@ brain_flag(<span class="g">"pdv-bih"</span>, <span class="g">"stale"</span>)</di
         <h4>Resursi</h4>
         <ul>
           <li><a href="gamacode.html#docs">Dokumentacija</a></li>
+          <li><a href="benchmarks.html">Benchmark i open source</a></li>
           <li><a href="verify.html">Verifikacija dokaza</a></li>
           <li><a href="pricing.html">Cijene</a></li>
           <li><a href="contact.html">Kontakt</a></li>
+          <li><a href="docs.html">Docs (tehnički)</a></li>
+          <li><a href="mcp.html">MCP</a></li>
+          <li><a href="skills.html">Vještine</a></li>
+          <li><a href="experts.html">Persone</a></li>
+          <li><a href="tools.html">Alati</a></li>
+          <li><a href="product.html">Proizvod</a></li>
+          <li><a href="news.html">Novosti</a></li>
+          <li><a href="index-en.html">English</a></li>
         </ul>
       </div>
       <div>
@@ -541,6 +597,8 @@ brain_flag(<span class="g">"pdv-bih"</span>, <span class="g">"stale"</span>)</di
           <li><a href="pricing.html#licence">Licenca (Apache-2.0 / Enterprise)</a></li>
           <li><a href="contact.html#uslovi">Uslovi korištenja</a></li>
           <li><a href="contact.html#privatnost">Privatnost</a></li>
+          <li><a href="legal.html">Pravni centar</a></li>
+          <li><a href="privacy.html">Privacy policy</a></li>
           <li><a href="robots.txt">robots.txt</a></li>
         </ul>
       </div>

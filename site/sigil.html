@@ -248,6 +248,7 @@
       <a href="decision-os.html">Decision OS</a>
       <a href="sigil.html" aria-current="page">SIGIL</a>
       <a href="gamacode.html">GAMACODE</a>
+      <a href="benchmarks.html">Benchmark</a>
       <a href="gamacode.html#docs">Docs</a>
       <a href="pricing.html">Pricing</a>
       <a href="verify.html">Verify</a>
@@ -271,16 +272,102 @@
         hash-lancem; kada je ključ konfigurisan, receipt je potpisan <b>Ed25519</b> ključem. Treća strana
         može provjeriti dokaz bez pristupa vašoj bazi i bez vjerovanja nama.
       </p>
+      <p class="lede">
+        Isti lanac pokriva cijeli ekosistem: <b>992 vještine</b>, <b>364 persone</b>, katalog alata,
+        GAMACODE i MCP. U produkcijskom testu <b>1.000 receipta</b> prošlo je verifikaciju hash-lanca
+        sa <b>0 grešaka</b>.
+      </p>
       <div class="chips">
         <span class="chip live">Ed25519 potpisi</span>
         <span class="chip">SHA-256 hash-lanac</span>
         <span class="chip">GTL ledger</span>
         <span class="chip">replay + idempotency</span>
-        <span class="chip">EU AI Act čl. 12 / 14 / 15</span>
+        <span class="chip">1.000 receipta · 0 grešaka</span>
+        <span class="chip">992 vještine</span>
+        <span class="chip">364 persone</span>
+        <span class="chip">EU AI Act čl. 12 / 14 / 15 / 19 / 26 / 72</span>
       </div>
       <div class="cta">
         <a class="btn primary" href="verify.html">Provjeri dokaz</a>
         <a class="btn ghost" href="gamacode.html#docs">Tehnička dokumentacija</a>
+      </div>
+    </div>
+  </section>
+
+  <section id="ekosistem" class="anchor">
+    <div class="wrap">
+      <div class="shead">
+        <div class="kicker">Ekosistem</div>
+        <h2>SIGIL nije samo receipt — to je sloj ispod alata, vještina i personi</h2>
+        <p class="sub">Brojevi sa live kataloga (11.11.2026) i iz harnessa 1.2.2. Ono što je live navodilo kao 178 alata, u 1.2.2 je naraslo na 294 — stariji broj ostaje zabilježen radi poređenja.</p>
+      </div>
+      <div class="grid3">
+        <div class="panel reveal">
+          <h3>992 vještine</h3>
+          <p>Open-source agent skills biblioteka (<code>gamai-skills</code>). Katalog prikazuje 1.000 vještina, a svaka se stvarno izvršava na našem GPU radniku — probaj prije kupovine. Tu su i kategorije i Skill Market.</p>
+          <p class="small"><a href="https://github.com/gamai-io/gamai-skills">github.com/gamai-io/gamai-skills ↗</a></p>
+        </div>
+        <div class="panel reveal">
+          <h3>364 persone</h3>
+          <p>AI radnici za domene: trgovina, pravo, zdravstvo, inženjering i drugo. Svaki ima svoje znanje, pravila i alate, i može se probati na naslovnoj.</p>
+          <p class="small">Persone koriste isti SIGIL lanac i isti evidence gate kao i ostali agenti.</p>
+        </div>
+        <div class="panel reveal">
+          <h3>Alati — 396 generatora</h3>
+          <p>42 grupe · 252 alata · BS/EN prekidač. Uz to 50+ klijentskih alata koji rade bez servera i 22 AI alata na jednom mjestu (OCR, PDF, TTS, video, Python sandbox, Blender, FreeCAD).</p>
+          <p class="small"><a href="gamacode.html#alati">Katalog alata →</a></p>
+        </div>
+        <div class="panel reveal">
+          <h3>MCP server</h3>
+          <p><code>gamai_mcp.py</code> daje Claude Code / Cursor / Codex / OpenCode direktan pristup: <code>search_skills</code> (1.000), <code>make_page</code>, <code>ocr</code>, <code>to_pdf</code>, <code>make_qr</code>, <code>text_to_speech</code>, <code>run_python</code> (30 s), <code>merge_pdfs</code>. Bez API ključa (javni gamai.io).</p>
+          <p class="small"><a href="gamacode.html#docs">MCP konfiguracija →</a></p>
+        </div>
+        <div class="panel reveal">
+          <h3>GAMACODE harness</h3>
+          <p>Harness 1.2.2: <b>294 alata</b>, 47 slash komandi, 1.172 testa, code-bench 6/6 u ~16 s. Live katalog (11.11.2026) navodi 178 alata; novi broj je 294.</p>
+          <p class="small"><a href="gamacode.html">GAMACODE →</a></p>
+        </div>
+        <div class="panel reveal">
+          <h3>Open source — 30+</h3>
+          <p>SIGIL, sigil-tenant, crossnode-bench, gamai-trust, gama-sandbox, gamai-guard, gnp-trust, polymorph, gama-fastpath, dsc, gama-lang, agentmujo i drugi. DOI gdje postoji.</p>
+          <p class="small"><a href="benchmarks.html#opensource">Repozitoriji i DOI →</a></p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section id="dokazi-sigil" class="anchor">
+    <div class="wrap">
+      <div class="shead">
+        <div class="kicker">Dokaz u brojevima</div>
+        <h2>Receipti, honest fleet i lažni „done"</h2>
+        <p class="sub">Svaki broj ima izvor: LUMI job, CrossNode-Bench ili naš harness. Puni kontekst je na <a href="benchmarks.html">Benchmark</a> stranici.</p>
+      </div>
+      <div class="tw reveal">
+        <table class="bench">
+          <thead><tr><th>Mjerenje</th><th>Rezultat</th><th>Izvor / uslov</th></tr></thead>
+          <tbody>
+            <tr><td>SIGIL receipti u produkciji</td><td class="num win">1.000 · lanac validan · 0 grešaka</td><td>gate/verify/anchor end-to-end; svaki receipt nosi Ed25519 potpis kada je ključ postavljen</td></tr>
+            <tr><td>LUMI false-success</td><td class="num win">25.600 proba · 6,25% uhvaćeno</td><td>LUMI-G, 8 nodova; p50 2,4 ms / p95 10,8 ms; job 23394156 (01.11.2026)</td></tr>
+            <tr><td>CrossNode honest fleet</td><td class="num win">25.600 / 25.600 prošlo · 0 false-success</td><td>honest run, p50 64,8 ms</td></tr>
+            <tr><td>CrossNode liar run</td><td class="num win">400 / 400 uhvaćeno</td><td>28.800 proba, p50 171 ms; Zenodo DOI 10.5281/zenodo.24092188</td></tr>
+            <tr><td>Firecracker izolacija</td><td class="num win">5,8 ms fork · 1,846 s boot · 2,286 ms restore</td><td>vsock exec ~11 ms; mikroVM po agentu</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+
+  <section id="multi-tenant" class="anchor">
+    <div class="wrap">
+      <div class="shead">
+        <div class="kicker">Multi-tenant</div>
+        <h2>Jedan trust sloj, odvojen lanac po klijentu</h2>
+      </div>
+      <div class="grid3">
+        <div class="panel reveal"><h3>Odvojen lanac</h3><p>Svaki klijent dobija svoj gate/verify/anchor lanac; receipti jednog klijenta ne ulaze u lanac drugog.</p></div>
+        <div class="panel reveal"><h3>API ključ i metering</h3><p>Ključ je vezan za tenant; potrošnja se mjeri po akciji i izvršenju, bez miješanja faktura.</p></div>
+        <div class="panel reveal"><h3>AI Act trag</h3><p>Append-only, hash-lanac, 180 dana zadržavanja po defaultu i izvoz dokaza za auditora.</p></div>
       </div>
     </div>
   </section>
@@ -382,6 +469,24 @@ receipt #1            receipt #2                     receipt #3
               <td>Kalibrisana pouzdanost, deterministički deny, sandbox izolacija, potpisani dokazi.</td>
               <td><span class="badge2 mid">djelimično</span></td>
             </tr>
+            <tr>
+              <td><b>čl. 19</b><br><span class="small">Logs</span></td>
+              <td>Automatski generisani logovi se čuvaju onoliko koliko je propisano; moraju biti čitljivi i dostupni.</td>
+              <td>Retention po konfiguraciji klijenta, 180 dana po defaultu; export i čitljiv zapis po receiptu.</td>
+              <td><span class="badge2 ok">tehnički pokriveno</span></td>
+            </tr>
+            <tr>
+              <td><b>čl. 26</b><br><span class="small">Deployer duties</span></td>
+              <td>Dužnosti operatora: ljudski nadzor, stop kontrole i izvoz incidenata.</td>
+              <td>Human-oversight hooks, stop kontrole i incident export; SEND/IRREVERSIBLE traže approval.</td>
+              <td><span class="badge2 ok">tehnički pokriveno</span></td>
+            </tr>
+            <tr>
+              <td><b>čl. 72</b><br><span class="small">Post-market monitoring</span></td>
+              <td>Kontinuirano praćenje rada sistema i dostava podataka za nadzor.</td>
+              <td>Exportable monitoring podaci iz receipta i evidence gate-a; analiza ostaje na deployeru.</td>
+              <td><span class="badge2 mid">djelimično</span></td>
+            </tr>
           </tbody>
         </table>
       </div>
@@ -466,9 +571,18 @@ res = verify_sigil(receipt, result=result, public_key=pub)
         <h4>Resursi</h4>
         <ul>
           <li><a href="gamacode.html#docs">Dokumentacija</a></li>
+          <li><a href="benchmarks.html">Benchmark i open source</a></li>
           <li><a href="verify.html">Verifikacija dokaza</a></li>
           <li><a href="pricing.html">Cijene</a></li>
           <li><a href="contact.html">Kontakt</a></li>
+          <li><a href="docs.html">Docs (tehnički)</a></li>
+          <li><a href="mcp.html">MCP</a></li>
+          <li><a href="skills.html">Vještine</a></li>
+          <li><a href="experts.html">Persone</a></li>
+          <li><a href="tools.html">Alati</a></li>
+          <li><a href="product.html">Proizvod</a></li>
+          <li><a href="news.html">Novosti</a></li>
+          <li><a href="index-en.html">English</a></li>
         </ul>
       </div>
       <div>
@@ -477,6 +591,8 @@ res = verify_sigil(receipt, result=result, public_key=pub)
           <li><a href="pricing.html#licence">Licenca (Apache-2.0 / Enterprise)</a></li>
           <li><a href="contact.html#uslovi">Uslovi korištenja</a></li>
           <li><a href="contact.html#privatnost">Privatnost</a></li>
+          <li><a href="legal.html">Pravni centar</a></li>
+          <li><a href="privacy.html">Privacy policy</a></li>
           <li><a href="robots.txt">robots.txt</a></li>
         </ul>
       </div>

@@ -10,6 +10,9 @@ GAMA Decision OS sits between your agent and its tools. It answers three questio
 
 The core is licensed **Apache-2.0**. Enterprise capabilities are licensed separately; see [Open-core](#open-core).
 
+- Website: https://gamai.io
+- Contact: info@gamai.io
+
 ---
 
 ## Three gates
@@ -84,6 +87,7 @@ The enterprise license template is in [`LICENSE-ENTERPRISE.md`](LICENSE-ENTERPRI
 - [`docs/GAMA_DECISION_OS_MANIFESTO.md`](docs/GAMA_DECISION_OS_MANIFESTO.md) — design principles.
 - [`docs/SITE_ARCHITECTURE.md`](docs/SITE_ARCHITECTURE.md) — public site and information architecture.
 - [`docs/BENCHMARK.md`](docs/BENCHMARK.md) — reproducible benchmark notes and caveats.
+- [`docs/BENCHMARK_COMPETITIVE.md`](docs/BENCHMARK_COMPETITIVE.md) — competitive benchmark vs agent control-plane / guardrails / observability market (2026-11-13).
 
 ## License
 
