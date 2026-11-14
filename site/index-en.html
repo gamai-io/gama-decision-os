@@ -1,0 +1,678 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>GAMA Decision OS — trust layer for AI agents</title>
+<meta name="description" content="Decide before action, execute in isolation and return signed evidence. L0 under 3 ms, Ed25519 receipts, 294 tools, EU AI Act.">
+
+<meta name="color-scheme" content="dark">
+<meta name="theme-color" content="#080c11">
+<link rel="canonical" href="https://decision-os.gamai.io/index-en.html">
+<link rel="alternate" hreflang="bs" href="https://decision-os.gamai.io/index.html">
+<link rel="alternate" hreflang="en" href="https://decision-os.gamai.io/index-en.html">
+<link rel="alternate" hreflang="x-default" href="https://decision-os.gamai.io/index.html">
+<meta property="og:title" content="GAMA Decision OS — trust layer for AI agents">
+<meta property="og:description" content="Decide before action, execute in isolation and return signed evidence. L0 under 3 ms, Ed25519 receipts, 294 tools, EU AI Act.">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://decision-os.gamai.io/index-en.html">
+<meta property="og:site_name" content="GAMA Decision OS">
+<meta property="og:image" content="https://decision-os.gamai.io/og-image.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="GAMA Decision OS — Decide before action. Prove after.">
+<meta property="og:locale" content="en_US">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="GAMA Decision OS — trust layer for AI agents">
+<meta name="twitter:description" content="Decide before action, execute in isolation and return signed evidence. L0 under 3 ms, Ed25519 receipts, 294 tools, EU AI Act.">
+<meta name="twitter:image" content="https://decision-os.gamai.io/og-image.png">
+<meta name="twitter:image:alt" content="GAMA Decision OS — Decide before action. Prove after.">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%23080c11'/%3E%3Cpath d='M20 44V20h11c7 0 11 4 11 12s-4 12-11 12H20z' fill='none' stroke='%234f8cff' stroke-width='4'/%3E%3Ccircle cx='46' cy='20' r='3' fill='%23f2b45f'/%3E%3C/svg%3E">
+<script>document.documentElement.className+=" js";</script>
+<style>
+  :root{
+    --bg:#080c11; --bg2:#0a111a; --panel:#0e1621; --panel2:#111c2a;
+    --line:#1b2838; --line2:#2b3e56;
+    --txt:#e9f0f8; --mut:#a5b5c9; --dim:#7c8da3;
+    --acc:#4f8cff; --acc-ink:#07101f; --acc2:#38bdf8; --link:#9dbdff;
+    --ok:#39d98a; --gold:#f2b45f; --warn:#f6c453; --bad:#fb7185;
+    --r:16px; --max:1200px; --text:72ch;
+    --mono:ui-monospace,SFMono-Regular,Menlo,Consolas,"Liberation Mono",monospace;
+    --sans:system-ui,-apple-system,"Segoe UI",Roboto,Inter,Arial,sans-serif;
+  }
+  *{box-sizing:border-box}
+  html{scroll-behavior:smooth}
+  body{margin:0;background:var(--bg);color:var(--txt);font-family:var(--sans);
+       font-size:16.5px;line-height:1.7;-webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility}
+  a{color:inherit;text-decoration:none}
+  p a,li a,td a,.note a,.prose a{color:var(--link);text-decoration:underline;text-underline-offset:3px;text-decoration-thickness:1px}
+  p a:hover,li a:hover,td a:hover,.note a:hover,.prose a:hover{color:#c3d6ff}
+  img,svg{max-width:100%}
+  ::selection{background:rgba(79,140,255,.35);color:#fff}
+  .wrap{max-width:var(--max);margin:0 auto;padding:0 24px}
+  .skip{position:absolute;left:-9999px;top:0;background:var(--acc);color:var(--acc-ink);padding:10px 14px;border-radius:0 0 8px 0;z-index:200;font-weight:700}
+  .skip:focus{left:0}
+  a:focus-visible,button:focus-visible,summary:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-visible{
+    outline:3px solid #a9c6ff;outline-offset:2px;border-radius:6px}
+  .visually-hidden{position:absolute!important;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap;border:0}
+  .anchor,[id]{scroll-margin-top:88px}
+
+  /* ---------- header / nav ---------- */
+  header{position:sticky;top:0;z-index:80;background:rgba(8,12,17,.86);backdrop-filter:blur(16px);border-bottom:1px solid var(--line)}
+  .nav{display:flex;align-items:center;gap:22px;min-height:68px}
+  .brand{display:flex;align-items:center;gap:11px;font-weight:700;letter-spacing:-.2px;white-space:nowrap;flex:0 0 auto}
+  .brand .mark{width:30px;height:30px;flex:0 0 30px}
+  .brand span{display:block;line-height:1.15;white-space:nowrap}
+  .brand small{display:block;font-size:10px;font-weight:500;color:var(--mut);letter-spacing:.14em;text-transform:uppercase;line-height:1.3;margin-top:2px}
+  .navlinks{display:flex;align-items:center;gap:19px;margin-left:auto;font-size:14px;color:var(--mut)}
+  .navlinks a{padding:7px 0;border-bottom:2px solid transparent;transition:color .18s,border-color .18s;white-space:nowrap}
+  .navlinks a:hover{color:var(--txt);border-color:var(--acc)}
+  .navlinks a[aria-current="page"]{color:var(--txt);border-color:var(--acc)}
+  .navtools{display:flex;align-items:center;gap:10px;margin-left:6px}
+  .langswitch{display:inline-flex;align-items:center;gap:6px;font:600 12px/1 var(--sans);color:var(--dim);border:1px solid var(--line);border-radius:999px;padding:6px 10px}
+  .langswitch a{padding:1px 2px;border-radius:4px;color:var(--mut)}
+  .langswitch a:hover{color:var(--txt)}
+  .langswitch a.active{color:var(--txt);background:rgba(79,140,255,.16)}
+  .btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;border:1px solid var(--line2);background:var(--panel);color:var(--txt);
+       padding:11px 17px;border-radius:11px;font:600 14px/1 var(--sans);cursor:pointer;transition:transform .16s,border-color .16s,box-shadow .16s,background .16s;white-space:nowrap}
+  .btn:hover{border-color:var(--acc);transform:translateY(-1px)}
+  .btn.primary{background:var(--acc);border-color:var(--acc);color:var(--acc-ink)}
+  .btn.primary:hover{background:#6ba0ff;box-shadow:0 10px 32px rgba(79,140,255,.28)}
+  .btn.ghost{background:transparent}
+  .btn.sm{padding:8px 12px;font-size:13px;border-radius:9px}
+  .btn[aria-disabled="true"]{opacity:.55;pointer-events:none}
+  .burger{display:none;background:transparent;border:1px solid var(--line2);color:var(--txt);border-radius:9px;padding:8px 10px;cursor:pointer;font-size:16px;line-height:1}
+  .mobile-cta{display:none}
+
+  /* ---------- hero ---------- */
+  .hero{position:relative;padding:92px 0 56px;overflow:hidden}
+  .hero:before{content:"";position:absolute;inset:-200px 0 auto 0;height:620px;pointer-events:none;
+    background:radial-gradient(55% 62% at 50% 0%,rgba(79,140,255,.20),transparent 72%),
+               radial-gradient(38% 44% at 84% 6%,rgba(56,189,248,.13),transparent 72%),
+               radial-gradient(30% 36% at 10% 12%,rgba(242,180,95,.08),transparent 72%)}
+  .hero .wrap{position:relative}
+  .pagehero{position:relative;padding:64px 0 12px;overflow:hidden}
+  .pagehero:before{content:"";position:absolute;inset:-180px 0 auto 0;height:460px;pointer-events:none;
+    background:radial-gradient(48% 60% at 26% 0%,rgba(79,140,255,.16),transparent 72%),
+               radial-gradient(32% 42% at 90% 0%,rgba(56,189,248,.10),transparent 72%)}
+  .pagehero .wrap{position:relative}
+  .eyebrow{display:inline-flex;align-items:center;gap:9px;font:700 11.5px/1 var(--sans);letter-spacing:.12em;text-transform:uppercase;color:#bcd0ff;
+    border:1px solid rgba(79,140,255,.4);background:rgba(79,140,255,.09);padding:8px 12px;border-radius:999px}
+  .eyebrow.gold{color:#ffd39a;border-color:rgba(242,180,95,.4);background:rgba(242,180,95,.08)}
+  .dot{width:7px;height:7px;border-radius:50%;background:var(--ok);box-shadow:0 0 0 4px rgba(57,217,138,.14);animation:pulse 2.6s infinite}
+  .eyebrow.gold .dot{background:var(--gold);box-shadow:0 0 0 4px rgba(242,180,95,.16)}
+  @keyframes pulse{50%{box-shadow:0 0 0 8px rgba(57,217,138,0)}}
+  h1{font-size:clamp(34px,5.2vw,56px);line-height:1.06;letter-spacing:-.035em;margin:22px 0 0;font-weight:760;max-width:940px}
+  .pagehero h1{font-size:clamp(32px,4.4vw,48px);max-width:880px}
+  h1 .grad{background:linear-gradient(92deg,var(--acc),var(--acc2));-webkit-background-clip:text;background-clip:text;color:transparent}
+  h1 .grad-gold{background:linear-gradient(92deg,var(--gold),#ffe0ad);-webkit-background-clip:text;background-clip:text;color:transparent}
+  .lede{font-size:clamp(16.5px,1.6vw,18.5px);color:var(--mut);max-width:var(--text);margin:20px 0 0}
+  .pagehero .lede{font-size:clamp(16px,1.5vw,17.5px);margin-top:16px}
+  .lede b{color:var(--txt);font-weight:650}
+  .cta{display:flex;flex-wrap:wrap;gap:12px;margin-top:30px}
+  .trust{display:flex;flex-wrap:wrap;gap:8px 22px;margin-top:28px;font-size:13px;color:var(--dim)}
+  .trust span{display:inline-flex;align-items:center;gap:7px}
+  .tick{color:var(--ok);font-weight:700}
+  .chips{display:flex;flex-wrap:wrap;gap:8px;margin-top:24px}
+  .chip{font:600 11.5px/1 var(--sans);color:var(--mut);border:1px solid var(--line);background:var(--panel);padding:8px 11px;border-radius:999px}
+  .chip.live{color:var(--ok);border-color:rgba(57,217,138,.34);background:rgba(57,217,138,.06)}
+  .chip.gold{color:var(--gold);border-color:rgba(242,180,95,.36);background:rgba(242,180,95,.06)}
+  .chip.warn{color:var(--warn);border-color:rgba(246,196,83,.34);background:rgba(246,196,83,.06)}
+
+  /* ---------- stats ---------- */
+  .stats{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin:52px 0 0}
+  .stat{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:20px 18px;transition:border-color .2s,transform .2s}
+  .stat:hover{border-color:var(--line2);transform:translateY(-2px)}
+  .stat .v{font:750 clamp(24px,2.6vw,32px)/1.05 var(--mono);letter-spacing:-.03em;color:var(--txt)}
+  .stat .v em{font-style:normal;color:var(--ok);font-size:.58em;margin-left:3px;font-family:var(--sans);font-weight:700}
+  .stat .v.gold{color:var(--gold)}
+  .stat .k{font-size:12.5px;color:var(--mut);margin-top:8px;line-height:1.5}
+  .stat .src{display:block;margin-top:9px;font:600 10px/1.3 var(--sans);letter-spacing:.07em;text-transform:uppercase;color:var(--dim)}
+
+  /* ---------- sections ---------- */
+  section{padding:96px 0;border-top:1px solid var(--line)}
+  main > section:first-child{border-top:0}
+  section.tight{padding:72px 0}
+  .shead{max-width:840px}
+  .kicker{display:inline-flex;align-items:center;gap:8px;font:700 11.5px/1 var(--sans);letter-spacing:.16em;text-transform:uppercase;color:var(--acc)}
+  .kicker.gold{color:var(--gold)}
+  .kicker:before{content:"";width:18px;height:2px;background:currentColor;border-radius:2px}
+  h2{font-size:clamp(28px,3.6vw,36px);line-height:1.12;letter-spacing:-.03em;margin:14px 0 0;font-weight:740}
+  h3{letter-spacing:-.01em;font-size:20px;line-height:1.3}
+  .sub{color:var(--mut);font-size:16.5px;margin:14px 0 0;max-width:var(--text)}
+  .note{font-size:12.5px;color:var(--dim);margin-top:14px;max-width:var(--text);line-height:1.65}
+  .prose{max-width:var(--text)}
+  .prose h2{margin-top:0}
+  .prose h3{font-size:20px;margin:32px 0 8px}
+  .prose p{color:var(--mut);font-size:16px;margin:12px 0}
+  .prose ul,.prose ol{color:var(--mut);font-size:16px;padding-left:22px}
+  .prose li{margin:7px 0}
+
+  /* ---------- cards / grids ---------- */
+  .grid2,.grid3,.grid4{display:grid;gap:24px;margin-top:38px}
+  .grid2{grid-template-columns:repeat(2,1fr)}
+  .grid3{grid-template-columns:repeat(3,1fr)}
+  .grid4{grid-template-columns:repeat(4,1fr)}
+  .card{display:flex;flex-direction:column;background:var(--panel);border:1px solid var(--line);border-radius:var(--r);padding:26px;transition:border-color .2s,transform .2s,box-shadow .2s}
+  .card:hover{border-color:var(--line2);transform:translateY(-3px);box-shadow:0 18px 44px rgba(0,0,0,.28)}
+  .card h3{margin:0 0 8px}
+  .card p{color:var(--mut);font-size:14.5px;margin:0}
+  .card p+p{margin-top:12px}
+  .more{display:inline-block;margin-top:14px;font:650 13px/1 var(--sans);color:var(--link)}
+  .more:hover{text-decoration:underline;text-underline-offset:3px}
+  .card .more{margin-top:auto;padding-top:16px}
+  .small{font-size:12px;color:var(--dim)}
+  .pillar{position:relative;display:flex;flex-direction:column;overflow:hidden;background:var(--panel);border:1px solid var(--line);border-radius:var(--r);padding:26px 24px;transition:border-color .2s,transform .2s}
+  .pillar:hover{border-color:var(--line2);transform:translateY(-3px)}
+  .pillar:after{content:"";position:absolute;inset:0 0 auto 0;height:2px;background:var(--acc);opacity:.45}
+  .pillar.gold:after{background:var(--gold);opacity:.55}
+  .pillar .no{font:700 11px/1 var(--mono);color:var(--acc);letter-spacing:.1em}
+  .pillar.gold .no{color:var(--gold)}
+  .pillar h3{font-size:18px;margin:12px 0 8px}
+  .pillar p{color:var(--mut);font-size:14px;margin:0}
+  .pillar ul{margin:16px 0 0;padding:0;list-style:none;font-size:13px;color:var(--mut)}
+  .pillar li{padding:7px 0 7px 18px;position:relative;border-top:1px dashed var(--line)}
+  .pillar li:before{content:"›";position:absolute;left:2px;color:var(--acc);font-weight:700}
+  .pillar.gold li:before{color:var(--gold)}
+  .pillar .more{margin-top:auto;padding-top:14px;font:600 12.5px/1 var(--sans);color:var(--link)}
+  .panel{background:var(--panel);border:1px solid var(--line);border-radius:var(--r);padding:26px}
+  .panel h3{margin:0 0 10px;font-size:18px}
+  .panel p{margin:0;color:var(--mut);font-size:14.5px}
+  .panel .code{margin-top:16px}
+
+  /* ---------- 3-step diagram ---------- */
+  .howto{display:grid;grid-template-columns:repeat(3,1fr);gap:24px;margin-top:40px;counter-reset:how}
+  .howstep{position:relative;background:var(--panel);border:1px solid var(--line);border-radius:var(--r);padding:28px 24px}
+  .howstep:not(:last-child):after{content:"";position:absolute;top:44px;right:-24px;width:24px;height:2px;background:var(--line2)}
+  .howstep .num{width:38px;height:38px;border-radius:50%;display:grid;place-items:center;font:700 14px/1 var(--mono);color:var(--acc-ink);background:var(--acc);box-shadow:0 0 0 6px rgba(79,140,255,.12)}
+  .howstep h3{margin:18px 0 8px;font-size:18px}
+  .howstep p{margin:0;color:var(--mut);font-size:14px}
+  .howstep .tagrow{margin-top:14px;display:flex;flex-wrap:wrap;gap:6px}
+
+  /* ---------- table ---------- */
+  .tw{overflow:auto;max-height:78vh;border:1px solid var(--line);border-radius:14px;margin-top:30px;background:var(--bg2)}
+  .bench{width:100%;border-collapse:separate;border-spacing:0;font-size:14.5px;min-width:640px}
+  .bench th,.bench td{padding:14px 14px;text-align:left;border-bottom:1px solid var(--line);vertical-align:top}
+  .bench tr:last-child td{border-bottom:0}
+  .bench thead th{position:sticky;top:0;z-index:2;font:700 11px/1.35 var(--sans);letter-spacing:.1em;text-transform:uppercase;color:var(--mut);background:var(--panel2)}
+  .bench tbody tr:nth-child(even) td{background:rgba(255,255,255,.022)}
+  .bench tbody tr:hover td{background:rgba(79,140,255,.07)}
+  .bench td.num{font-family:var(--mono);font-size:13.5px;white-space:nowrap}
+  .bench .win{color:var(--ok);font-weight:700}
+  .bench .gold{color:var(--gold);font-weight:700}
+  .bench .small{font-size:12px;color:var(--dim)}
+
+  /* ---------- callouts / badges ---------- */
+  .callout{border-left:3px solid var(--acc);background:rgba(79,140,255,.07);padding:16px 18px;border-radius:0 12px 12px 0;color:var(--mut);font-size:14.5px;margin:26px 0;max-width:var(--text)}
+  .callout.info{border-color:var(--acc);background:rgba(79,140,255,.07)}
+  .callout.warn{border-color:var(--warn);background:rgba(246,196,83,.07)}
+  .callout.bad{border-color:var(--bad);background:rgba(251,113,133,.07)}
+  .callout.gold{border-color:var(--gold);background:rgba(242,180,95,.07)}
+  .callout b{color:var(--txt)}
+  .badge2{display:inline-block;font:700 10px/1 var(--sans);letter-spacing:.1em;text-transform:uppercase;padding:5px 8px;border-radius:6px;border:1px solid}
+  .badge2.ok{color:var(--ok);border-color:rgba(57,217,138,.36);background:rgba(57,217,138,.07)}
+  .badge2.mid{color:var(--warn);border-color:rgba(246,196,83,.36);background:rgba(246,196,83,.07)}
+  .badge2.no{color:var(--bad);border-color:rgba(251,113,133,.36);background:rgba(251,113,133,.07)}
+  .badge2.blue{color:var(--acc2);border-color:rgba(56,189,248,.36);background:rgba(56,189,248,.07)}
+  .badge2.gold{color:var(--gold);border-color:rgba(242,180,95,.4);background:rgba(242,180,95,.07)}
+
+  /* ---------- code / diagram ---------- */
+  .code{margin-top:16px;background:#060a0f;border:1px solid var(--line);border-radius:12px;padding:14px 15px;font:12.5px/1.7 var(--mono);color:#b9cde2;overflow:auto}
+  .code .c{color:var(--dim)} .code .g{color:var(--ok)} .code .b{color:var(--acc2)} .code .w{color:var(--warn)} .code .k{color:#c8a2ff}
+  .diagram{margin-top:34px;background:var(--panel);border:1px solid var(--line);border-radius:var(--r);padding:24px 20px;overflow:auto;text-align:center}
+  .diagram pre{display:inline-block;text-align:left;margin:0;font:12.5px/1.6 var(--mono);color:#a9c0d8}
+  .diagram .a{color:var(--ok)} .diagram .b{color:var(--acc2)} .diagram .d{color:var(--dim)} .diagram .w{color:var(--warn)}
+  code{font-family:var(--mono);font-size:.9em;background:#0a121c;border:1px solid var(--line);border-radius:6px;padding:1px 5px;color:#b9cde2}
+  .code code{background:none;border:0;padding:0;color:inherit}
+
+  /* ---------- steps ---------- */
+  .steps{display:grid;gap:14px;margin-top:32px}
+  .step{display:grid;grid-template-columns:56px 1fr;gap:18px;background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:20px 22px}
+  .step .n{font:700 13px/1 var(--mono);color:var(--acc);padding-top:4px}
+  .step h3{margin:0 0 6px;font-size:17px}
+  .step p{margin:0;color:var(--mut);font-size:14.5px}
+  .step .code{margin-top:12px}
+
+  /* ---------- FAQ ---------- */
+  .faq{margin-top:36px;display:grid;gap:12px;max-width:900px}
+  .faq details{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:4px 20px;transition:border-color .2s}
+  .faq details[open]{border-color:var(--line2);background:var(--panel2)}
+  .faq summary{cursor:pointer;list-style:none;display:flex;align-items:center;justify-content:space-between;gap:16px;padding:17px 0;font:650 16px/1.4 var(--sans);color:var(--txt)}
+  .faq summary::-webkit-details-marker{display:none}
+  .faq summary:after{content:"+";flex:0 0 auto;font:400 22px/1 var(--sans);color:var(--acc);transition:transform .2s}
+  .faq details[open] summary:after{transform:rotate(45deg)}
+  .faq details p{margin:0 0 18px;color:var(--mut);font-size:15px;max-width:var(--text)}
+
+  /* ---------- split / ticklist ---------- */
+  .split{display:grid;grid-template-columns:1fr 1fr;gap:24px;margin-top:32px}
+  .ticklist{list-style:none;margin:16px 0 0;padding:0;font-size:14.5px;color:var(--mut)}
+  .ticklist li{padding:9px 0 9px 24px;position:relative;border-top:1px dashed var(--line)}
+  .ticklist li:first-child{border-top:0}
+  .ticklist li:before{content:"✓";position:absolute;left:0;color:var(--ok);font-weight:700}
+  .ticklist li.x:before{content:"✕";color:var(--bad)}
+
+  /* ---------- pricing ---------- */
+  .pricing{display:grid;grid-template-columns:repeat(3,1fr);gap:20px;margin-top:40px;align-items:stretch}
+  .tier{display:flex;flex-direction:column;background:var(--panel);border:1px solid var(--line);border-radius:18px;padding:28px 24px;position:relative}
+  .tier.hot{border-color:rgba(79,140,255,.55);background:var(--panel2)}
+  .tier .badge{position:absolute;top:-11px;left:24px;background:var(--acc);color:var(--acc-ink);font:700 10px/1 var(--sans);letter-spacing:.1em;text-transform:uppercase;padding:6px 10px;border-radius:999px}
+  .tier h3{font-size:19px;margin:0}
+  .tier .desc{font-size:13.5px;color:var(--mut);margin:8px 0 0;min-height:42px}
+  .price{font:750 40px/1 var(--sans);letter-spacing:-.035em;margin:20px 0 2px}
+  .price small{font:500 13px/1.3 var(--sans);color:var(--mut);letter-spacing:0}
+  .price-note{font-size:12.5px;color:var(--dim);min-height:18px}
+  .tier ul{list-style:none;margin:20px 0 24px;padding:0;font-size:13.5px;color:var(--mut);flex:1}
+  .tier li{padding:8px 0 8px 20px;position:relative}
+  .tier li:before{content:"✓";position:absolute;left:0;color:var(--ok);font-weight:700}
+  .tier li.off{opacity:.45} .tier li.off:before{content:"—";color:var(--dim)}
+  .tier .btn{width:100%}
+
+  /* ---------- contact ---------- */
+  .contact{display:grid;grid-template-columns:1.12fr .88fr;gap:24px;margin-top:38px}
+  .field{margin-bottom:14px}
+  label{display:block;font-size:12.5px;color:var(--mut);margin-bottom:6px;font-weight:600}
+  input,select,textarea{width:100%;background:#070c12;border:1px solid var(--line2);border-radius:10px;color:var(--txt);padding:12px 13px;font:14.5px/1.45 var(--sans);outline:none;transition:border-color .15s,box-shadow .15s}
+  input:focus,select:focus,textarea:focus{border-color:var(--acc);box-shadow:0 0 0 3px rgba(79,140,255,.14)}
+  textarea{resize:vertical;min-height:110px}
+  .form-grid{display:grid;grid-template-columns:1fr 1fr;gap:0 16px}
+  .formmsg{font-size:12.5px;margin-top:12px;min-height:20px;color:var(--dim)}
+  .result{margin-top:18px;border:1px solid var(--line);border-radius:12px;background:#060a0f;padding:16px;
+    font:12.5px/1.7 var(--mono);white-space:pre-wrap;word-break:break-word;color:#b9cde2;display:none}
+  .result.show{display:block}
+  .result .ok{color:var(--ok)} .result .er{color:var(--bad)} .result .wn{color:var(--warn)} .result .dm{color:var(--dim)}
+  .contactlist{list-style:none;margin:0;padding:0;font-size:14.5px;color:var(--mut)}
+  .contactlist li{padding:12px 0;border-top:1px solid var(--line);display:flex;gap:12px;align-items:flex-start}
+  .contactlist li:first-child{border-top:0;padding-top:0}
+  .contactlist b{color:var(--txt);display:block;font-size:13.5px}
+  .contactlist .ic{color:var(--acc);font-family:var(--mono);font-size:11px;padding-top:2px;min-width:30px}
+
+  /* ---------- CTA band ---------- */
+  .cta-band{display:flex;flex-wrap:wrap;gap:20px;align-items:center;justify-content:space-between;
+    background:var(--panel);border:1px solid rgba(79,140,255,.32);border-radius:18px;padding:30px;margin-top:48px}
+  .cta-band.gold{background:var(--panel);border-color:rgba(242,180,95,.32)}
+  .cta-band h3{margin:0;font-size:21px}
+  .cta-band p{margin:6px 0 0;color:var(--mut);font-size:14.5px;max-width:660px}
+  .cta-band .cta{margin:0}
+
+  /* ---------- breadcrumb ---------- */
+  .crumb{display:flex;flex-wrap:wrap;gap:8px;align-items:center;font:600 11px/1 var(--sans);letter-spacing:.14em;text-transform:uppercase;color:var(--dim)}
+  .crumb a{color:var(--mut)}
+  .crumb a:hover{color:var(--acc)}
+  .crumb span[aria-current]{color:var(--mut)}
+
+  /* ---------- footer ---------- */
+  footer{border-top:1px solid var(--line);padding:56px 0 48px;color:var(--dim);font-size:12.5px;background:var(--bg2)}
+  .footgrid{display:grid;grid-template-columns:2fr 1fr 1fr 1fr 1.2fr;gap:30px}
+  .footgrid h4{font:700 11px/1 var(--sans);letter-spacing:.14em;text-transform:uppercase;color:var(--mut);margin:0 0 14px}
+  .footgrid ul{list-style:none;margin:0;padding:0;display:grid;gap:9px;font-size:13px}
+  .footgrid a{color:var(--dim);text-decoration:none}
+  footer .footgrid a:hover{text-decoration:underline;text-underline-offset:3px}
+  .footgrid a:hover{color:var(--txt)}
+  .footbrand{display:flex;align-items:center;gap:10px;font-weight:700;color:var(--txt);margin-bottom:14px;font-size:15px}
+  .footbrand svg{width:28px;height:28px}
+  .footpitch{margin:0;max-width:330px;line-height:1.65}
+  .fineprint{margin-top:32px;padding-top:22px;border-top:1px solid var(--line);max-width:1000px;line-height:1.7}
+
+  /* ---------- motion ---------- */
+  .js .reveal{opacity:0;transform:translateY(14px);transition:opacity .45s ease,transform .45s ease}
+  .js .reveal.in{opacity:1;transform:none}
+  .js .reveal.in.noanim{transition:none}
+  @media (prefers-reduced-motion:reduce){
+    html{scroll-behavior:auto}
+    *{animation:none!important;transition:none!important}
+    .reveal{opacity:1!important;transform:none!important}
+  }
+  @media print{.reveal{opacity:1!important;transform:none!important}.navlinks,.navtools,.burger{display:none!important}}
+
+  /* ---------- responsive ---------- */
+  @media (max-width:1120px){
+    .stats{grid-template-columns:repeat(3,1fr)}
+    .grid4{grid-template-columns:repeat(2,1fr)}
+    .footgrid{grid-template-columns:1.6fr 1fr 1fr;row-gap:34px}
+    .footgrid>div:nth-child(4){grid-column:1}
+  }
+  @media (max-width:900px){
+    .grid3{grid-template-columns:1fr 1fr}
+    .howto{grid-template-columns:1fr;gap:16px}
+    .howstep:not(:last-child):after{display:none}
+    .pricing{grid-template-columns:1fr}
+    .contact{grid-template-columns:1fr}
+    .split{grid-template-columns:1fr}
+    .stats{grid-template-columns:1fr 1fr}
+  }
+  @media (max-width:1240px){
+    .nav{gap:12px}
+    .navlinks{display:none;position:absolute;left:0;right:0;top:68px;background:var(--bg2);border-bottom:1px solid var(--line);
+      flex-direction:column;align-items:stretch;gap:0;padding:10px 24px 18px;box-shadow:0 24px 40px rgba(0,0,0,.4)}
+    .navlinks.open{display:flex}
+    .navlinks a{padding:13px 0;border-bottom:1px solid var(--line);border-left:0;border-right:0;border-top:0}
+    .navlinks a[aria-current="page"]{border-bottom-color:var(--acc)}
+    .mobile-cta{display:block;color:var(--acc)!important;font-weight:700}
+    .navtools{margin-left:auto}
+    .navtools .btn{display:none}
+    .burger{display:block}
+  }
+  @media (max-width:840px){
+    .hero{padding:64px 0 40px}
+    .pagehero{padding:44px 0 8px}
+    section{padding:72px 0}
+    .grid3,.grid2,.grid4{grid-template-columns:1fr}
+    .form-grid{grid-template-columns:1fr}
+  }
+  @media (max-width:520px){
+    .stats{grid-template-columns:1fr}
+    .footgrid{grid-template-columns:1fr 1fr}
+    .footgrid>div:first-child{grid-column:1/-1}
+    .brand small{display:none}
+    .cta-band{padding:24px}
+    .wrap{padding:0 18px}
+  }
+</style>
+<script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":"Organization","name":"GAMA","url":"https://decision-os.gamai.io","logo":"https://decision-os.gamai.io/og-image.png","description":"Trust layer for AI agents: decide before action, execute in isolation, prove after.","sameAs":["https://github.com/gamai-io"]},{"@type":"Product","name":"GAMA Decision OS","description":"Pre-action decision, isolated execution and signed evidence for AI agents.","brand":{"@type":"Brand","name":"GAMA"},"url":"https://decision-os.gamai.io/","offers":[{"@type":"Offer","name":"Community","price":"0","priceCurrency":"EUR"},{"@type":"Offer","name":"Pro","price":"299","priceCurrency":"EUR"},{"@type":"Offer","name":"Enterprise","price":"24000","priceCurrency":"EUR"}]},{"@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Does GAMA replace our agent?","acceptedAnswer":{"@type":"Answer","text":"No. Decision OS is middleware between the agent and the tools: it adds a decision before the action and evidence after it. The agent stays yours — OpenCode, Claude, LangGraph or your own loop."}},{"@type":"Question","name":"How fast is the decision?","acceptedAnswer":{"@type":"Answer","text":"The L0 decision is p50 2.31 ms on a full decide_request (n=500), and the deterministic core is 0.30 ms (n=2000). There is no extra LLM call on that path."}},{"@type":"Question","name":"Do we need a cloud?","acceptedAnswer":{"@type":"Answer","text":"No. The core runs locally and supports air-gapped installs. Cloud is not required for the decision, receipt or verification; hosted SIGIL is an optional layer."}},{"@type":"Question","name":"What exactly does a signed receipt prove?","acceptedAnswer":{"@type":"Answer","text":"It proves the tool returned exactly that result at that moment and that the result is bound to the decision that allowed it. With an Ed25519 key it also proves who issued it."}},{"@type":"Question","name":"Is Community really free?","acceptedAnswer":{"@type":"Answer","text":"Yes, Apache-2.0, with no telemetry and no expiry. Pro and Enterprise add the production build, evidence export, SSO, ERP connectors and SLA."}},{"@type":"Question","name":"How do we start?","acceptedAnswer":{"@type":"Answer","text":"The first step is one Python call or the harness /health. For production we recommend a 30-minute demo with your scenario, tools and evidence."}}]}]}</script>
+</head>
+<body>
+<a class="skip" href="#main">Skip to content</a>
+<header>
+  <div class="wrap nav">
+    <a class="brand" href="index-en.html" aria-label="GAMA Decision OS — home">
+      <svg class="mark" viewBox="0 0 64 64" fill="none" aria-hidden="true" focusable="false">
+        <rect width="64" height="64" rx="14" fill="#0b1220"/>
+        <path d="M20 44V20h11c7 0 11 4 11 12s-4 12-11 12H20z" fill="rgba(79,140,255,.16)" stroke="#4f8cff" stroke-width="5" stroke-linejoin="round"/>
+        <circle cx="46" cy="20" r="3" fill="#f2b45f"/>
+      </svg>
+      <span>GAMA Decision OS<small>Agent Control Plane</small></span>
+    </a>
+    <nav class="navlinks" id="navlinks" aria-label="Main navigation">
+      <a href="decision-os-en.html">Decision OS</a>
+      <a href="sigil-en.html">SIGIL</a>
+      <a href="gamacode.html">GAMACODE</a>
+      <a href="benchmarks.html">Benchmarks</a>
+      <a href="gamacode.html#docs">Documentation</a>
+      <a href="pricing-en.html">Pricing</a>
+      <a href="verify.html">Verify</a>
+      <a href="contact.html">Contact</a>
+      <a class="mobile-cta" href="contact.html#demo">Request a demo</a>
+    </nav>
+    <div class="navtools">
+      <div class="langswitch" role="group" aria-label="Language">
+        <a href="index.html" class="" lang="bs" hreflang="bs">BS</a><span aria-hidden="true">/</span><a href="index-en.html" class="active" aria-current="true" lang="en" hreflang="en">EN</a>
+      </div>
+      <a class="btn primary sm" href="contact.html#demo">Request a demo</a>
+      <button class="burger" id="burger" type="button" aria-label="Menu" aria-expanded="false" aria-controls="navlinks">&#9776;</button>
+    </div>
+  </div>
+</header>
+<main id="main">
+
+  <section class="hero" id="top">
+    <div class="wrap">
+      <span class="eyebrow"><span class="dot"></span>v1.2.2 · Apache-2.0 core · production build</span>
+      <h1>Build AI agents you can <span class="grad">actually trust</span> — without blind faith.</h1>
+      <p class="lede">
+        GAMA Decision OS decides <b>before</b> an action, executes it in isolation, and returns <b>signed evidence</b>
+        a third party can verify. It works with OpenCode, Claude, LangGraph and your own agent — without replacing it.
+      </p>
+      <p class="lede" style="margin-top:14px">
+        Five steps in every action: <b>intent → approval → execution → signed receipt → anchor</b>.
+        Plus the <a href="gamacode.html">GAMACODE harness</a>, <a href="skills.html">992 skills</a>,
+        <a href="experts.html">364 personas</a>, an <a href="mcp.html">MCP server</a> and
+        <a href="benchmarks.html#opensource">30+ open-source repositories</a>.
+      </p>
+      <div class="cta">
+        <a class="btn primary" href="contact.html#demo">Request a demo</a>
+        <a class="btn ghost" href="gamacode.html#docs">Documentation</a>
+        <a class="btn ghost" href="verify.html">Verify evidence</a>
+      </div>
+      <div class="chips" style="margin-top:26px">
+        <span class="chip live">1 · Intent</span>
+        <span class="chip">2 · Approval</span>
+        <span class="chip">3 · Execution</span>
+        <span class="chip">4 · Signed receipt</span>
+        <span class="chip gold">5 · Anchor</span>
+      </div>
+      <div class="trust">
+        <span><b class="tick">✓</b> Apache-2.0 core</span>
+        <span><b class="tick">✓</b> Ed25519 signatures (optional)</span>
+        <span><b class="tick">✓</b> air-gapped install</span>
+        <span><b class="tick">✓</b> no telemetry in the core</span>
+        <span><b class="tick">✓</b> BiH / EU</span>
+      </div>
+      <div class="stats">
+        <div class="stat"><div class="v">0.035<em>ECE</em></div><div class="k">calibration after temperature scaling (T=0.2)</div><span class="src">held-out n=240 · LUMI</span></div>
+        <div class="stat"><div class="v">2.31<em>ms</em></div><div class="k">L0 decision p50; deterministic core 0.30 ms</div><span class="src">n=500 / n=2000</span></div>
+        <div class="stat"><div class="v">−86.2<em>%</em></div><div class="k">prompt tokens: 544,470 → 75,113</div><span class="src">deferred tools benchmark</span></div>
+        <div class="stat"><div class="v">0</div><div class="k">false “done” on SWE-lite 10/10 with independent pytest</div><span class="src">evidence gate · measured</span></div>
+      </div>
+    </div>
+  </section>
+
+  <section id="problem">
+    <div class="wrap">
+      <div class="shead">
+        <div class="kicker">The problem</div>
+        <h2>Agent stacks usually have no answer to three questions</h2>
+        <p class="sub">Agents no longer just suggest — they execute: SQL calls, email sends, state changes, invoices. Every action carries risk that must be resolved before the effect.</p>
+      </div>
+      <div class="grid3">
+        <article class="card reveal"><span class="badge2 mid">Question 1</span><h3 style="margin-top:14px">Should this run at all?</h3><p>Risk, intent and expected evidence must be known before the tool call — not after. The model saying “ok” is not approval.</p></article>
+        <article class="card reveal"><span class="badge2 mid">Question 2</span><h3 style="margin-top:14px">Where does it execute?</h3><p>Blast radius is chosen by risk: container, gVisor or micro-VM. Untrusted code never runs bare.</p></article>
+        <article class="card reveal"><span class="badge2 mid">Question 3</span><h3 style="margin-top:14px">How do we know it succeeded?</h3><p>Not from the model’s <code>ok:true</code>, but from independent verification and a signed receipt bound to the decision.</p></article>
+      </div>
+    </div>
+  </section>
+
+  <section id="how">
+    <div class="wrap">
+      <div class="shead">
+        <div class="kicker">How it works</div>
+        <h2>Three gates, none skipped</h2>
+      </div>
+      <div class="howto">
+        <div class="howstep reveal"><div class="num" aria-hidden="true">1</div><h3>Decide before the tool</h3><p>A deterministic precheck and calibrated classifier map the action to a tier: READ, DRAFT, SEND or IRREVERSIBLE. The decision carries an <code>expected_evidence_spec</code>.</p><div class="tagrow"><span class="chip live">p50 2.31 ms</span><span class="chip">no LLM call</span></div></div>
+        <div class="howstep reveal"><div class="num" aria-hidden="true">2</div><h3>Execute inside a boundary</h3><p>The sandbox is chosen by risk. SEND and IRREVERSIBLE require an explicit command or human approval; destructive commands are blocked even when the model says “ok”.</p><div class="tagrow"><span class="chip">runc</span><span class="chip">gVisor</span><span class="chip gold">Firecracker</span></div></div>
+        <div class="howstep reveal"><div class="num" aria-hidden="true">3</div><h3>Prove the effect</h3><p>The result is checked against the pre-recorded evidence. The receipt carries SHA-256, a link to the decision and a hash chain; with a key it gets an Ed25519 signature.</p><div class="tagrow"><span class="chip live">1,000 receipts · 0 errors</span></div></div>
+      </div>
+    </div>
+  </section>
+
+  <section id="pillars">
+    <div class="wrap">
+      <div class="shead"><div class="kicker">Four pillars</div><h2>One system, four layers</h2><p class="sub">Each pillar answers one question and can be used on its own; together they close the loop from decision to evidence.</p></div>
+      <div class="grid4">
+        <article class="pillar reveal"><div class="no">01 / DECISION OS</div><h3>Decide before action</h3><p>Deterministic precheck and calibrated classifier reduce every action to one of four tiers, with expected evidence.</p><ul><li>L0 decision under 3 ms</li><li>READ / DRAFT / SEND / IRREVERSIBLE</li><li>expected_evidence_spec</li><li>3-Gate closed loop</li></ul><a class="more" href="decision-os-en.html">Learn more →</a></article>
+        <article class="pillar gold reveal"><div class="no">02 / SIGIL</div><h3>Evidence, not claims</h3><p>Every tool call gets a receipt: SHA-256 of the content, a hash chain and, when configured, an Ed25519 signature.</p><ul><li>Ed25519 signatures with a key</li><li>SHA-256 hash chain</li><li>GTL ledger and replay</li><li>EU AI Act Art. 12 / 14 / 15</li></ul><a class="more" href="sigil-en.html">Learn more →</a></article>
+        <article class="pillar reveal"><div class="no">03 / GAMACODE</div><h3>An agent with hands</h3><p>Harness 1.2.2: 294 tools, a 6-node fleet, risk-based sandboxing and OpenCode/MCP integration.</p><ul><li>294 tools, 47 slash commands</li><li>runc / gVisor / Firecracker</li><li>streaming and upload</li><li>open-core + enterprise</li></ul><a class="more" href="gamacode.html">Learn more →</a></article>
+        <article class="pillar reveal"><div class="no">04 / BRAIN</div><h3>Shared memory</h3><p>Agents do not start from zero: verified facts and lessons go into a shared brain with hybrid search.</p><ul><li>brain_search / brain_write</li><li>FTS + vector (RRF fusion)</li><li>scope: global / user / room</li><li>provenance and stale flags</li></ul><a class="more" href="gamacode.html#brain">Learn more →</a></article>
+      </div>
+    </div>
+  </section>
+
+  <section id="ecosystem">
+    <div class="wrap">
+      <div class="shead"><div class="kicker">Ecosystem</div><h2>What already works — tools, skills, personas, MCP</h2><p class="sub">Figures come from the live catalogue (11 Nov 2026) and harness 1.2.2; the older number stays on record for comparison.</p></div>
+      <div class="grid3">
+        <article class="card reveal"><h3>GAMACODE harness</h3><p><b>294 tools</b> in 1.2.2 (live catalogue lists 178), 1,172 tests, verification, approvals, sandboxing and a 6-node fleet.</p><a class="more" href="gamacode.html">GAMACODE →</a></article>
+        <article class="card reveal"><h3>Tools — 396 generators</h3><p>42 groups · 252 tools · BS/EN switch, plus 50+ client-side tools and 22 AI tools in one place.</p><a class="more" href="tools.html">Tool catalogue →</a></article>
+        <article class="card reveal"><h3>Skills — 992</h3><p>Open-source agent skills library (<code>gamai-skills</code>). A 1,000-skill catalogue; each one runs on our GPU worker.</p><a class="more" href="skills.html">Skills →</a></article>
+        <article class="card reveal"><h3>Experts — 364 personas</h3><p>AI workers for domains: trade, legal, health, engineering. Each has its own knowledge, rules and tools.</p><a class="more" href="experts.html">Personas →</a></article>
+        <article class="card reveal"><h3>MCP server</h3><p>Model Context Protocol server: <code>search_skills</code>, <code>make_page</code>, OCR, PDF, QR, TTS, Python sandbox and skill audit.</p><a class="more" href="mcp.html">MCP →</a></article>
+        <article class="card reveal"><h3>Open source — 30+</h3><p>SIGIL, sigil-tenant, crossnode-bench, gamai-trust, gama-sandbox, gamai-guard, agentmujo, mandate, proofgate… on <code>github.com/gamai-io</code>.</p><a class="more" href="benchmarks.html#opensource">Repositories →</a></article>
+      </div>
+    </div>
+  </section>
+
+  <section id="metrics">
+    <div class="wrap">
+      <div class="shead"><div class="kicker">Metrics</div><h2>Numbers with a date, condition and source</h2><p class="sub">We do not publish “success” without measurement. Each row has a source and the conditions under which it was reproduced.</p></div>
+      <div class="tw reveal">
+        <table class="bench">
+          <thead><tr><th>Metric</th><th>Result</th><th>Measurement condition</th><th>Status</th></tr></thead>
+          <tbody>
+            <tr><td>L0 decision, p50</td><td class="num win">2.31 ms</td><td>full decide_request, n=500, 1 ms speculative budget</td><td><span class="badge2 ok">measured</span></td></tr>
+            <tr><td>L0 deterministic core, p50</td><td class="num win">0.30 ms</td><td>no network speculative call, n=2000</td><td><span class="badge2 ok">measured</span></td></tr>
+            <tr><td>Calibration (ECE)</td><td class="num win">0.0347</td><td>T=0.2, held-out n=240, accuracy 1.0</td><td><span class="badge2 mid">limitation</span></td></tr>
+            <tr><td>Evidence: false “done”</td><td class="num win">0</td><td>SWE-lite 10 tasks, independent pytest, pristine tests/</td><td><span class="badge2 ok">measured</span></td></tr>
+            <tr><td>Prompt reduction</td><td class="num win">−86.2%</td><td>544,470 → 75,113 tokens, 405 → 34–66 schemas</td><td><span class="badge2 ok">benchmark</span></td></tr>
+            <tr><td>Firecracker restore</td><td class="num win">2.28 ms</td><td>pre-warm + mmap snapshot restore</td><td><span class="badge2 ok">measured</span></td></tr>
+            <tr><td>LUMI false-success</td><td class="num win">25,600 probes</td><td>8 nodes; 6.25% fabricated claims flagged; p50 2.4 ms / p95 10.8 ms</td><td><span class="badge2 ok">measured</span><span class="small"> job 23394156</span></td></tr>
+            <tr><td>CrossNode liar run</td><td class="num win">400 / 400</td><td>28,800 probes, p50 171 ms; Zenodo DOI 10.5281/zenodo.24092188</td><td><span class="badge2 ok">measured</span></td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p class="note">Measurements were taken on our machines and on LUMI (EuroHPC). Your numbers depend on hardware, model and network. ECE 0.035 is real on the held-out split, but the set is degenerate (accuracy 1.0) — see <a href="decision-os-en.html#calibration">Decision OS</a>.</p>
+    </div>
+  </section>
+
+  <section id="who">
+    <div class="wrap">
+      <div class="shead"><div class="kicker">Who it is for</div><h2>Three niches, the same trust problem</h2></div>
+      <div class="grid3">
+        <article class="card reveal"><span class="badge2 blue">Niche 1</span><h3 style="margin-top:14px">Product teams with agents in production</h3><p>Your agent already calls tools and changes state. You need a gate that blocks risky actions before the effect and a receipt support can verify.</p><a class="more" href="decision-os-en.html">Decision OS →</a></article>
+        <article class="card reveal"><span class="badge2 gold">Niche 2</span><h3 style="margin-top:14px">Regulated firms and ERP distributors</h3><p>Banks, insurers, public sector: you need an EU AI Act audit trail, evidence export and retention without cloud lock-in.</p><a class="more" href="sigil-en.html#aiact">EU AI Act mapping →</a></article>
+        <article class="card reveal"><span class="badge2 ok">Niche 3</span><h3 style="margin-top:14px">Researchers and open-source teams</h3><p>You want reproducible benchmarks, sandboxing without Docker and memory that does not repeat the same mistake. The core is Apache-2.0.</p><a class="more" href="benchmarks.html">Benchmarks →</a></article>
+      </div>
+    </div>
+  </section>
+
+  <section id="research">
+    <div class="wrap">
+      <div class="shead"><div class="kicker">Research</div><h2>Our results, reproducible from the gamai-io GitHub org</h2><p class="sub">Measurements on LUMI, the CrossNode fleet and the harness. Full list, DOI and repositories are on the <a href="benchmarks.html#istrazivanje">Benchmarks</a> page.</p></div>
+      <div class="grid3">
+        <article class="card reveal"><h3>LUMI false-success</h3><p>25,600 probes on 8 nodes; the gate caught <b>6.25%</b> fabricated claims. Verification p50 2.4 ms / p95 10.8 ms (job 23394156).</p></article>
+        <article class="card reveal"><h3>CrossNode-Bench</h3><p>25,600 honest (0 lies) + 28,800 liar probes; <b>400/400</b> caught on the injected node. Zenodo DOI <span class="small">10.5281/zenodo.24092188</span>.</p></article>
+        <article class="card reveal"><h3>Determinism</h3><p>LUMI vLLM is not bit-deterministic at temp=0 (ROCm kernels): 660/700 identical with TP=4, 669/700 with TP=1.</p></article>
+      </div>
+      <p class="note">Other findings: prompt-injection ASR 100% → 0–3.3%; adapters did not beat the base model (negative result); CUA v23 49.0%; AgentMujo-Bench v0.6 (49 cases, 16 categories); dataset v0.4.0 (4,496 rows); GAMA 11/15 vs opencode 12/12 on the hard tier; General-30 30/30 @ p50 6.218 s; 216 workers ≈ 96% throughput.</p>
+    </div>
+  </section>
+
+  <section id="faq">
+    <div class="wrap">
+      <div class="shead"><div class="kicker">FAQ</div><h2>Six questions we hear most</h2><p class="sub">Short answers; deeper context is on the product pages.</p></div>
+      <div class="faq">
+<details class="reveal"><summary>Does GAMA replace our agent?</summary><p>No. Decision OS is middleware between the agent and the tools: it adds a decision before the action and evidence after it. The agent stays yours — OpenCode, Claude, LangGraph or your own loop.</p></details>
+<details class="reveal"><summary>How fast is the decision?</summary><p>The L0 decision is p50 2.31 ms on a full <code>decide_request</code> (n=500), and the deterministic core is 0.30 ms (n=2000). There is no extra LLM call on that path.</p></details>
+<details class="reveal"><summary>Do we need a cloud?</summary><p>No. The core runs locally and supports air-gapped installs. Cloud is not required for the decision, receipt or verification; hosted SIGIL is an optional layer.</p></details>
+<details class="reveal"><summary>What exactly does a signed receipt prove?</summary><p>It proves the tool returned exactly that result at that moment and that the result is bound to the decision that allowed it. With an Ed25519 key it also proves <i>who</i> issued it.</p></details>
+<details class="reveal"><summary>Is Community really free?</summary><p>Yes, Apache-2.0, with no telemetry and no expiry. Pro and Enterprise add the production build, evidence export, SSO, ERP connectors and SLA.</p></details>
+<details class="reveal"><summary>How do we start?</summary><p>The first step is one Python call or the harness <code>/health</code>. For production we recommend a 30-minute demo with your scenario, tools and evidence.</p></details>
+      </div>
+    </div>
+  </section>
+
+  <section id="pricing-short">
+    <div class="wrap">
+      <div class="shead"><div class="kicker">Pricing</div><h2>The core is free. You pay for control and support.</h2><p class="sub">Pricing is per node, not per seat — a node is the unit that executes actions and produces evidence.</p></div>
+      <div class="grid3">
+        <article class="card reveal"><h3>Community — €0</h3><p>Apache-2.0 core, 1 node, unlimited local runs, no telemetry.</p><a class="more" href="pricing-en.html">Details →</a></article>
+        <article class="card reveal"><h3>Pro — €299 / node / mo.</h3><p>Production build, unlimited agents, evidence export, 2 connectors, email support.</p><a class="more" href="pricing-en.html">Details →</a></article>
+        <article class="card reveal"><h3>Enterprise — from €24k / yr.</h3><p>Air-gapped, EU AI Act pack, SSO/SCIM, ERP connectors, 99.9% SLA, DPA.</p><a class="more" href="pricing-en.html">Details →</a></article>
+      </div>
+      <p class="note">All prices exclude VAT (BiH 17%). Fixed rate €1 = 1.95583 BAM. Annual Pro licenses: 2 months free.</p>
+    </div>
+  </section>
+
+  <section id="cta">
+    <div class="wrap">
+      <div class="cta-band reveal">
+        <div><h3>Ready to see a decision on your task?</h3><p>The demo takes 30 minutes: your scenario, your agent, our decision-and-evidence loop. No production install.</p></div>
+        <div class="cta"><a class="btn primary" href="contact.html#demo">Book a demo</a><a class="btn ghost" href="pricing-en.html">Pricing</a></div>
+      </div>
+    </div>
+  </section>
+
+</main>
+<footer>
+  <div class="wrap">
+    <div class="footgrid">
+      <div>
+        <div class="footbrand"><svg viewBox="0 0 64 64" fill="none" aria-hidden="true" focusable="false">
+            <rect width="64" height="64" rx="14" fill="#0b1220"/>
+            <path d="M20 44V20h11c7 0 11 4 11 12s-4 12-11 12H20z" fill="rgba(79,140,255,.16)" stroke="#4f8cff" stroke-width="5" stroke-linejoin="round"/>
+            <circle cx="46" cy="20" r="3" fill="#f2b45f"/>
+          </svg> GAMA</div>
+        <p class="footpitch">A trust layer for AI agents: decide before action, execute in isolation, and return evidence a third party can verify.</p>
+        <p style="margin:14px 0 0">© 2026 GAMA · Made in Bosnia</p>
+      </div>
+      <div>
+        <h4>Products</h4>
+        <ul>
+          <li><a href="decision-os-en.html">Decision OS</a></li>
+          <li><a href="sigil-en.html">SIGIL</a></li>
+          <li><a href="gamacode.html">GAMACODE</a></li>
+          <li><a href="gamacode.html#brain">BRAIN</a></li>
+          <li><a href="pricing-en.html">Pricing</a></li>
+        </ul>
+      </div>
+      <div>
+        <h4>Resources</h4>
+        <ul>
+          <li><a href="gamacode.html#docs">Documentation</a></li>
+          <li><a href="benchmarks.html">Benchmarks &amp; open source</a></li>
+          <li><a href="benchmarks.html#istrazivanje">Research</a></li>
+          <li><a href="verify.html">Evidence verification</a></li>
+          <li><a href="news.xml">RSS</a></li>
+          <li><a href="index-en.html">English</a></li>
+          <li><a href="index.html">Bosanski</a></li>
+        </ul>
+      </div>
+      <div>
+        <h4>Legacy pages</h4>
+        <ul>
+          <li><a href="docs.html">Documentation (legacy)</a></li>
+          <li><a href="mcp.html">MCP</a></li>
+          <li><a href="skills.html">Skills</a></li>
+          <li><a href="experts.html">Experts</a></li>
+          <li><a href="tools.html">Tools</a></li>
+          <li><a href="product.html">Product</a></li>
+          <li><a href="news.html">News</a></li>
+        </ul>
+      </div>
+      <div>
+        <h4>Legal</h4>
+        <ul>
+          <li><a href="pricing-en.html#licence">License (Apache-2.0 / Enterprise)</a></li>
+          <li><a href="contact.html#uslovi">Terms of use</a></li>
+          <li><a href="contact.html#privatnost">Privacy</a></li>
+          <li><a href="legal.html">Legal center</a></li>
+          <li><a href="privacy.html">Privacy policy</a></li>
+          <li><a href="robots.txt">robots.txt</a></li>
+        </ul>
+      </div>
+    </div>
+    <p class="fineprint">
+      © 2026 GAMA. GAMA Decision OS, SIGIL and GAMACODE are GAMA marks. Benchmark figures on this site are
+      internal results with stated dates and measurement conditions; where a measurement is not complete, the
+      value is marked as a target. Site content is not legal advice and does not replace an EU AI Act conformity assessment.
+    </p>
+  </div>
+</footer>
+<noscript><style>.reveal{opacity:1!important;transform:none!important}</style></noscript>
+<script>
+(function(){
+  var b=document.getElementById('burger'), n=document.getElementById('navlinks');
+  if(b&&n){
+    b.addEventListener('click',function(){
+      var o=n.classList.toggle('open');
+      b.setAttribute('aria-expanded',o?'true':'false');
+      b.textContent=o?'\u2715':'\u2630';
+    });
+    n.addEventListener('click',function(e){ if(e.target.tagName==='A'){ n.classList.remove('open'); b.setAttribute('aria-expanded','false'); b.textContent='\u2630'; } });
+  }
+  function revealAll(){ document.querySelectorAll('.reveal').forEach(function(el){ el.classList.add('in'); }); }
+  try{
+    var els=[].slice.call(document.querySelectorAll('.reveal'));
+    var vh=window.innerHeight||800;
+    els.forEach(function(el){ if(el.getBoundingClientRect().top < vh+40){ el.classList.add('in','noanim'); } });
+    if('IntersectionObserver' in window){
+      var io=new IntersectionObserver(function(es){
+        es.forEach(function(e){ if(e.isIntersecting){ e.target.classList.add('in'); io.unobserve(e.target); } });
+      },{rootMargin:'0px 0px -40px 0px',threshold:0.06});
+      els.forEach(function(el){ if(!el.classList.contains('in')) io.observe(el); });
+    } else { revealAll(); }
+  }catch(e){ revealAll(); }
+})();
+</script>
+
+</body>
+</html>

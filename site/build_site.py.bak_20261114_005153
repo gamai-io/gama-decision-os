@@ -1,0 +1,2508 @@
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+"""Generator za staticki sajt GAMA Decision OS (site/).
+
+Jedan izvor za CSS, navigaciju i footer; svaka stranica se generise kao
+samostalan .html sa inline CSS-om (bez eksternih CDN-ova).
+Pokretanje: python3 build_site.py
+"""
+from __future__ import annotations
+
+import os
+
+BASE = "https://decision-os.gamai.io"
+OUT = os.path.dirname(os.path.abspath(__file__))
+
+CSS = r"""
+  :root{
+    --bg:#080b10; --bg2:#0b1017; --panel:#0f1621; --panel2:#121b28;
+    --line:#1e2a3a; --line2:#2a3b52;
+    --txt:#e8eef6; --mut:#93a4b8; --dim:#5f7186;
+    --acc:#00d69a; --acc2:#38bdf8; --warn:#fbbf24; --bad:#fb7185;
+    --r:16px; --max:1180px;
+    --mono:ui-monospace,SFMono-Regular,Menlo,Consolas,"Liberation Mono",monospace;
+    --sans:system-ui,-apple-system,"Segoe UI",Roboto,Inter,Arial,sans-serif;
+  }
+  *{box-sizing:border-box}
+  html{scroll-behavior:smooth}
+  body{margin:0;background:var(--bg);color:var(--txt);font-family:var(--sans);line-height:1.6;-webkit-font-smoothing:antialiased}
+  a{color:inherit;text-decoration:none}
+  img,svg{max-width:100%}
+  .wrap{max-width:var(--max);margin:0 auto;padding:0 22px}
+  .skip{position:absolute;left:-9999px;top:0;background:var(--acc);color:#03130d;padding:10px 14px;border-radius:0 0 8px 0;z-index:100}
+  .skip:focus{left:0}
+  header{position:sticky;top:0;z-index:50;background:rgba(8,11,16,.82);backdrop-filter:blur(14px);border-bottom:1px solid var(--line)}
+  .nav{display:flex;align-items:center;gap:26px;height:66px}
+  .brand{display:flex;align-items:center;gap:11px;font-weight:700;letter-spacing:-.2px;white-space:nowrap}
+  .brand .mark{width:28px;height:28px;flex:0 0 28px}
+  .brand small{display:block;font-size:10px;font-weight:500;color:var(--mut);letter-spacing:.14em;text-transform:uppercase;line-height:1.2}
+  .navlinks{display:flex;gap:20px;margin-left:auto;font-size:14px;color:var(--mut)}
+  .navlinks a{padding:6px 0;border-bottom:1px solid transparent;transition:.2s}
+  .navlinks a:hover{color:var(--txt);border-color:var(--acc)}
+  .navlinks a[aria-current="page"]{color:var(--txt);border-color:var(--acc)}
+  .navtools{display:flex;align-items:center;gap:10px}
+  .btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;border:1px solid var(--line2);background:var(--panel);color:var(--txt);
+       padding:10px 16px;border-radius:10px;font:600 14px/1 var(--sans);cursor:pointer;transition:.18s;white-space:nowrap}
+  .btn:hover{border-color:var(--acc);transform:translateY(-1px)}
+  .btn.primary{background:var(--acc);border-color:var(--acc);color:#04140e}
+  .btn.primary:hover{box-shadow:0 8px 30px rgba(0,214,154,.22)}
+  .btn.ghost{background:transparent}
+  .btn.sm{padding:8px 12px;font-size:13px}
+  .btn[aria-disabled="true"]{opacity:.55;pointer-events:none}
+  .burger{display:none;background:transparent;border:1px solid var(--line2);color:var(--txt);border-radius:9px;padding:8px 10px;cursor:pointer}
+  main{overflow:hidden}
+  .hero{position:relative;padding:78px 0 46px}
+  .hero:before{content:"";position:absolute;inset:-180px 0 auto 0;height:560px;
+    background:radial-gradient(58% 62% at 50% 0%,rgba(0,214,154,.13),transparent 70%),radial-gradient(40% 40% at 82% 8%,rgba(56,189,248,.10),transparent 70%);
+    pointer-events:none}
+  .hero .wrap{position:relative}
+  .pagehero{position:relative;padding:60px 0 10px}
+  .pagehero:before{content:"";position:absolute;inset:-160px 0 auto 0;height:420px;
+    background:radial-gradient(52% 60% at 30% 0%,rgba(0,214,154,.10),transparent 70%),radial-gradient(34% 40% at 88% 0%,rgba(56,189,248,.08),transparent 70%);
+    pointer-events:none}
+  .pagehero .wrap{position:relative}
+  .crumb{display:flex;flex-wrap:wrap;gap:8px;align-items:center;font:600 11px/1 var(--sans);letter-spacing:.14em;text-transform:uppercase;color:var(--dim)}
+  .crumb a{color:var(--mut)}
+  .crumb a:hover{color:var(--acc)}
+  .eyebrow{display:inline-flex;align-items:center;gap:9px;font:600 12px/1 var(--sans);letter-spacing:.12em;text-transform:uppercase;color:var(--acc);
+    border:1px solid rgba(0,214,154,.32);background:rgba(0,214,154,.07);padding:8px 12px;border-radius:999px}
+  .dot{width:7px;height:7px;border-radius:50%;background:var(--acc);box-shadow:0 0 0 4px rgba(0,214,154,.12);animation:pulse 2.4s infinite}
+  @keyframes pulse{50%{box-shadow:0 0 0 8px rgba(0,214,154,0)}}
+  h1{font-size:clamp(38px,6.2vw,68px);line-height:1.02;letter-spacing:-.035em;margin:22px 0 0;font-weight:750;max-width:930px}
+  .pagehero h1{font-size:clamp(32px,4.8vw,54px);max-width:900px}
+  h1 .grad{background:linear-gradient(92deg,var(--acc),var(--acc2));-webkit-background-clip:text;background-clip:text;color:transparent}
+  .lede{font-size:clamp(16px,2vw,19.5px);color:var(--mut);max-width:780px;margin:20px 0 0}
+  .pagehero .lede{font-size:clamp(15.5px,1.7vw,18px);margin-top:16px}
+  .lede b{color:var(--txt);font-weight:600}
+  .cta{display:flex;flex-wrap:wrap;gap:12px;margin-top:30px}
+  .trust{display:flex;flex-wrap:wrap;gap:8px 20px;margin-top:26px;font-size:12.5px;color:var(--dim)}
+  .trust span{display:inline-flex;align-items:center;gap:7px}
+  .tick{color:var(--acc);font-weight:700}
+  .chips{display:flex;flex-wrap:wrap;gap:8px;margin-top:24px}
+  .chip{font:600 11.5px/1 var(--sans);color:var(--mut);border:1px solid var(--line);background:var(--panel);padding:8px 11px;border-radius:999px}
+  .chip.live{color:var(--acc);border-color:rgba(0,214,154,.32);background:rgba(0,214,154,.06)}
+  .chip.warn{color:var(--warn);border-color:rgba(251,191,36,.32);background:rgba(251,191,36,.06)}
+  .metrics{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin:48px 0 0}
+  .metric{background:linear-gradient(180deg,var(--panel),rgba(15,22,33,.55));border:1px solid var(--line);border-radius:14px;padding:18px 16px}
+  .metric .v{font:700 clamp(21px,2.5vw,28px)/1.1 var(--mono);letter-spacing:-.02em;color:var(--txt)}
+  .metric .v em{font-style:normal;color:var(--acc);font-size:.62em;margin-left:3px}
+  .metric .k{font-size:11.5px;color:var(--mut);margin-top:7px;line-height:1.45}
+  .metric .tag{display:inline-block;margin-top:9px;font:600 9.5px/1 var(--sans);letter-spacing:.08em;text-transform:uppercase;color:var(--dim);border:1px solid var(--line);border-radius:999px;padding:4px 6px}
+  .metric .tag.live{color:var(--acc);border-color:rgba(0,214,154,.3)}
+  .metric .tag.cal{color:var(--warn);border-color:rgba(251,191,36,.3)}
+  section{padding:74px 0;border-top:1px solid var(--line)}
+  .shead{max-width:780px}
+  .kicker{font:700 11.5px/1 var(--sans);letter-spacing:.16em;text-transform:uppercase;color:var(--acc)}
+  h2{font-size:clamp(28px,4vw,44px);line-height:1.08;letter-spacing:-.03em;margin:14px 0 0;font-weight:730}
+  h3{letter-spacing:-.01em}
+  .sub{color:var(--mut);font-size:16.5px;margin:14px 0 0}
+  .pillars{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-top:38px}
+  .pillars.four{grid-template-columns:repeat(4,1fr)}
+  .pillar{background:var(--panel);border:1px solid var(--line);border-radius:var(--r);padding:24px 22px;position:relative;overflow:hidden;transition:.2s}
+  .pillar:hover{border-color:var(--line2);transform:translateY(-2px)}
+  .pillar:after{content:"";position:absolute;inset:0 0 auto 0;height:2px;background:linear-gradient(90deg,transparent,var(--acc),transparent);opacity:.45}
+  .pillar .no{font:700 11px/1 var(--mono);color:var(--acc);letter-spacing:.1em}
+  .pillar h3{font-size:18px;margin:12px 0 8px}
+  .pillar p{color:var(--mut);font-size:13.5px;margin:0}
+  .pillar ul{margin:16px 0 0;padding:0;list-style:none;font-size:12.5px;color:var(--mut)}
+  .pillar li{padding:7px 0 7px 18px;position:relative;border-top:1px dashed var(--line)}
+  .pillar li:before{content:"›";position:absolute;left:2px;color:var(--acc);font-weight:700}
+  .pillar .more{display:inline-block;margin-top:14px;font:600 12.5px/1 var(--sans);color:var(--acc)}
+  .pillar .more:hover{text-decoration:underline;text-underline-offset:3px}
+  .code{margin-top:16px;background:#060a0f;border:1px solid var(--line);border-radius:10px;padding:12px 13px;font:12px/1.65 var(--mono);color:#b9cde2;overflow:auto}
+  .code .c{color:var(--dim)} .code .g{color:var(--acc)} .code .b{color:var(--acc2)} .code .w{color:var(--warn)}
+  .diagram{margin-top:36px;background:var(--panel);border:1px solid var(--line);border-radius:var(--r);padding:22px 20px;overflow:auto;text-align:center}
+  .diagram pre{display:inline-block;text-align:left;margin:0;font:13px/1.6 var(--mono);color:#a9c0d8}
+  .diagram .a{color:var(--acc)} .diagram .b{color:var(--acc2)} .diagram .d{color:var(--dim)} .diagram .w{color:var(--warn)}
+  .tw{overflow-x:auto;border:1px solid var(--line);border-radius:12px;margin-top:26px}
+  .bench{width:100%;border-collapse:collapse;margin:0;font-size:14px;min-width:620px}
+  .bench th,.bench td{padding:13px 12px;text-align:left;border-bottom:1px solid var(--line);vertical-align:top}
+  .bench tr:last-child td{border-bottom:0}
+  .bench th{font:600 11.5px/1.3 var(--sans);letter-spacing:.1em;text-transform:uppercase;color:var(--mut);background:var(--panel2)}
+  .bench tr:hover td{background:rgba(255,255,255,.02)}
+  .bench td.num{font-family:var(--mono);font-size:13px;white-space:nowrap}
+  .bench .win{color:var(--acc);font-weight:700}
+  .bench .small{font-size:12px;color:var(--dim)}
+  .note{font-size:12px;color:var(--dim);margin-top:12px;max-width:900px;line-height:1.6}
+  .note a{color:var(--mut);text-decoration:underline;text-underline-offset:3px}
+  .pricing{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-top:38px;align-items:stretch}
+  .tier{display:flex;flex-direction:column;background:var(--panel);border:1px solid var(--line);border-radius:18px;padding:26px 22px;position:relative}
+  .tier.hot{border-color:rgba(0,214,154,.5);background:linear-gradient(180deg,rgba(0,214,154,.07),var(--panel) 42%)}
+  .tier .badge{position:absolute;top:-10px;left:22px;background:var(--acc);color:#04140e;font:700 10px/1 var(--sans);letter-spacing:.1em;text-transform:uppercase;padding:6px 9px;border-radius:999px}
+  .tier h3{font-size:18px;margin:0}
+  .tier .desc{font-size:13px;color:var(--mut);margin:7px 0 0;min-height:38px}
+  .price{font:750 38px/1 var(--sans);letter-spacing:-.03em;margin:18px 0 2px}
+  .price small{font:500 13px/1.3 var(--sans);color:var(--mut);letter-spacing:0}
+  .price-note{font-size:12px;color:var(--dim);min-height:18px}
+  .tier ul{list-style:none;margin:18px 0 22px;padding:0;font-size:13.5px;color:var(--mut);flex:1}
+  .tier li{padding:7px 0 7px 20px;position:relative}
+  .tier li:before{content:"✓";position:absolute;left:0;color:var(--acc);font-weight:700}
+  .tier li.off{opacity:.4} .tier li.off:before{content:"—";color:var(--dim)}
+  .tier .btn{width:100%}
+  .contact{display:grid;grid-template-columns:1.15fr .85fr;gap:18px;margin-top:36px}
+  .card{background:var(--panel);border:1px solid var(--line);border-radius:var(--r);padding:26px}
+  .card h3{margin:0 0 6px;font-size:19px}
+  .card p{color:var(--mut);font-size:14px;margin:0 0 18px}
+  .field{margin-bottom:13px}
+  label{display:block;font-size:12px;color:var(--mut);margin-bottom:6px}
+  input,select,textarea{width:100%;background:#070b10;border:1px solid var(--line2);border-radius:9px;color:var(--txt);padding:11px 12px;font:14px/1.4 var(--sans);outline:none}
+  input:focus,select:focus,textarea:focus{border-color:var(--acc);box-shadow:0 0 0 3px rgba(0,214,154,.1)}
+  textarea{resize:vertical;min-height:92px}
+  .formmsg{font-size:12.5px;margin-top:10px;min-height:18px;color:var(--mut)}
+  .contactlist{list-style:none;margin:0;padding:0;font-size:14px;color:var(--mut)}
+  .contactlist li{padding:11px 0;border-top:1px solid var(--line);display:flex;gap:10px;align-items:flex-start}
+  .contactlist b{color:var(--txt);display:block;font-size:13px}
+  .contactlist .ic{color:var(--acc);font-family:var(--mono);font-size:11px;padding-top:2px}
+  footer{border-top:1px solid var(--line);padding:38px 0 44px;color:var(--dim);font-size:12.5px}
+  .footgrid{display:grid;grid-template-columns:1.5fr 1fr 1fr 1fr;gap:26px}
+  .footgrid h4{font:700 11px/1 var(--sans);letter-spacing:.14em;text-transform:uppercase;color:var(--mut);margin:0 0 12px}
+  .footgrid ul{list-style:none;margin:0;padding:0;display:grid;gap:8px;font-size:13px}
+  .footgrid a:hover{color:var(--txt)}
+  .footbrand{display:flex;align-items:center;gap:10px;font-weight:700;color:var(--txt);margin-bottom:12px}
+  .footbrand svg{width:26px;height:26px}
+  .fineprint{margin-top:22px;max-width:900px;line-height:1.65}
+  .prose{max-width:850px}
+  .prose h2{margin-top:0}
+  .prose h3{font-size:19px;margin:30px 0 8px}
+  .prose p{color:var(--mut);font-size:15px;margin:10px 0}
+  .prose ul,.prose ol{color:var(--mut);font-size:15px;padding-left:22px}
+  .prose li{margin:6px 0}
+  .prose code,.bench code,.card code{font-family:var(--mono);font-size:.9em;background:#0a1018;border:1px solid var(--line);border-radius:6px;padding:1px 5px;color:#b9cde2}
+  .callout{border-left:2px solid var(--acc);background:rgba(0,214,154,.05);padding:14px 16px;border-radius:0 10px 10px 0;color:var(--mut);font-size:14px;margin:22px 0}
+  .callout.warn{border-color:var(--warn);background:rgba(251,191,36,.06)}
+  .callout.bad{border-color:var(--bad);background:rgba(251,113,133,.06)}
+  .callout b{color:var(--txt)}
+  .badge2{display:inline-block;font:700 10px/1 var(--sans);letter-spacing:.1em;text-transform:uppercase;padding:5px 7px;border-radius:6px;border:1px solid}
+  .badge2.ok{color:var(--acc);border-color:rgba(0,214,154,.35);background:rgba(0,214,154,.07)}
+  .badge2.mid{color:var(--warn);border-color:rgba(251,191,36,.35);background:rgba(251,191,36,.07)}
+  .badge2.no{color:var(--bad);border-color:rgba(251,113,133,.35);background:rgba(251,113,133,.07)}
+  .split{display:grid;grid-template-columns:1fr 1fr;gap:18px;margin-top:28px}
+  .grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-top:28px}
+  .panel{background:var(--panel);border:1px solid var(--line);border-radius:var(--r);padding:24px}
+  .panel h3{margin:0 0 10px;font-size:18px}
+  .panel p{margin:0;color:var(--mut);font-size:14.5px}
+  .panel .code{margin-top:14px}
+  .ticklist{list-style:none;margin:16px 0 0;padding:0;font-size:14px;color:var(--mut)}
+  .ticklist li{padding:8px 0 8px 24px;position:relative;border-top:1px dashed var(--line)}
+  .ticklist li:before{content:"✓";position:absolute;left:0;color:var(--acc);font-weight:700}
+  .ticklist li.x:before{content:"✕";color:var(--bad)}
+  .steps{display:grid;gap:12px;margin-top:30px}
+  .step{display:grid;grid-template-columns:52px 1fr;gap:16px;background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:18px 20px}
+  .step .n{font:700 12px/1 var(--mono);color:var(--acc);padding-top:4px}
+  .step h3{margin:0 0 6px;font-size:16.5px}
+  .step p{margin:0;color:var(--mut);font-size:14px}
+  .step .code{margin-top:12px}
+  .form-grid{display:grid;grid-template-columns:1fr 1fr;gap:0 14px}
+  .result{margin-top:16px;border:1px solid var(--line);border-radius:12px;background:#070b10;padding:16px;font:12.5px/1.7 var(--mono);white-space:pre-wrap;word-break:break-word;color:#b9cde2;display:none}
+  .result.show{display:block}
+  .result .ok{color:var(--acc)} .result .er{color:var(--bad)} .result .wn{color:var(--warn)} .result .dm{color:var(--dim)}
+  .cta-band{display:flex;flex-wrap:wrap;gap:18px;align-items:center;justify-content:space-between;background:linear-gradient(180deg,rgba(0,214,154,.08),var(--panel));border:1px solid rgba(0,214,154,.28);border-radius:18px;padding:26px;margin-top:44px}
+  .cta-band h3{margin:0;font-size:21px}
+  .cta-band p{margin:6px 0 0;color:var(--mut);font-size:14px;max-width:640px}
+  .anchor{scroll-margin-top:84px}
+  .js .reveal{opacity:0;transform:translateY(12px);transition:opacity .4s ease,transform .4s ease}
+  .js .reveal.in{opacity:1;transform:none}
+  .js .reveal.in.noanim{transition:none}
+  @media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}.reveal{opacity:1;transform:none}}
+  @media print{.reveal{opacity:1!important;transform:none!important}}
+  @media (max-width:1080px){
+    .metrics{grid-template-columns:repeat(3,1fr)}
+    .pillars,.pillars.four{grid-template-columns:1fr 1fr}
+    .pricing{grid-template-columns:1fr 1fr}
+    .grid3{grid-template-columns:1fr 1fr}
+    .contact{grid-template-columns:1fr}
+    .footgrid{grid-template-columns:1fr 1fr}
+  }
+  @media (max-width:820px){
+    .navlinks{display:none;position:absolute;left:0;right:0;top:66px;background:var(--bg2);border-bottom:1px solid var(--line);flex-direction:column;gap:0;padding:8px 22px 16px}
+    .navlinks.open{display:flex}
+    .navlinks a{padding:12px 0;border-bottom:1px solid var(--line)}
+    .burger{display:block}
+    .navtools .btn{display:none}
+    .hero{padding:52px 0 30px}
+    .pagehero{padding:40px 0 6px}
+    .metrics{grid-template-columns:1fr 1fr}
+    .pillars,.pillars.four,.pricing,.grid3,.split{grid-template-columns:1fr}
+    section{padding:56px 0}
+    .form-grid{grid-template-columns:1fr}
+  }
+  @media (max-width:430px){.metrics{grid-template-columns:1fr}.footgrid{grid-template-columns:1fr}}
+"""
+
+FAVICON = ("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%230b0f14'/%3E%3Cpath d='M20 44V20h11c7 0 11 4 11 12s-4 12-11 12H20z' fill='none' stroke='%2300d69a' stroke-width='4'/%3E%3Ccircle cx='46' cy='20' r='3' fill='%2300d69a'/%3E%3C/svg%3E")
+
+MARK = """<svg class="mark" viewBox="0 0 64 64" fill="none" aria-hidden="true">
+        <rect width="64" height="64" rx="14" fill="#0b0f14"/>
+        <path d="M20 44V20h11c7 0 11 4 11 12s-4 12-11 12H20z" stroke="#00d69a" stroke-width="4"/>
+        <circle cx="46" cy="20" r="3" fill="#00d69a"/>
+      </svg>"""
+
+NAV_ITEMS = [
+    ("decision-os.html", "Decision OS"),
+    ("sigil.html", "SIGIL"),
+    ("gamacode.html", "GAMACODE"),
+    ("benchmarks.html", "Benchmark"),
+    ("gamacode.html#docs", "Docs"),
+    ("pricing.html", "Pricing"),
+    ("verify.html", "Verify"),
+    ("contact.html", "Kontakt"),
+]
+
+
+def nav(active: str) -> str:
+    links = []
+    for href, label in NAV_ITEMS:
+        cur = ' aria-current="page"' if href == active else ""
+        links.append('<a href="%s"%s>%s</a>' % (href, cur, label))
+    return """<header>
+  <div class="wrap nav">
+    <a class="brand" href="index.html" aria-label="GAMA Decision OS — početna">
+      %s
+      <span>GAMA Decision OS<small>Agent Control Plane</small></span>
+    </a>
+    <nav class="navlinks" id="navlinks" aria-label="Glavna navigacija">
+      %s
+    </nav>
+    <div class="navtools">
+      <a class="btn primary sm" href="contact.html#demo">Demo</a>
+      <button class="burger" id="burger" type="button" aria-label="Meni" aria-expanded="false" aria-controls="navlinks">☰</button>
+    </div>
+  </div>
+</header>""" % (MARK, "\n      ".join(links))
+
+
+FOOTER = """<footer>
+  <div class="wrap">
+    <div class="footgrid">
+      <div>
+        <div class="footbrand">
+          <svg viewBox="0 0 64 64" fill="none" aria-hidden="true">
+            <rect width="64" height="64" rx="14" fill="#0b0f14"/>
+            <path d="M20 44V20h11c7 0 11 4 11 12s-4 12-11 12H20z" stroke="#00d69a" stroke-width="4"/>
+            <circle cx="46" cy="20" r="3" fill="#00d69a"/>
+          </svg>
+          GAMA
+        </div>
+        <p style="margin:0;max-width:320px">Sloj povjerenja za AI agente: odluka prije akcije, izolovano izvršenje i dokaz koji se može provjeriti.</p>
+        <p style="margin:12px 0 0">© 2026 GAMA · Made in Bosnia</p>
+      </div>
+      <div>
+        <h4>Proizvodi</h4>
+        <ul>
+          <li><a href="decision-os.html">Decision OS</a></li>
+          <li><a href="sigil.html">SIGIL</a></li>
+          <li><a href="gamacode.html">GAMACODE</a></li>
+          <li><a href="gamacode.html#brain">BRAIN</a></li>
+        </ul>
+      </div>
+      <div>
+        <h4>Resursi</h4>
+        <ul>
+          <li><a href="gamacode.html#docs">Dokumentacija</a></li>
+          <li><a href="benchmarks.html">Benchmark i open source</a></li>
+          <li><a href="verify.html">Verifikacija dokaza</a></li>
+          <li><a href="pricing.html">Cijene</a></li>
+          <li><a href="contact.html">Kontakt</a></li>
+          <li><a href="docs.html">Docs (tehnički)</a></li>
+          <li><a href="mcp.html">MCP</a></li>
+          <li><a href="skills.html">Vještine</a></li>
+          <li><a href="experts.html">Persone</a></li>
+          <li><a href="tools.html">Alati</a></li>
+          <li><a href="product.html">Proizvod</a></li>
+          <li><a href="news.html">Novosti</a></li>
+          <li><a href="index-en.html">English</a></li>
+        </ul>
+      </div>
+      <div>
+        <h4>Pravno</h4>
+        <ul>
+          <li><a href="pricing.html#licence">Licenca (Apache-2.0 / Enterprise)</a></li>
+          <li><a href="contact.html#uslovi">Uslovi korištenja</a></li>
+          <li><a href="contact.html#privatnost">Privatnost</a></li>
+          <li><a href="legal.html">Pravni centar</a></li>
+          <li><a href="privacy.html">Privacy policy</a></li>
+          <li><a href="robots.txt">robots.txt</a></li>
+        </ul>
+      </div>
+    </div>
+    <p class="fineprint">
+      © 2026 GAMA. GAMA Decision OS, SIGIL i GAMACODE su oznake GAMA-e. Benchmark brojevi na ovom sajtu
+      su interni rezultati sa navedenim datumom i uslovima mjerenja; gdje mjerenje nije završeno, vrijednost je
+      označena kao cilj. Sadržaj sajta nije pravni savjet i ne zamjenjuje procjenu usklađenosti sa EU AI Act.
+    </p>
+  </div>
+</footer>"""
+
+BASE_JS = """<noscript><style>.reveal{opacity:1!important;transform:none!important}</style></noscript>
+<script>
+(function(){
+  var b=document.getElementById('burger'), n=document.getElementById('navlinks');
+  if(b&&n){ b.addEventListener('click',function(){ var o=n.classList.toggle('open'); b.setAttribute('aria-expanded',o?'true':'false'); }); }
+  function revealAll(){ document.querySelectorAll('.reveal').forEach(function(el){ el.classList.add('in'); }); }
+  try{
+    var els=[].slice.call(document.querySelectorAll('.reveal'));
+    var vh=window.innerHeight||800;
+    els.forEach(function(el){ if(el.getBoundingClientRect().top < vh+40){ el.classList.add('in','noanim'); } });
+    if('IntersectionObserver' in window){
+      var io=new IntersectionObserver(function(es){ es.forEach(function(e){ if(e.isIntersecting){ e.target.classList.add('in'); io.unobserve(e.target); } }); },{rootMargin:'0px 0px -30px 0px'});
+      els.forEach(function(el){ if(!el.classList.contains('in')) io.observe(el); });
+      setTimeout(revealAll, 2500);
+    } else { revealAll(); }
+  }catch(e){ revealAll(); }
+})();
+</script>"""
+
+
+def page(slug: str, title: str, desc: str, body: str, active: str = "", extra_js: str = "") -> str:
+    return """<!DOCTYPE html>
+<html lang="bs">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>__TITLE__</title>
+<meta name="description" content="__DESC__">
+<meta name="color-scheme" content="dark">
+<meta name="theme-color" content="#080b10">
+<link rel="canonical" href="__BASE__/__SLUG__">
+<meta property="og:title" content="__TITLE__">
+<meta property="og:description" content="__DESC__">
+<meta property="og:type" content="website">
+<meta property="og:url" content="__BASE__/__SLUG__">
+<meta property="og:site_name" content="GAMA Decision OS">
+<meta name="twitter:card" content="summary">
+<link rel="icon" href="__FAVICON__">
+<script>document.documentElement.className+=" js";</script>
+<style>__CSS__</style>
+</head>
+<body>
+<a class="skip" href="#main">Preskoči na sadržaj</a>
+__NAV__
+<main id="main">
+__BODY__
+</main>
+__FOOTER__
+__BASEJS__
+__EXTRAJS__
+</body>
+</html>
+""" \
+        .replace("__TITLE__", title) \
+        .replace("__DESC__", desc) \
+        .replace("__BASE__", BASE) \
+        .replace("__SLUG__", "" if slug == "index.html" else slug) \
+        .replace("__FAVICON__", FAVICON) \
+        .replace("__CSS__", CSS) \
+        .replace("__NAV__", nav(active)) \
+        .replace("__BODY__", body) \
+        .replace("__FOOTER__", FOOTER) \
+        .replace("__BASEJS__", BASE_JS) \
+        .replace("__EXTRAJS__", extra_js)
+
+
+def crumbs(label: str, slug: str = "") -> str:
+    if slug:
+        return '<div class="crumb"><a href="index.html">Početna</a><span>/</span><span>%s</span></div>' % label
+    return '<div class="crumb"><a href="index.html">Početna</a></div>'
+
+
+# ---------------------------------------------------------------- index.html
+index_body = r"""
+  <section class="hero" id="top">
+    <div class="wrap">
+      <span class="eyebrow"><span class="dot"></span>v1.2.2 · Apache-2.0 · produkcijski build</span>
+      <h1>GAMA Decision OS — <span class="grad">sloj povjerenja</span> za AI agente</h1>
+      <p class="lede">
+        Agent ne smije dobiti „povjerenje" zato što je rekao <b>done</b>. GAMA odlučuje <b>prije</b> akcije,
+        izoluje izvršenje i vraća <b>dokaz</b> koji treća strana može provjeriti. Radi sa OpenCode, Claude,
+        LangGraph i vašim sopstvenim agentom — bez zamjene agenta.
+      </p>
+      <p class="lede">
+        <b>SIGIL</b> svaku akciju agenta veže na kriptografski lanac odgovornosti:
+        <b>namjera → odobrenje → izvršenje → potpisani receipt → anchor</b>.
+        Uz <a href="gamacode.html">GAMACODE</a>, <a href="sigil.html#ekosistem">992 vještine</a>,
+        <a href="sigil.html#ekosistem">364 persone</a> i <a href="gamacode.html#docs">MCP</a>.
+      </p>
+      <div class="cta">
+        <a class="btn primary" href="contact.html#demo">Zatraži demo</a>
+        <a class="btn ghost" href="gamacode.html#docs">Dokumentacija</a>
+        <a class="btn ghost" href="verify.html">Verifikuj dokaz</a>
+      </div>
+      <div class="chips" style="margin-top:22px">
+        <span class="chip live">1 · Namjera</span>
+        <span class="chip">2 · Odobrenje</span>
+        <span class="chip">3 · Izvršenje</span>
+        <span class="chip">4 · Potpisani receipt</span>
+        <span class="chip">5 · Anchor</span>
+      </div>
+      <div class="trust">
+        <span><b class="tick">✓</b> Apache-2.0 jezgro</span>
+        <span><b class="tick">✓</b> Ed25519 potpisi (opciono)</span>
+        <span><b class="tick">✓</b> air-gapped instalacija</span>
+        <span><b class="tick">✓</b> bez telemetrije u jezgru</span>
+        <span><b class="tick">✓</b> BiH / EU</span>
+      </div>
+
+      <div class="metrics">
+        <div class="metric"><div class="v">0.035<em>ECE</em></div><div class="k">kalibracija poslije temperature scalinga (T=0.2), held-out n=240</div><span class="tag live">izmjereno</span></div>
+        <div class="metric"><div class="v">2.31<em>ms</em></div><div class="k">L0 odluka p50, n=500; determinističko jezgro 0.30 ms p50 (n=2000)</div><span class="tag live">izmjereno</span></div>
+        <div class="metric"><div class="v">−86.2<em>%</em></div><div class="k">tokena u promptu: 544.470 → 75.113 (405 → 34–66 šema)</div><span class="tag live">benchmark</span></div>
+        <div class="metric"><div class="v">0<em>lažnih done</em></div><div class="k">SWE-lite 10/10 uz nezavisni pytest; agentov „ok" se ne računa</div><span class="tag live">izmjereno</span></div>
+        <div class="metric"><div class="v">6<em>čvorova</em></div><div class="k">aktivna flota: Oracle, Contabo, linux3, dispečer, lab, Crusoe</div><span class="tag">operativno</span></div>
+        <div class="metric"><div class="v">294<em>alata</em></div><div class="k">u harnessu 1.2.2, uz MCP servere i 47 slash komandi</div><span class="tag">provjereno</span></div>
+        <div class="metric"><div class="v">25.600</div><div class="k">LUMI false-success probe na 8 nodova; kapija uhvatila 6,25% fabrikovanih tvrdnji</div><span class="tag live">izmjereno</span></div>
+        <div class="metric"><div class="v">400/400</div><div class="k">lažnih tvrdnji uhvaćeno u CrossNode liar runu (28.800 probe)</div><span class="tag live">izmjereno</span></div>
+        <div class="metric"><div class="v">1.000</div><div class="k">receipta, hash-lanac validan, 0 grešaka; svaki nosi Ed25519 potpis kada je ključ postavljen</div><span class="tag live">izmjereno</span></div>
+        <div class="metric"><div class="v">5,8<em>ms</em></div><div class="k">Firecracker fork po agent VM-u; boot 1,846 s · restore 2,286 ms</div><span class="tag live">izmjereno</span></div>
+      </div>
+      <p class="note">
+        ECE 0.035 je izmjeren na held-out dijelu (240 primjera) poslije temperature scalinga; prije kalibracije ECE je bio 0.297.
+        Detalji, ograničenja i komande za reprodukciju su na <a href="decision-os.html#kalibracija">Decision OS</a>.
+      </p>
+    </div>
+  </section>
+
+  <section id="stubovi">
+    <div class="wrap">
+      <div class="shead">
+        <div class="kicker">Četiri stuba</div>
+        <h2>Jedan sistem, četiri sloja</h2>
+        <p class="sub">Svaki stub rješava jedno pitanje i može se koristiti samostalno; zajedno čine zatvorenu petlju od odluke do dokaza.</p>
+      </div>
+
+      <div class="pillars four">
+        <article class="pillar reveal">
+          <div class="no">01 / DECISION OS</div>
+          <h3>Odluka prije akcije</h3>
+          <p>Deterministički precheck i kalibrisani klasifikator svode svaku akciju na jedan od četiri tiera, sa očekivanim dokazom.</p>
+          <ul>
+            <li>L0 odluka ispod 3 ms</li>
+            <li>READ / DRAFT / SEND / IRREVERSIBLE</li>
+            <li>expected_evidence_spec</li>
+            <li>3-Gate zatvorena petlja</li>
+          </ul>
+          <a class="more" href="decision-os.html">Detalji →</a>
+        </article>
+
+        <article class="pillar reveal">
+          <div class="no">02 / SIGIL</div>
+          <h3>Dokaz, ne tvrdnja</h3>
+          <p>Svaki poziv alata dobija receipt: SHA-256 sadržaja, hash-lanac i, kada je ključ konfigurisan, Ed25519 potpis.</p>
+          <ul>
+            <li>Ed25519 potpisi uz ključ</li>
+            <li>SHA-256 hash-lanac</li>
+            <li>GTL ledger i replay</li>
+            <li>EU AI Act čl. 12 / 14 / 15</li>
+          </ul>
+          <a class="more" href="sigil.html">Detalji →</a>
+        </article>
+
+        <article class="pillar reveal">
+          <div class="no">03 / GAMACODE</div>
+          <h3>Agent sa rukama</h3>
+          <p>Harness 1.2.2: 294 alata, flota od 6 čvorova, sandbox po riziku i integracija sa OpenCode-om i MCP-om.</p>
+          <ul>
+            <li>294 alata, 47 slash komandi</li>
+            <li>runc / gVisor / Firecracker</li>
+            <li>streaming i upload</li>
+            <li>open-core + enterprise</li>
+          </ul>
+          <a class="more" href="gamacode.html">Detalji →</a>
+        </article>
+
+        <article class="pillar reveal">
+          <div class="no">04 / BRAIN</div>
+          <h3>Dijeljena memorija</h3>
+          <p>Agenti ne počinju od nule: provjerene činjenice i lekcije idu u zajednički mozak sa hibridnom pretragom.</p>
+          <ul>
+            <li>brain_search / brain_write</li>
+            <li>FTS + vektor (RRF fuzija)</li>
+            <li>scope: global / user / room</li>
+            <li>provenance i flag stale</li>
+          </ul>
+          <a class="more" href="gamacode.html#brain">Detalji →</a>
+        </article>
+      </div>
+    </div>
+  </section>
+
+  <section id="mocno">
+    <div class="wrap">
+      <div class="shead">
+        <div class="kicker">Moćno na sajtu</div>
+        <h2>Ono što već radi — agenti, alati, vještine, persone, MCP</h2>
+        <p class="sub">Isti ekosistem stoji iza Decision OS-a: katalog alata, open-source vještine, persone i MCP server. Brojevi su sa live kataloga (11.11.2026) i iz harnessa 1.2.2.</p>
+      </div>
+      <div class="grid3">
+        <div class="panel reveal"><h3>GAMACODE</h3><p>Agentni harness: <b>294 alata</b> u 1.2.2 (live katalog navodi 178), verifikacija, odobrenja, sandbox i flota od 6 čvorova.</p><p style="margin-top:14px"><a class="more" href="gamacode.html">Detalji →</a></p></div>
+        <div class="panel reveal"><h3>Alati — 396 generatora</h3><p>42 grupe · 252 alata · BS/EN prekidač, plus 50+ klijentskih alata koji rade u browseru i 22 AI alata na jednom mjestu.</p><p style="margin-top:14px"><a class="more" href="gamacode.html#alati">Katalog →</a></p></div>
+        <div class="panel reveal"><h3>Vještine — 992</h3><p>Open-source agent skills biblioteka (<code>gamai-skills</code>). Katalog od 1.000 vještina; svaka se izvršava na našem GPU radniku, probaj prije kupovine.</p><p style="margin-top:14px"><a class="more" href="sigil.html#ekosistem">Ekosistem →</a></p></div>
+        <div class="panel reveal"><h3>Eksperti — 364 persone</h3><p>AI radnici za domene: trgovina, pravo, zdravstvo, inženjering… Svaki ima svoje znanje, pravila i alate.</p><p style="margin-top:14px"><a class="more" href="sigil.html#ekosistem">Persone →</a></p></div>
+        <div class="panel reveal"><h3>MCP</h3><p>Model Context Protocol server sa direktnim pristupom: <code>search_skills</code>, <code>make_page</code>, OCR, PDF, QR, TTS, Python sandbox i audit skilla.</p><p style="margin-top:14px"><a class="more" href="gamacode.html#docs">MCP →</a></p></div>
+        <div class="panel reveal"><h3>Open source — 30+</h3><p>SIGIL, sigil-tenant, crossnode-bench, gamai-trust, gama-sandbox, gamai-guard, agentmujo, mandat, proofgate… sve na <code>github.com/gamai-io</code>.</p><p style="margin-top:14px"><a class="more" href="benchmarks.html#opensource">Repozitoriji →</a></p></div>
+      </div>
+    </div>
+  </section>
+
+  <section id="sigil-dobitak">
+    <div class="wrap">
+      <div class="shead">
+        <div class="kicker">Uz SIGIL</div>
+        <h2>Šta dobijaš uz SIGIL</h2>
+        <p class="sub">Dokaz, ne samo log. Isti trust sloj pokriva potpisane receipte, izolaciju, AI Act audit i multi-tenant lanac.</p>
+      </div>
+      <div class="grid3">
+        <div class="panel reveal"><h3>Potpisani receipti</h3><p>Ed25519 potpis po akciji: namjera, odluka politike, hash efekta, idempotency ključ i inclusion proof.</p></div>
+        <div class="panel reveal"><h3>Dokaz, ne logovi</h3><p>Hash-lanac + anchor. Verifikator odbija receipt bez povjerenja u agenta, model ili bazu.</p></div>
+        <div class="panel reveal"><h3>Fail-closed</h3><p>Bez odobrenja nema izvršenja; akcije van opsega se odbijaju prije efekta.</p></div>
+        <div class="panel reveal"><h3>Izolacija</h3><p>Firecracker mikroVM preko vsock — akcija fizički ne izlazi iz granice VM-a.</p></div>
+        <div class="panel reveal"><h3>AI Act audit</h3><p>Čl. 12/19/26/72 trag: append-only, hash-lanac, 180 dana zadržavanja, izvoz dokaza.</p></div>
+        <div class="panel reveal"><h3>Multi-tenant</h3><p>Svaki klijent ima svoj gate/verify/anchor lanac, API ključ i mjerenje potrošnje.</p></div>
+      </div>
+    </div>
+  </section>
+
+  <section id="problem">
+    <div class="wrap">
+      <div class="shead">
+        <div class="kicker">Problem</div>
+        <h2>Tri pitanja na koja agent stack obično nema odgovor</h2>
+        <p class="sub">Agenti više ne samo predlažu — oni izvršavaju: zovu SQL, šalju mail, mijenjaju stanje, prave fakture.</p>
+      </div>
+      <div class="grid3">
+        <div class="panel reveal"><h3>1. Smije li ovo uopšte da se izvrši?</h3><p>Rizik, namjera i očekivani dokaz moraju biti poznati prije poziva alata — ne poslije.</p></div>
+        <div class="panel reveal"><h3>2. Gdje se tačno izvršava?</h3><p>Blast radius se bira po riziku: container, gVisor ili mikro-VM. Nepouzdan kod nikad golo.</p></div>
+        <div class="panel reveal"><h3>3. Kako znamo da je uspjelo?</h3><p>Ne po modelovom <code>ok:true</code>, nego po nezavisnoj provjeri i potpisanom receiptu.</p></div>
+      </div>
+      <div class="code reveal"><span class="c">// prije</span>
+LLM ──▶ tool ──▶ <span class="w">"done"</span> ──▶ <span class="c">vjeruj mi</span>
+
+<span class="c">// poslije</span>
+LLM ──▶ <span class="b">L0</span> ──▶ <span class="b">sandbox</span> ──▶ <span class="g">evidence</span> ──▶ done / <span class="w">rollback</span></div>
+    </div>
+  </section>
+
+  <section id="dokazi">
+    <div class="wrap">
+      <div class="shead">
+        <div class="kicker">Dokazi</div>
+        <h2>Brojevi sa datumom, uslovom i načinom provjere</h2>
+        <p class="sub">Ne objavljujemo „uspjeh" bez mjerenja. Svaki red ispod ima izvor u repozitoriju i komandu kojom se ponavlja.</p>
+      </div>
+      <div class="tw reveal">
+        <table class="bench">
+          <thead><tr><th>Metrika</th><th>Rezultat</th><th>Uslov</th><th>Status</th></tr></thead>
+          <tbody>
+            <tr><td>L0 odluka, p50</td><td class="num win">2.31 ms</td><td>puni decide_request, n=500, 1 ms spekulativni budžet</td><td><span class="badge2 ok">izmjereno</span></td></tr>
+            <tr><td>L0 determinističko jezgro, p50</td><td class="num win">0.30 ms</td><td>bez mrežnog spekulativnog poziva, n=2000</td><td><span class="badge2 ok">izmjereno</span></td></tr>
+            <tr><td>Kalibracija (ECE)</td><td class="num win">0.0347</td><td>T=0.2, held-out n=240, accuracy 1.0</td><td><span class="badge2 ok">izmjereno</span></td></tr>
+            <tr><td>Evidence: lažni „done"</td><td class="num win">0</td><td>SWE-lite 10 zadataka, nezavisni pytest, pristine tests/</td><td><span class="badge2 ok">izmjereno</span></td></tr>
+            <tr><td>Smanjenje prompta</td><td class="num win">−86.2 %</td><td>544.470 → 75.113 tokena, 405 → 34–66 šema</td><td><span class="badge2 ok">benchmark</span></td></tr>
+            <tr><td>Firecracker restore</td><td class="num win">2.28 ms</td><td>pre-warm + mmap snapshot restore</td><td><span class="badge2 ok">izmjereno</span></td></tr>
+            <tr><td>Streaming, prvi tekst</td><td class="num win">1.29 s</td><td>harness 1.2.0, 202 chunk-a, gap p50 11.9 ms</td><td><span class="badge2 ok">izmjereno</span></td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p class="note">Mjerenja su rađena na našim mašinama (Contabo / Oracle / LUMI). Vaši brojevi zavise od hardvera, modela i mreže. Za ECE vrijedi ograničenje: set je degenerisan (accuracy 1.0), pa je fit temperature udario u granicu — sljedeći korak je re-fit na setu sa stvarnim greškama. To je navedeno i na stranici Decision OS.</p>
+    </div>
+  </section>
+
+  <section id="integracija">
+    <div class="wrap">
+      <div class="shead">
+        <div class="kicker">Integracija</div>
+        <h2>Envelope koji agent dobije prije alata</h2>
+        <p class="sub">Odluka je običan JSON: tier, verdict, razlog, preporučeni sandbox i specifikacija dokaza koji mora uslijediti.</p>
+      </div>
+      <div class="split">
+        <div class="panel reveal">
+          <h3>Python</h3>
+          <p>Jezgro je jedan modul; nema obaveznog clouda ni baze da bi se dobila prva odluka.</p>
+          <div class="code"><span class="c">import</span> gama_decision_l0 <span class="c">as</span> D0
+
+env = D0.decide_request(
+    <span class="g">"pošalji mail kupcu ALFA sa ponudom"</span>
+)
+<span class="c"># env["tier"]      -> "SEND"</span>
+<span class="c"># env["verdict"]   -> "ask"</span>
+<span class="c"># env["expected_evidence_spec"]</span>
+<span class="c">#   {"kind": "external_send", ...}</span>
+
+receipt = D0.verify_evidence(env, <span class="g">"mail"</span>, result)
+<span class="c"># receipt["verified"] == True tek uz dokaz</span></div>
+        </div>
+        <div class="panel reveal">
+          <h3>Stvarni izlaz (skraćeno)</h3>
+          <p>Isto polje koristi harness, CLI i web UI.</p>
+          <div class="code">{
+  <span class="b">"decision_id"</span>: <span class="g">"dec-216a6d18"</span>,
+  <span class="b">"tier"</span>: <span class="g">"SEND"</span>,
+  <span class="b">"risk_level"</span>: <span class="g">"medium"</span>,
+  <span class="b">"risk"</span>: 0.65,
+  <span class="b">"confidence"</span>: 1.0,
+  <span class="b">"verdict"</span>: <span class="g">"ask"</span>,
+  <span class="b">"requires_escalation"</span>: true,
+  <span class="b">"route"</span>: <span class="g">"agent"</span>,
+  <span class="b">"tool_bundle"</span>: [<span class="g">"mail"</span>, <span class="g">"fs_read"</span>, ...],
+  <span class="b">"expected_evidence_spec"</span>: {
+    <span class="b">"kind"</span>: <span class="g">"external_send"</span>,
+    <span class="b">"requires_explicit_send_verb"</span>: true,
+    <span class="b">"must_have_audit_hash"</span>: true
+  }
+}</div>
+        </div>
+      </div>
+      <div class="cta-band reveal">
+        <div>
+          <h3>Spremni da vidite odluku na svom zadatku?</h3>
+          <p>Demo traje 30 minuta: vaš scenario, vaš agent, naša petlja odluke i dokaza. Bez instalacije na produkciji.</p>
+        </div>
+        <div class="cta" style="margin:0">
+          <a class="btn primary" href="contact.html#demo">Zakaži demo</a>
+          <a class="btn ghost" href="pricing.html">Cijene</a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section id="cijene-kratko">
+    <div class="wrap">
+      <div class="shead">
+        <div class="kicker">Cijene</div>
+        <h2>Jezgro je besplatno. Plaća se kontrola i podrška.</h2>
+        <p class="sub">Cijena je po čvoru, ne po sjedištu — jer čvor je jedinica koja izvršava akcije i proizvodi dokaz.</p>
+      </div>
+      <div class="grid3">
+        <div class="panel reveal"><h3>Community — €0</h3><p>Apache-2.0 jezgro, 1 čvor, neograničeni lokalni runovi, bez telemetrije.</p><p style="margin-top:14px"><a class="more" href="pricing.html">Detalji →</a></p></div>
+        <div class="panel reveal"><h3>Pro — €299 / čvor / mj.</h3><p>Produkcijski build, neograničeni agenti, evidence export, 2 konektora, e-mail podrška.</p><p style="margin-top:14px"><a class="more" href="pricing.html">Detalji →</a></p></div>
+        <div class="panel reveal"><h3>Enterprise — od €24k / god.</h3><p>Air-gapped, EU AI Act paket, SSO/SCIM, ERP konektori, SLA 99.9 %, DPA.</p><p style="margin-top:14px"><a class="more" href="pricing.html">Detalji →</a></p></div>
+      </div>
+      <p class="note">Sve cijene bez PDV-a (BiH 17 %). Fiksni kurs €1 = 1,95583 BAM. Godišnje Pro licence: 2 mjeseca gratis.</p>
+    </div>
+  </section>
+
+  <section id="istrazivanje">
+    <div class="wrap">
+      <div class="shead">
+        <div class="kicker">Novosti iz istraživanja</div>
+        <h2>Naši rezultati, reproduktivni sa gamai-io GitHub organizacije</h2>
+        <p class="sub">Mjerenja na LUMI, CrossNode floti i harnessu. Puni spisak, DOI i repozitoriji su na <a href="benchmarks.html#istrazivanje">Benchmark</a> stranici.</p>
+      </div>
+      <div class="grid3">
+        <div class="panel reveal"><h3>LUMI false-success</h3><p>25.600 probe na 8 nodova; kapija uhvatila <b>6,25%</b> fabrikovanih tvrdnji. Verifikacija p50 2,4 ms / p95 10,8 ms (job 23394156).</p></div>
+        <div class="panel reveal"><h3>CrossNode-Bench</h3><p>25.600 honest (0 laži) + 28.800 liar proba; <b>400/400</b> uhvaćeno na injectovanom nodu. Zenodo DOI <span class="small">10.5281/zenodo.24092188</span>.</p></div>
+        <div class="panel reveal"><h3>Determinizam</h3><p>LUMI vLLM nije bit-determinističan na temp=0 (ROCm kerneli): 660/700 identično uz TP=4, 669/700 uz TP=1.</p></div>
+      </div>
+      <p class="note">Ostala otkrića: prompt-injection ASR 100% → 0–3,3%; adapters did not beat base model (negative result); CUA v23 49,0%; AgentMujo-Bench v0.6 (49 slučajeva, 16 kategorija); dataset v0.4.0 (4.496 redova); GAMA 11/15 vs opencode 12/12 na hard tieru; General-30 30/30 @ p50 6,218 s; 216 workera ≈ 96% throughput.</p>
+      <p class="cta" style="margin-top:18px"><a class="btn ghost" href="benchmarks.html#istrazivanje">Sva otkrića →</a></p>
+    </div>
+  </section>
+
+  <section id="uskoro">
+    <div class="wrap">
+      <div class="shead">
+        <div class="kicker">Uskoro</div>
+        <h2>Sljedeći sloj — hosted SIGIL i novi GAMACODE</h2>
+      </div>
+      <div class="cta-band reveal">
+        <div>
+          <h3>SIGIL Cloud — early access (Q1 2027)</h3>
+          <p>Hosted gate/verify/anchor, jedan SDK, dashboard i AI Act evidence pack — bez vlastite infrastrukture. Cijene za hosted verziju: Free €0, Pro €49/mj., Enterprise €1,5k+/mj., usage €0,002–0,02 po izvršenju.</p>
+        </div>
+        <div class="cta" style="margin:0">
+          <a class="btn primary" href="contact.html#demo">Lista čekanja</a>
+          <a class="btn ghost" href="pricing.html#sigil-cloud">Detalji</a>
+        </div>
+      </div>
+      <div class="cta-band reveal" style="margin-top:14px">
+        <div>
+          <h3>Novi GAMACODE — uskoro</h3>
+          <p>Sljedeća generacija agentnog harnessa: više alata, brži loop, ugrađena verifikacija i prošireni MCP katalog.</p>
+        </div>
+        <div class="cta" style="margin:0"><a class="btn ghost" href="gamacode.html">GAMACODE danas</a></div>
+      </div>
+    </div>
+  </section>
+"""
+
+
+def _diagram() -> str:
+    W = 84
+    C = 1 + W // 2  # kolona vertikalnog konektora
+
+    def top():
+        return "+" + "-" * W + "+"
+
+    def row(txt=""):
+        return "|" + (" " + txt).ljust(W) + "|"
+
+    def cbot():
+        return "+" + "-" * (C - 1) + "+" + "-" * (W - C) + "+"
+
+    lines = [
+        "  agent / LLM",
+        "      |  tool_call(text, args)",
+        "      v",
+        top(),
+        row("GATE 1 - L0 DECISION"),
+        row("  deterministic precheck -> classifier -> calibration T=0.2"),
+        row("  out: tier - verdict - risk - confidence - evidence_spec"),
+        row("       decision_id + decision_hash (SHA-256)"),
+        cbot(),
+        " " * C + "|  DecisionEnvelope",
+        " " * C + "v",
+        top(),
+        row("GATE 2 - ROUTING + EXECUTION"),
+        row("  READ / DRAFT        -> allow + sandbox by risk"),
+        row("  SEND / IRREVERSIBLE -> ask / deny + human approval"),
+        row("  hard block: destructive commands, even if model says ok"),
+        cbot(),
+        " " * C + "v",
+        top(),
+        row("GATE 3 - EVIDENCE GATE"),
+        row("  tool_result -> check against expected_evidence_spec"),
+        row("  receipt: sha256(result) + link to decision_hash"),
+        row("  verified? -> done   :   rollback / escalation"),
+        top(),
+    ]
+    return "\n" + "\n".join(lines) + "\n      "
+
+DIAGRAM = _diagram()
+
+# ----------------------------------------------------------- decision-os.html
+decision_body = r"""
+  <section class="pagehero">
+    <div class="wrap">
+      __CRUMB__
+      <span class="eyebrow" style="margin-top:22px"><span class="dot"></span>Stub 01 · Decision OS</span>
+      <h1>Odluka prije prve akcije</h1>
+      <p class="lede">
+        Decision OS je middleware između agenta i alata. Ne pita model da li je akcija sigurna —
+        <b>izračuna</b> rizik, dodijeli tier, zapiše očekivani dokaz i vrati envelope koji se izvršava ili odbija.
+        Sve deterministički, ispod 3 ms, bez dodatnog LLM poziva.
+      </p>
+      <div class="chips">
+        <span class="chip live">L0 p50 2.31 ms · jezgro 0.30 ms</span>
+        <span class="chip live">ECE 0.035 na held-out</span>
+        <span class="chip">4 tiera</span>
+        <span class="chip">expected_evidence_spec</span>
+        <span class="chip">Apache-2.0 jezgro</span>
+      </div>
+      <div class="cta">
+        <a class="btn primary" href="contact.html#demo">Vidi na svom zadatku</a>
+        <a class="btn ghost" href="gamacode.html#docs">Dokumentacija</a>
+        <a class="btn ghost" href="verify.html">Provjeri receipt</a>
+      </div>
+    </div>
+  </section>
+
+  <section id="arhitektura" class="anchor">
+    <div class="wrap">
+      <div class="shead">
+        <div class="kicker">Arhitektura</div>
+        <h2>3-Gate zatvorena petlja</h2>
+        <p class="sub">Gate 1 odlučuje, Gate 2 izvršava (ili blokira), Gate 3 dokazuje. Nijedan gate se ne preskače.</p>
+      </div>
+
+      <div class="diagram reveal"><pre>__DIAGRAM__</pre></div>
+      <p class="note">Dijagram je pojednostavljen: approval tok, replay i idempotency su detalji Gate 2/3 i opisani su na stranici <a href="sigil.html">SIGIL</a>.</p>
+    </div>
+  </section>
+
+  <section id="tieri" class="anchor">
+    <div class="wrap">
+      <div class="shead">
+        <div class="kicker">Tiering</div>
+        <h2>Četiri tiera, četiri nivoa dokaza</h2>
+        <p class="sub">Tier nije oznaka težine — to je ugovor o tome šta smije da se izvrši i koji dokaz mora uslijediti.</p>
+      </div>
+      <div class="tw reveal">
+        <table class="bench">
+          <thead><tr><th>Tier</th><th>Tipične akcije</th><th>Verdict</th><th>Očekivani dokaz</th></tr></thead>
+          <tbody>
+            <tr>
+              <td><span class="badge2 ok">READ</span></td>
+              <td>SQL SELECT, čitanje fajla, pretraga, status</td>
+              <td>allow</td>
+              <td><code>read_only</code>, <code>sql_rows</code></td>
+            </tr>
+            <tr>
+              <td><span class="badge2 ok">DRAFT</span></td>
+              <td>pisanje fajla, kod, lokalna izmjena, generisanje dokumenta</td>
+              <td>allow (+ sandbox po riziku)</td>
+              <td><code>file_sha256</code>, <code>code_verified</code></td>
+            </tr>
+            <tr>
+              <td><span class="badge2 mid">SEND</span></td>
+              <td>mail, WhatsApp, objava, poziv prema trećoj strani</td>
+              <td>ask — traži izričitu naredbu</td>
+              <td><code>external_send</code> + audit hash + primalac</td>
+            </tr>
+            <tr>
+              <td><span class="badge2 no">IRREVERSIBLE</span></td>
+              <td>brisanje, plaćanje, produkcijski deploy, destruktivne komande</td>
+              <td>deny ili ask (uz approval)</td>
+              <td><code>delete_verified</code>, approval + receipt</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="callout reveal">
+        <b>Tvrda blokada je stvarna.</b> Ugrađeni precheck hvata destruktivne i obfuskirane komande
+        (npr. base64 pipe u shell) i vraća <code>deny</code> bez pitanja modela. Benigni citat komande
+        („echo 'rm -rf /'") ostaje READ — provjereno testovima.
+      </div>
+    </div>
+  </section>
+
+  <section id="evidence-spec" class="anchor">
+    <div class="wrap">
+      <div class="shead">
+        <div class="kicker">Ugovor o dokazu</div>
+        <h2>expected_evidence_spec</h2>
+        <p class="sub">Prije izvršenja se zapisuje šta tačno mora biti istinito da bi se akcija proglasila uspješnom.</p>
+      </div>
+      <div class="split">
+        <div class="panel reveal">
+          <h3>Primjer: slanje maila</h3>
+          <div class="code">{
+  <span class="b">"kind"</span>: <span class="g">"external_send"</span>,
+  <span class="b">"requires_explicit_send_verb"</span>: true,
+  <span class="b">"must_have_audit_hash"</span>: true,
+  <span class="b">"must_record_recipient"</span>: true
+}</div>
+          <p style="margin-top:14px">Bez eksplicitnog glagola za slanje, bez zabilježenog primaoca i bez audit hasha — nema „poslano".</p>
+        </div>
+        <div class="panel reveal">
+          <h3>Primjer: izmjena koda</h3>
+          <div class="code">{
+  <span class="b">"kind"</span>: <span class="g">"code_verified"</span>,
+  <span class="b">"must_change_sha256"</span>: true,
+  <span class="b">"must_pass_semgrep_diff"</span>: true
+}</div>
+          <p style="margin-top:14px">Fajl mora stvarno promijeniti hash, a diff mora proći statičku provjeru. Modelov „ok" se ignoriše.</p>
+        </div>
+      </div>
+      <p class="note">Specifikacija je dio envelope-a i hashirana je u <code>decision_hash</code>, pa se ne može naknadno „ublažiti" da bi akcija prošla.</p>
+    </div>
+  </section>
+
+  <section id="kalibracija" class="anchor">
+    <div class="wrap">
+      <div class="shead">
+        <div class="kicker">Kalibracija</div>
+        <h2>Pouzdanost koja se mjeri, ne osjeća</h2>
+        <p class="sub">Klasifikator vraća vjerovatnoću; temperatura skaliranje je poravnava sa stvarnom frekvencijom ishoda.</p>
+      </div>
+      <div class="tw reveal">
+        <table class="bench">
+          <thead><tr><th>Metrika</th><th>Prije</th><th>Poslije (T=0.2)</th><th>Uslov</th></tr></thead>
+          <tbody>
+            <tr><td>ECE</td><td class="num">0.2973</td><td class="num win">0.0347</td><td>80/20 split, 10 binova, seed 7</td></tr>
+            <tr><td>Brier</td><td class="num">0.0924</td><td class="num win">0.0051</td><td>isti test set</td></tr>
+            <tr><td>Accuracy</td><td class="num">1.000</td><td class="num">1.000</td><td>nije se promijenila</td></tr>
+            <tr><td>Rangiranje</td><td class="num">—</td><td class="num">nepromijenjeno</td><td>temperature ne mijenja poredak</td></tr>
+            <tr><td>Uzorci</td><td class="num" colspan="2">n_calib 960 · n_test 240</td><td>1200 parova ukupno</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="callout warn reveal">
+        <b>Ograničenje koje ne krijemo:</b> fit je udario u donju granicu (T=0.2) jer je accuracy na ovom setu 1.0 —
+        set je degenerisan za kalibraciju. ECE 0.035 je stoga realan rezultat na held-out dijelu, ali ga ne treba
+        čitati kao garanciju na težim, realnim greškama. Sljedeći korak je re-fit na setu sa stvarnim greškama
+        i objava novog broja — do tada je ovo jedini ECE koji tvrdimo.
+      </div>
+      <p class="note">Puni eval adaptera prije temperature scalinga: ECE 0.299211, Brier 0.094742, accuracy 1.000, n=1200 (LUMI job 23715009). Kalibracija je rađena naknadno na istom izvoru, sa <code>fit_method=scipy.bounded</code>.</p>
+    </div>
+  </section>
+
+  <section id="rldf" class="anchor">
+    <div class="wrap">
+      <div class="shead">
+        <div class="kicker">RLDF petlja</div>
+        <h2>Od near-miss do strože granice</h2>
+        <p class="sub">Sistem uči iz akcija koje su bile blizu greške: par „chosen / rejected" ide u DPO, pa u novu kalibraciju i pragove.</p>
+      </div>
+      <div class="steps">
+        <div class="step reveal"><div class="n">01</div><div><h3>Detekcija near-miss</h3><p>Odluka koja je prošla, ali sa niskom marginom ili bez očekivanog dokaza, označava se kao near-miss.</p></div></div>
+        <div class="step reveal"><div class="n">02</div><div><h3>Par za DPO</h3><p>Ispravna akcija (chosen) i skoro-ispravna (rejected) čine trening par; 600 parova, 2 epohe, 36 koraka.</p></div></div>
+        <div class="step reveal"><div class="n">03</div><div><h3>Adapter + realni eval</h3><p>LoRA adapter se evaluira na held-out setu: train loss 0.10052; ECE 0.2992, Brier 0.0947, accuracy 1.0 (n=1200).</p></div></div>
+        <div class="step reveal"><div class="n">04</div><div><h3>Kalibracija i pragovi</h3><p>Temperature scaling spušta ECE na 0.0347; novi pragovi ulaze u Gate 1 tek nakon što prođu iste testove.</p></div></div>
+      </div>
+      <p class="note">RLDF ciklus je dokumentovan u repozitoriju (skripte + LUMI jobovi 23714934 i 23715009). Petlja je namjerno spora: nijedan novi prag ne ide u produkciju bez ponovljenog eval-a.</p>
+    </div>
+  </section>
+
+  <section id="benchmark" class="anchor">
+    <div class="wrap">
+      <div class="shead">
+        <div class="kicker">Benchmark</div>
+        <h2>Šta je izmjereno, a šta je cilj</h2>
+      </div>
+      <div class="tw reveal">
+        <table class="bench">
+          <thead><tr><th>Metrika</th><th>Rezultat</th><th>Uslov</th><th>Status</th></tr></thead>
+          <tbody>
+            <tr><td>L0 odluka p50</td><td class="num win">2.31 ms</td><td>n=500, 1 ms spekulativni budžet</td><td><span class="badge2 ok">izmjereno</span></td></tr>
+            <tr><td>L0 jezgro p50</td><td class="num win">0.30 ms</td><td>bez mreže, n=2000</td><td><span class="badge2 ok">izmjereno</span></td></tr>
+            <tr><td>READ allow</td><td class="num">0.05 ms</td><td>dokumentovani interni bench</td><td><span class="badge2 ok">izmjereno</span></td></tr>
+            <tr><td>IRREVERSIBLE ask</td><td class="num">0.92 ms</td><td>ask + rationale</td><td><span class="badge2 ok">izmjereno</span></td></tr>
+            <tr><td>Firecracker syscall</td><td class="num">54 ns/op</td><td>vs 92 ns bare metal</td><td><span class="badge2 ok">izmjereno</span></td></tr>
+            <tr><td>gVisor syscall</td><td class="num">751 ns/op</td><td>Sentry intercept</td><td><span class="badge2 ok">izmjereno</span></td></tr>
+            <tr><td>Snapshot restore</td><td class="num">2.28 ms</td><td>pre-warm + mmap</td><td><span class="badge2 ok">izmjereno</span></td></tr>
+            <tr><td>SWE-lite (10)</td><td class="num win">10/10</td><td>nezavisni pytest, pristine tests/</td><td><span class="badge2 ok">izmjereno</span></td></tr>
+            <tr><td>Smanjenje tokena</td><td class="num win">−86.2 %</td><td>544.470 → 75.113</td><td><span class="badge2 ok">benchmark</span></td></tr>
+            <tr><td>ECE &lt; 0.05</td><td class="num">0.0347</td><td>held-out n=240, T=0.2</td><td><span class="badge2 ok">izmjereno</span></td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p class="note">Latencije su mjerene na našem hardveru i zavise od mašine, Python verzije i opterećenja. Brojevi nisu garancija za vaš deployment; koristite ih kao red veličine i reprodukujte lokalno.</p>
+    </div>
+  </section>
+
+  <section id="kod" class="anchor">
+    <div class="wrap">
+      <div class="shead">
+        <div class="kicker">Kod</div>
+        <h2>Tri poziva za punu petlju</h2>
+      </div>
+      <div class="panel reveal" style="margin-top:30px">
+        <div class="code">import gama_decision_l0 as D0
+
+<span class="c"># Gate 1 — odluka prije alata</span>
+env = D0.decide_request(<span class="g">"napiši funkciju i snimi u test.py"</span>, sid=<span class="g">"job-42"</span>)
+<span class="c"># env["tier"] == "DRAFT", env["verdict"] == "allow"</span>
+<span class="c"># env["expected_evidence_spec"]["kind"] == "code_verified"</span>
+
+<span class="c"># Gate 2 — izvršenje (vaš agent ili sandbox)</span>
+result = run_in_sandbox(env)
+
+<span class="c"># Gate 3 — dokaz; receipt nosi decision_hash</span>
+receipt = D0.verify_evidence(env, <span class="g">"fs_write"</span>, result)
+<span class="k">assert</span> receipt[<span class="g">"verified"</span>] <span class="k">is</span> True
+
+<span class="c"># metrika: D0.status() vraća calls, cache_hits, evidence_checks, ...</span></div>
+      </div>
+      <div class="callout reveal">
+        <b>Bez magije:</b> jezgro ne poziva LLM. Kada je potreban semantički sloj, harness ga dodaje kao opcioni
+        spekulativni korak sa strogo ograničenim budžetom — i nikad mu ne daje pravo da snizi tier.
+      </div>
+    </div>
+  </section>
+
+  <section id="ogranicenja" class="anchor">
+    <div class="wrap">
+      <div class="shead">
+        <div class="kicker">Ograničenja</div>
+        <h2>Šta Decision OS ne radi</h2>
+      </div>
+      <div class="split">
+        <div class="panel reveal">
+          <h3>Ne zamjenjuje poslovnu logiku</h3>
+          <p>On ne zna da li je cijena ispravna ni da li kupac smije dobiti rabat. On zna da je akcija SEND, da traži dokaz i da bez njega nema „poslano".</p>
+        </div>
+        <div class="panel reveal">
+          <h3>Ne garantuje tačnost modela</h3>
+          <p>Kalibracija poboljšava pouzdanost vjerovatnoće, ne istinitost odgovora. Za tačnost su odgovorni model, izvori i verifikator.</p>
+        </div>
+      </div>
+      <div class="cta-band reveal">
+        <div><h3>Želite da vidite gdje bi vaš agent pao?</h3><p>Pošaljite nam jedan stvarni scenario; vratićemo tier, dokaz koji bi tražio i mjesto gdje bi petlja stala.</p></div>
+        <div class="cta" style="margin:0"><a class="btn primary" href="contact.html#demo">Zakaži demo</a><a class="btn ghost" href="sigil.html">Sloj dokaza →</a></div>
+      </div>
+    </div>
+  </section>
+"""
+
+# ---------------------------------------------------------------- sigil.html
+sigil_body = r"""
+  <section class="pagehero">
+    <div class="wrap">
+      __CRUMB__
+      <span class="eyebrow" style="margin-top:22px"><span class="dot"></span>Stub 02 · SIGIL</span>
+      <h1>Dokaz, ne tvrdnja</h1>
+      <p class="lede">
+        SIGIL je trust sloj: svaki poziv alata ostavlja receipt sa SHA-256 sadržajem, vezom na odluku i
+        hash-lancem; kada je ključ konfigurisan, receipt je potpisan <b>Ed25519</b> ključem. Treća strana
+        može provjeriti dokaz bez pristupa vašoj bazi i bez vjerovanja nama.
+      </p>
+      <p class="lede">
+        Isti lanac pokriva cijeli ekosistem: <b>992 vještine</b>, <b>364 persone</b>, katalog alata,
+        GAMACODE i MCP. U produkcijskom testu <b>1.000 receipta</b> prošlo je verifikaciju hash-lanca
+        sa <b>0 grešaka</b>.
+      </p>
+      <div class="chips">
+        <span class="chip live">Ed25519 potpisi</span>
+        <span class="chip">SHA-256 hash-lanac</span>
+        <span class="chip">GTL ledger</span>
+        <span class="chip">replay + idempotency</span>
+        <span class="chip">1.000 receipta · 0 grešaka</span>
+        <span class="chip">992 vještine</span>
+        <span class="chip">364 persone</span>
+        <span class="chip">EU AI Act čl. 12 / 14 / 15 / 19 / 26 / 72</span>
+      </div>
+      <div class="cta">
+        <a class="btn primary" href="verify.html">Provjeri dokaz</a>
+        <a class="btn ghost" href="gamacode.html#docs">Tehnička dokumentacija</a>
+      </div>
+    </div>
+  </section>
+
+  <section id="ekosistem" class="anchor">
+    <div class="wrap">
+      <div class="shead">
+        <div class="kicker">Ekosistem</div>
+        <h2>SIGIL nije samo receipt — to je sloj ispod alata, vještina i personi</h2>
+        <p class="sub">Brojevi sa live kataloga (11.11.2026) i iz harnessa 1.2.2. Ono što je live navodilo kao 178 alata, u 1.2.2 je naraslo na 294 — stariji broj ostaje zabilježen radi poređenja.</p>
+      </div>
+      <div class="grid3">
+        <div class="panel reveal">
+          <h3>992 vještine</h3>
+          <p>Open-source agent skills biblioteka (<code>gamai-skills</code>). Katalog prikazuje 1.000 vještina, a svaka se stvarno izvršava na našem GPU radniku — probaj prije kupovine. Tu su i kategorije i Skill Market.</p>
+          <p class="small"><a href="https://github.com/gamai-io/gamai-skills">github.com/gamai-io/gamai-skills ↗</a></p>
+        </div>
+        <div class="panel reveal">
+          <h3>364 persone</h3>
+          <p>AI radnici za domene: trgovina, pravo, zdravstvo, inženjering i drugo. Svaki ima svoje znanje, pravila i alate, i može se probati na naslovnoj.</p>
+          <p class="small">Persone koriste isti SIGIL lanac i isti evidence gate kao i ostali agenti.</p>
+        </div>
+        <div class="panel reveal">
+          <h3>Alati — 396 generatora</h3>
+          <p>42 grupe · 252 alata · BS/EN prekidač. Uz to 50+ klijentskih alata koji rade bez servera i 22 AI alata na jednom mjestu (OCR, PDF, TTS, video, Python sandbox, Blender, FreeCAD).</p>
+          <p class="small"><a href="gamacode.html#alati">Katalog alata →</a></p>
+        </div>
+        <div class="panel reveal">
+          <h3>MCP server</h3>
+          <p><code>gamai_mcp.py</code> daje Claude Code / Cursor / Codex / OpenCode direktan pristup: <code>search_skills</code> (1.000), <code>make_page</code>, <code>ocr</code>, <code>to_pdf</code>, <code>make_qr</code>, <code>text_to_speech</code>, <code>run_python</code> (30 s), <code>merge_pdfs</code>. Bez API ključa (javni gamai.io).</p>
+          <p class="small"><a href="gamacode.html#docs">MCP konfiguracija →</a></p>
+        </div>
+        <div class="panel reveal">
+          <h3>GAMACODE harness</h3>
+          <p>Harness 1.2.2: <b>294 alata</b>, 47 slash komandi, 1.172 testa, code-bench 6/6 u ~16 s. Live katalog (11.11.2026) navodi 178 alata; novi broj je 294.</p>
+          <p class="small"><a href="gamacode.html">GAMACODE →</a></p>
+        </div>
+        <div class="panel reveal">
+          <h3>Open source — 30+</h3>
+          <p>SIGIL, sigil-tenant, crossnode-bench, gamai-trust, gama-sandbox, gamai-guard, gnp-trust, polymorph, gama-fastpath, dsc, gama-lang, agentmujo i drugi. DOI gdje postoji.</p>
+          <p class="small"><a href="benchmarks.html#opensource">Repozitoriji i DOI →</a></p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section id="dokazi-sigil" class="anchor">
+    <div class="wrap">
+      <div class="shead">
+        <div class="kicker">Dokaz u brojevima</div>
+        <h2>Receipti, honest fleet i lažni „done"</h2>
+        <p class="sub">Svaki broj ima izvor: LUMI job, CrossNode-Bench ili naš harness. Puni kontekst je na <a href="benchmarks.html">Benchmark</a> stranici.</p>
+      </div>
+      <div class="tw reveal">
+        <table class="bench">
+          <thead><tr><th>Mjerenje</th><th>Rezultat</th><th>Izvor / uslov</th></tr></thead>
+          <tbody>
+            <tr><td>SIGIL receipti u produkciji</td><td class="num win">1.000 · lanac validan · 0 grešaka</td><td>gate/verify/anchor end-to-end; svaki receipt nosi Ed25519 potpis kada je ključ postavljen</td></tr>
+            <tr><td>LUMI false-success</td><td class="num win">25.600 proba · 6,25% uhvaćeno</td><td>LUMI-G, 8 nodova; p50 2,4 ms / p95 10,8 ms; job 23394156 (01.11.2026)</td></tr>
+            <tr><td>CrossNode honest fleet</td><td class="num win">25.600 / 25.600 prošlo · 0 false-success</td><td>honest run, p50 64,8 ms</td></tr>
+            <tr><td>CrossNode liar run</td><td class="num win">400 / 400 uhvaćeno</td><td>28.800 proba, p50 171 ms; Zenodo DOI 10.5281/zenodo.24092188</td></tr>
+            <tr><td>Firecracker izolacija</td><td class="num win">5,8 ms fork · 1,846 s boot · 2,286 ms restore</td><td>vsock exec ~11 ms; mikroVM po agentu</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+
+  <section id="multi-tenant" class="anchor">
+    <div class="wrap">
+      <div class="shead">
+        <div class="kicker">Multi-tenant</div>
+        <h2>Jedan trust sloj, odvojen lanac po klijentu</h2>
+      </div>
+      <div class="grid3">
+        <div class="panel reveal"><h3>Odvojen lanac</h3><p>Svaki klijent dobija svoj gate/verify/anchor lanac; receipti jednog klijenta ne ulaze u lanac drugog.</p></div>
+        <div class="panel reveal"><h3>API ključ i metering</h3><p>Ključ je vezan za tenant; potrošnja se mjeri po akciji i izvršenju, bez miješanja faktura.</p></div>
+        <div class="panel reveal"><h3>AI Act trag</h3><p>Append-only, hash-lanac, 180 dana zadržavanja po defaultu i izvoz dokaza za auditora.</p></div>
+      </div>
+    </div>
+  </section>
+
+  <section id="receipt" class="anchor">
+    <div class="wrap">
+      <div class="shead">
+        <div class="kicker">Receipt</div>
+        <h2>Šta tačno potpisujemo</h2>
+        <p class="sub">Receipt ne sadrži sirove argumente — samo njihov hash — pa se može dijeliti i čuvati bez curenja podataka.</p>
+      </div>
+      <div class="split">
+        <div class="panel reveal">
+          <h3>Sadržaj</h3>
+          <ul class="ticklist">
+            <li><code>decision_id</code> i <code>decision_hash</code> — veza na Gate 1</li>
+            <li><code>tool</code> i <code>evidence_kind</code> — šta je provjereno</li>
+            <li><code>verified</code> + <code>reasons</code> — ishod provjere</li>
+            <li><code>sha256(args)</code> i <code>sha256(result)</code></li>
+            <li><code>prev_hash</code> — veza na prethodni receipt</li>
+            <li><code>key_id</code> + <code>sig</code> — Ed25519, kada je ključ postavljen</li>
+            <li><code>ts</code> — vrijeme izdavanja</li>
+          </ul>
+        </div>
+        <div class="panel reveal">
+          <h3>Primjer (skraćeno)</h3>
+          <div class="code">{
+  <span class="b">"decision_id"</span>: <span class="g">"dec-216a6d18"</span>,
+  <span class="b">"decision_hash"</span>: <span class="g">"9f2c…a71b"</span>,
+  <span class="b">"tool"</span>: <span class="g">"mail"</span>,
+  <span class="b">"evidence_kind"</span>: <span class="g">"external_send"</span>,
+  <span class="b">"verified"</span>: true,
+  <span class="b">"reasons"</span>: [],
+  <span class="b">"receipt_hash"</span>: <span class="g">"5be1…0c9d"</span>,
+  <span class="b">"prev_hash"</span>: <span class="g">"3ad7…88e0"</span>,
+  <span class="b">"key_id"</span>: <span class="g">"gtl-2026-11"</span>,
+  <span class="b">"sig"</span>: <span class="g">"ed25519:base64…"</span>,
+  <span class="b">"ts"</span>: 1794609572.77
+}</div>
+        </div>
+      </div>
+      <div class="callout reveal">
+        <b>Iskrenost o ključu:</b> bez konfigurisanog ključa receipt je hash-only (integritet, ne autentikacija).
+        Ed25519 potpis dokazuje <i>ko</i> je izdao receipt — zato preporučujemo da privatni ključ ostane kod vas,
+        a javni ide u verifikator.
+      </div>
+    </div>
+  </section>
+
+  <section id="lanac" class="anchor">
+    <div class="wrap">
+      <div class="shead">
+        <div class="kicker">Hash-lanac</div>
+        <h2>Svaki receipt nosi prethodni</h2>
+        <p class="sub">Lanac čini naknadno brisanje ili prepisivanje jednog zapisa vidljivim — čak i bez blockchaina.</p>
+      </div>
+      <div class="diagram reveal"><pre>
+receipt #1            receipt #2                     receipt #3
+┌──────────────┐      ┌────────────────────────┐     ┌────────────────────────┐
+│ sha256(data) │      │ sha256(data)           │     │ sha256(data)           │
+│ prev: 000…   │─────▶│ prev: hash(#1)         │────▶│ prev: hash(#2)         │
+│ sig: ed25519 │      │ sig: ed25519           │     │ sig: ed25519           │
+└──────────────┘      └────────────────────────┘     └────────────────────────┘
+        │                       │                              │
+        └───────────── append-only ledger (SQLite) ────────────┘
+                     replay po idempotency ključu vraća
+                     zapisani rezultat, ne ponovno izvršenje
+      </pre></div>
+      <p class="note">GTL (GAMA Trust Layer) čuva receipte u lokalnoj SQLite bazi. Lanac je HMAC-vezan kada je chain ključ postavljen; bez ključa ostaje hash-lanac. Replay je fail-closed za side-effect alate: bez idempotency ključa poziv se odbija.</p>
+    </div>
+  </section>
+
+  <section id="aiact" class="anchor">
+    <div class="wrap">
+      <div class="shead">
+        <div class="kicker">Usklađenost</div>
+        <h2>EU AI Act: šta pokrivamo, a šta ne</h2>
+        <p class="sub">Mapiranje je tehničko, ne pravno. Za kvalifikaciju sistema i obaveze konsultujte pravnika.</p>
+      </div>
+      <div class="tw reveal">
+        <table class="bench">
+          <thead><tr><th>Član</th><th>Zahtjev (sažeto)</th><th>Šta SIGIL daje</th><th>Pokrivenost</th></tr></thead>
+          <tbody>
+            <tr>
+              <td><b>čl. 12</b><br><span class="small">Record-keeping</span></td>
+              <td>Automatsko bilježenje događaja tokom rada sistema, zadržavanje i čitljivost zapisa.</td>
+              <td>Append-only receipts sa vremenom, alatom, ishodom i hash-lancem; export i retention politika.</td>
+              <td><span class="badge2 ok">tehnički pokriveno</span></td>
+            </tr>
+            <tr>
+              <td><b>čl. 14</b><br><span class="small">Human oversight</span></td>
+              <td>Ljudski nadzor, mogućnost zaustavljanja i ispravke rizičnih akcija.</td>
+              <td>SEND i IRREVERSIBLE traže izričitu naredbu/approval; stop i rollback su dio petlje.</td>
+              <td><span class="badge2 ok">tehnički pokriveno</span></td>
+            </tr>
+            <tr>
+              <td><b>čl. 15</b><br><span class="small">Accuracy, robustness, cybersecurity</span></td>
+              <td>Tačnost, robusnost i otpornost na greške i zloupotrebu.</td>
+              <td>Kalibrisana pouzdanost, deterministički deny, sandbox izolacija, potpisani dokazi.</td>
+              <td><span class="badge2 mid">djelimično</span></td>
+            </tr>
+            <tr>
+              <td><b>čl. 19</b><br><span class="small">Logs</span></td>
+              <td>Automatski generisani logovi se čuvaju onoliko koliko je propisano; moraju biti čitljivi i dostupni.</td>
+              <td>Retention po konfiguraciji klijenta, 180 dana po defaultu; export i čitljiv zapis po receiptu.</td>
+              <td><span class="badge2 ok">tehnički pokriveno</span></td>
+            </tr>
+            <tr>
+              <td><b>čl. 26</b><br><span class="small">Deployer duties</span></td>
+              <td>Dužnosti operatora: ljudski nadzor, stop kontrole i izvoz incidenata.</td>
+              <td>Human-oversight hooks, stop kontrole i incident export; SEND/IRREVERSIBLE traže approval.</td>
+              <td><span class="badge2 ok">tehnički pokriveno</span></td>
+            </tr>
+            <tr>
+              <td><b>čl. 72</b><br><span class="small">Post-market monitoring</span></td>
+              <td>Kontinuirano praćenje rada sistema i dostava podataka za nadzor.</td>
+              <td>Exportable monitoring podaci iz receipta i evidence gate-a; analiza ostaje na deployeru.</td>
+              <td><span class="badge2 mid">djelimično</span></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="callout warn reveal">
+        <b>Šta SIGIL ne može:</b> ne utvrđuje da li je vaš sistem „high-risk" po Prilogu III, ne piše umjesto vas
+        procjenu rizika (čl. 9), ne zamjenjuje tehničku dokumentaciju (čl. 11) ni post-market monitoring (čl. 72).
+        Daje <i>dokaze</i> koji te procese čine provjerljivim.
+      </div>
+    </div>
+  </section>
+
+  <section id="verifikacija" class="anchor">
+    <div class="wrap">
+      <div class="shead">
+        <div class="kicker">Verifikacija</div>
+        <h2>Provjera bez našeg prisustva</h2>
+        <p class="sub">Dvije opcije: javni endpoint (ako je izložen) ili lokalna provjera javnim ključem.</p>
+      </div>
+      <div class="split">
+        <div class="panel reveal">
+          <h3>Harness endpoint</h3>
+          <p>Zahtijeva pristupni token. Vraća <code>ok</code>, razloge i vezu na odluku.</p>
+          <div class="code">curl -sS http://127.0.0.1:7125/gtl/verify \
+  -H <span class="g">"X-Token: $GAMA_TOKEN"</span> \
+  -H <span class="g">"Content-Type: application/json"</span> \
+  -d <span class="g">'{"id":"&lt;receipt_id&gt;"}'</span></div>
+        </div>
+        <div class="panel reveal">
+          <h3>Lokalno, javnim ključem</h3>
+          <p>Vaš auditor dobija javni ključ i receipts; privatni ključ nikad ne napušta vašu infrastrukturu.</p>
+          <div class="code"><span class="c">from</span> gama_dsc.sigil <span class="c">import</span> load_public, verify_sigil
+pub = load_public(<span class="g">"gtl_ed25519.pub"</span>)
+res = verify_sigil(receipt, result=result, public_key=pub)
+<span class="k">assert</span> res[<span class="g">"ok"</span>]</div>
+        </div>
+      </div>
+      <p class="note">Javna stranica <a href="verify.html">Verify</a> pokušava endpoint, a ako nije dostupan daje vam tačan format i komande — nikad ne prikazuje „lažno zeleno".</p>
+    </div>
+  </section>
+
+  <section id="sigurnost" class="anchor">
+    <div class="wrap">
+      <div class="shead">
+        <div class="kicker">Sigurnosni model</div>
+        <h2>Pretpostavke i granice</h2>
+      </div>
+      <div class="grid3">
+        <div class="panel reveal"><h3>Pretpostavka 1</h3><p>Privatni ključ je u vašem KMS-u ili na disku sa restriktivnim pravima. Ako ključ procuri, potpisi prestaju biti dokaz identiteta.</p></div>
+        <div class="panel reveal"><h3>Pretpostavka 2</h3><p>Receipt dokazuje da je alat vratio baš taj rezultat u tom trenutku — ne da je poslovna odluka ispravna.</p></div>
+        <div class="panel reveal"><h3>Pretpostavka 3</h3><p>Vrijeme izdavanja je pouzdano onoliko koliko je pouzdan sat mašine; za strože potrebe koristite eksterni timestamp.</p></div>
+      </div>
+      <p class="note">Ne koristimo blockchain i ne tvrdimo „nepromjenjivo". Tvrdimo: naknadna izmjena zapisa je detektabilna provjerom lanca i potpisa.</p>
+    </div>
+  </section>
+"""
+
+# ------------------------------------------------------------- gamacode.html
+gamacode_body = r"""
+  <section class="pagehero">
+    <div class="wrap">
+      __CRUMB__
+      <span class="eyebrow" style="margin-top:22px"><span class="dot"></span>Stub 03 · GAMACODE</span>
+      <h1>Agent koji ima ruke — i granice</h1>
+      <p class="lede">
+        GAMACODE je harness: jedan Python proces koji drži agent loop, <b>294 alata</b>, pristup floti,
+        read-only SQL, sandbox i verifikaciju. Radi kao samostalni server, kao OpenCode provajder i kao
+        MCP izvor alata. Verzija <b>1.2.2</b>.
+      </p>
+      <div class="chips">
+        <span class="chip live">294 alata</span>
+        <span class="chip">47 slash komandi</span>
+        <span class="chip">6 čvorova flote</span>
+        <span class="chip">runc / gVisor / Firecracker</span>
+        <span class="chip">streaming SSE</span>
+        <span class="chip">open-core</span>
+      </div>
+      <div class="cta">
+        <a class="btn primary" href="gamacode.html#docs">Počni od dokumentacije</a>
+        <a class="btn ghost" href="contact.html#demo">Zakaži demo</a>
+      </div>
+    </div>
+  </section>
+
+  <section id="harness" class="anchor">
+    <div class="wrap">
+      <div class="shead">
+        <div class="kicker">Harness</div>
+        <h2>Jedan proces, cijeli „mozak + ruke" sloj</h2>
+        <p class="sub">Nije framework i nema obaveznih cloud zavisnosti. Server je ThreadingHTTPServer; sve ostalo su moduli u istom folderu.</p>
+      </div>
+      <div class="grid3">
+        <div class="panel reveal"><h3>Agent loop</h3><p>Model predlaže tool_call → harness izvršava → verifikuje → odgovara. Uz max_steps, stop, rewind i kompakciju konteksta.</p></div>
+        <div class="panel reveal"><h3>Ulazi</h3><p>HTTP API, web UI, TUI, CLI, ACP i IDE integracije. Isti alat i ista politika za sve ulaze.</p></div>
+        <div class="panel reveal"><h3>Sigurnost</h3><p>Token/Bearer, scoped pristup, approvals, redakcija tajni, path/SSRF guard, CSP i sandbox.</p></div>
+      </div>
+      <div class="callout reveal">
+        <b>Važno:</b> harness je primarno namijenjen internoj, single-tenant upotrebi na mašinama koje kontroliše vlasnik.
+        Nije multi-tenant SaaS i ne tvrdi da je. Za enterprise isolation vidite <a href="pricing.html">Enterprise tier</a>.
+      </div>
+    </div>
+  </section>
+
+  <section id="alati" class="anchor">
+    <div class="wrap">
+      <div class="shead">
+        <div class="kicker">Alati i MCP</div>
+        <h2>Katalog koji harness koristi</h2>
+        <p class="sub">Live katalog (11.11.2026) navodi 178 alata; harness 1.2.2 ima 294 alata i 1.172 testa (code-bench 6/6 u ~16 s). Stariji broj ostaje zabilježen radi poređenja — nijedan alat nije izgubljen prelaskom na 1.2.2.</p>
+      </div>
+      <div class="grid3">
+        <div class="panel reveal"><h3>Generatori — 396</h3><p>42 grupe · 252 alata · BS/EN prekidač: kod, istraživanje sa citatima, prevod, sažimanje, ugovori, predračun sa PDV-om, OCR, PDF, slika, audio, video, 3D (Blender, FreeCAD).</p></div>
+        <div class="panel reveal"><h3>Klijentski alati — 50+</h3><p>Rade u browseru bez servera: lozinke, SHA-256, Base64, JSON, brojač riječi, konverteri, PDV 17%, kredit, BMI, UUID, CSV, QR, regex, subnet, TTS, Markdown.</p></div>
+        <div class="panel reveal"><h3>AI alati — 22</h3><p>Na jednom mjestu: kalkulator, web pretraga, vještine, provjera, kod, istraga, duboka istraga, Python sandbox (30 s) i Skill Audit (sigurnosni sken <code>SKILL.md</code>).</p></div>
+        <div class="panel reveal"><h3>MCP alati</h3><p><code>search_skills</code> (1.000), <code>make_page</code>, <code>ocr</code>, <code>to_pdf</code>, <code>make_qr</code>, <code>text_to_speech</code>, <code>run_python</code>, <code>merge_pdfs</code>. Zavisnost: <code>pip install mcp</code> (Python 3.10+).</p></div>
+        <div class="panel reveal"><h3>Integracije</h3><p>OpenCode, Claude Code, Codex, Gemini CLI, Qwen Code, Crush, Goose, Cursor, Windsurf, Cline, Continue, Zed i generički MCP.</p></div>
+        <div class="panel reveal"><h3>Vještine i persone</h3><p>992 open-source vještine (<code>gamai-skills</code>) i 364 persone. Katalog vještina prikazuje 1.000; svaka se izvršava na GPU radniku.</p></div>
+      </div>
+      <div class="panel reveal" style="margin-top:16px">
+        <h3>Puni live katalog (imena)</h3>
+        <p class="small"><b>Server alati:</b> Kalkulator · Web pretraga · Vještine · Provjera · Kod · Istraga · Generiši kod · Istraži (izvori) · Duboka istraga · Prevod · Sažmi tekst · Gramatika · Poslovni email · Opis proizvoda · Napravi CV · Objava za mreže · Blog članak · Reklamni tekst · Prepiši tekst · Ideje · Ugovor / NDA · Motivaciono pismo · Formalni dopis · Email potpis · Predračun · Izvještaj · Checklista · Pravna napomena · OCR · OCR dokument · OCR tabela · Prevod dokumenta · Doc → PDF · PDF alati · Spoji PDF · Doc konverzija · Uredi sliku · Magick · SVG → PNG · Upscale · Ukloni pozadinu · QR kod · Tekst → slika · Tekst → govor · Audio → tekst · Audio edit · Spoji audio · Video obrada · Video edit · Tekst → video · Python sandbox · Blender 3D · FreeCAD · Skill Audit · gamAI MCP · Experts · Ured &amp; dokumenti · Slika paket · Audio paket · Video paket · Dev &amp; 3D paket · Svi AI alati.</p>
+        <p class="small" style="margin-top:10px"><b>Klijentski alati:</b> Generator lozinki · SHA-256 hash · Base64 encode/decode · JSON formatter · Brojač riječi · Velika/mala slova · Konverter jedinica · Boja → HEX/RGB · Lorem ipsum · PDV kalkulator (17%) · Kredit kalkulator · BMI kalkulator · Postotak · Razlika datuma · Kocka / novčić · UUID generator · Slug generator · CSV → tabela · Slika → Base64 · Broj → riječima (bs) · Štoperica · Morse kod · MD5-lite / DJB2 · URL encode/decode · HEX / Binarno · ROT13 / Caesar · Sortiraj / ukloni duplikate · Regex tester · Subnet kalkulator · Govor (browser TTS) · Kompresuj sliku · Odbrojavanje · ASCII / Unicode kodovi · Markdown preview.</p>
+      </div>
+      <div class="split" style="margin-top:16px">
+        <div class="panel reveal">
+          <h3>Instalacija MCP-a</h3>
+          <div class="code">pip install mcp
+curl -sL https://gamai.io/mcp/gamai_mcp.py -o gamai_mcp.py
+
+<span class="c"># Claude Code</span>
+claude mcp add gamai -- python /putanja/gamai_mcp.py</div>
+        </div>
+        <div class="panel reveal">
+          <h3>OpenCode / Cursor config</h3>
+          <div class="code"><span class="c"># ~/.config/opencode/opencode.jsonc</span>
+{ <span class="b">"mcp"</span>: { <span class="b">"gamai"</span>: {
+  <span class="b">"type"</span>: <span class="g">"local"</span>,
+  <span class="b">"command"</span>: [<span class="g">"python"</span>, <span class="g">"gamai_mcp.py"</span>],
+  <span class="b">"enabled"</span>: true } } }
+
+<span class="c"># .cursor/mcp.json</span>
+{ <span class="b">"mcpServers"</span>: { <span class="b">"gamai"</span>: {
+  <span class="b">"command"</span>: <span class="g">"python"</span>,
+  <span class="b">"args"</span>: [<span class="g">"/putanja/gamai_mcp.py"</span>] } } }</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section id="flota" class="anchor">
+    <div class="wrap">
+      <div class="shead">
+        <div class="kicker">Flota</div>
+        <h2>Šest čvorova, jedan interfejs</h2>
+        <p class="sub">Ista komanda radi na Linuxu i Windowsu. Uloge su operativne — mijenjaju se po potrebi, ne po ugovoru.</p>
+      </div>
+      <div class="tw reveal">
+        <table class="bench">
+          <thead><tr><th>Čvor</th><th>Platforma</th><th>Uloga u floti</th><th>Provjereno</th></tr></thead>
+          <tbody>
+            <tr><td><b>Oracle</b></td><td>Linux</td><td>izvršni čvor, HC, gateway za LUMI batch</td><td><span class="badge2 ok">aktivan</span></td></tr>
+            <tr><td><b>Contabo</b></td><td>Linux</td><td>primarni harness :7125, javni sajt, baza znanja</td><td><span class="badge2 ok">aktivan</span></td></tr>
+            <tr><td><b>linux3</b></td><td>Linux</td><td>browser automatizacija i GUI sesije</td><td><span class="badge2 ok">aktivan</span></td></tr>
+            <tr><td><b>dispečer</b></td><td>Windows</td><td>korisnikov ekran, GUI/HC akcije uz pitanje</td><td><span class="badge2 ok">aktivan</span></td></tr>
+            <tr><td><b>gama-lab-fra</b></td><td>Linux (Vultr)</td><td>laboratorij, testovi, izolovani eksperimenti</td><td><span class="badge2 ok">aktivan</span></td></tr>
+            <tr><td><b>Crusoe</b></td><td>Linux (GPU/CPU)</td><td>povremeni burst za trening i evaluaciju</td><td><span class="badge2 ok">aktivan</span></td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p class="note">Stanje flote se provjerava komandom <code>gama who</code>; čvor koji ne odgovori se preskače, a zadnji fallback je Contabo. Broj „6" je broj čvorova u produkcijskoj floti u trenutku pisanja (13.11.2026).</p>
+    </div>
+  </section>
+
+  <section id="sandbox" class="anchor">
+    <div class="wrap">
+      <div class="shead">
+        <div class="kicker">Izolacija</div>
+        <h2>Rizik bira sandbox</h2>
+        <p class="sub">Nepouzdan kod nikad ne ide golo. Isti interfejs, tri nivoa izolacije, mjerene latencije.</p>
+      </div>
+      <div class="tw reveal">
+        <table class="bench">
+          <thead><tr><th>Režim</th><th>Kada</th><th>Syscall (ns/op)</th><th>Cijena</th></tr></thead>
+          <tbody>
+            <tr><td><b>Bare metal</b></td><td>referenca</td><td class="num">92</td><td class="num">1×</td></tr>
+            <tr><td><b>runc</b></td><td>poznat, deterministički kod</td><td class="num">110</td><td class="num">~1.2×</td></tr>
+            <tr><td><b>gVisor</b></td><td>nepouzdan kod / mreža</td><td class="num">751</td><td class="num">~4–13×</td></tr>
+            <tr><td><b>Firecracker</b></td><td>transakcije, jaka izolacija</td><td class="num win">54</td><td class="num">~native</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="split">
+        <div class="panel reveal"><h3>Firecracker</h3><p>Pun boot <b>1.846 s</b>, snapshot restore <b>2.28 ms</b>. Mikro-VM u lab mreži preko <code>fctap0</code>; bez NAT-a na hostu.</p></div>
+        <div class="panel reveal"><h3>gVisor</h3><p>Sentry presreće syscall-e; sporiji je i do 13× na mikro-benchu, ali drastično smanjuje blast radius za nepoznat kod.</p></div>
+      </div>
+      <p class="note">Mjerenja: vmlab (10 vCPU / 33 GB / GTX 1660S), 2026-10-31. Apsolutni brojevi zavise od kernela i hardvera; odnos je ono što je stabilno.</p>
+    </div>
+  </section>
+
+  <section id="mjerenja" class="anchor">
+    <div class="wrap">
+      <div class="shead">
+        <div class="kicker">Mjerenja</div>
+        <h2>Stvarni rezultati, sa uslovima</h2>
+      </div>
+      <div class="tw reveal">
+        <table class="bench">
+          <thead><tr><th>Test</th><th>Rezultat</th><th>Uslov</th></tr></thead>
+          <tbody>
+            <tr><td>SWE-lite (10 zadataka)</td><td class="num win">10/10</td><td>nezavisni pytest; agentov „ok" se ne računa</td></tr>
+            <tr><td>Streaming, prvi tekst</td><td class="num win">1.29 s</td><td>harness 1.2.0, 202 chunk-a, gap p50 11.9 ms / p95 18.3 ms</td></tr>
+            <tr><td>Upload</td><td class="num win">HTTP 200</td><td>multipart, tačan JSON (filename/size/mime/is_image/is_audio)</td></tr>
+            <tr><td>Audio transkripcija</td><td class="num win">OK</td><td>mp3 11.952 B; log potvrđuje transkripciju</td></tr>
+            <tr><td>Smanjenje prompta</td><td class="num win">−86.2 %</td><td>deferred tools: 405 → 34–66 šema</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p class="note">SWE-lite i streaming su mjereni na Contabu; detalji i artefakti su u repozitoriju (<code>reports/</code>). Ne objavljujemo broj koji nismo uspjeli reprodukovati.</p>
+    </div>
+  </section>
+
+  <section id="brain" class="anchor">
+    <div class="wrap">
+      <div class="shead">
+        <div class="kicker">Stub 04 · BRAIN</div>
+        <h2>Dijeljena memorija, ne zajednički kontekst</h2>
+        <p class="sub">Agenti uče jedni od drugih kroz provjerene činjenice i lekcije — sa izvorom i mogućnošću da se zastarjela činjenica označi.</p>
+      </div>
+      <div class="split">
+        <div class="panel reveal">
+          <h3>Kako radi</h3>
+          <ul class="ticklist">
+            <li><code>brain_search</code> — hibridna pretraga (FTS + vektor, RRF fuzija)</li>
+            <li><code>brain_write</code> — fact (trajna tema) ili lesson (dnevnik)</li>
+            <li><code>brain_flag</code> — stale / wrong / verified</li>
+            <li>scope: global, user, room — privatno ostaje privatno</li>
+            <li>izvor i vrijeme uz svaki zapis</li>
+          </ul>
+        </div>
+        <div class="panel reveal">
+          <h3>Zašto je bitno</h3>
+          <p>Agent koji zaboravi proceduru pravi istu grešku svaki put. Memorija sa provenance-om skraćuje put do tačnog broja, procedure ili para — i jasno kaže kada nešto nije provjereno.</p>
+          <div class="code"><span class="c"># prije rada</span>
+brain_search(<span class="g">"PDV 17 postupak"</span>)
+
+<span class="c"># poslije provjere</span>
+brain_write(<span class="g">"pdv-bih"</span>, <span class="g">"stopa 17%, rok …"</span>, kind=<span class="g">"fact"</span>)
+
+<span class="c"># kada činjenica zastari</span>
+brain_flag(<span class="g">"pdv-bih"</span>, <span class="g">"stale"</span>)</div>
+        </div>
+      </div>
+      <p class="note">BRAIN ne tvrdi da je sve u memoriji tačno. Tvrdi da se zna odakle dolazi i da se netačno može označiti i povući. Bez toga je dijeljena memorija samo brži način da se greška proširi.</p>
+    </div>
+  </section>
+
+  <section id="docs" class="anchor">
+    <div class="wrap">
+      <div class="shead">
+        <div class="kicker">Docs</div>
+        <h2>Quickstart</h2>
+        <p class="sub">Jezgro je lokalno. Za prvi `/health` nije potreban API ključ modela; za chat jeste (LLM endpoint u konfiguraciji).</p>
+      </div>
+
+      <div class="steps">
+        <div class="step reveal"><div class="n">01</div><div>
+          <h3>Pokreni harness</h3>
+          <p>Iz foldera repozitorija. Port se čita iz konfiguracije, default je 7125.</p>
+          <div class="code">python3 gama_harness.py
+<span class="c"># log: GAMA Harness start port=7125 …</span></div>
+        </div></div>
+
+        <div class="step reveal"><div class="n">02</div><div>
+          <h3>Provjeri zdravlje</h3>
+          <p>Očekivan odgovor je JSON sa <code>ok:true</code> i verzijom.</p>
+          <div class="code">curl -sS http://127.0.0.1:7125/health
+<span class="g">{"ok": true, "ver": "1.2.2", "ts": 1794609895}</span></div>
+        </div></div>
+
+        <div class="step reveal"><div class="n">03</div><div>
+          <h3>Pošalji zadatak</h3>
+          <p>Loopback može biti zaključan tokenom; tada ide <code>X-Token</code> header.</p>
+          <div class="code">curl -sS http://127.0.0.1:7125/chat \
+  -H <span class="g">"Content-Type: application/json"</span> \
+  -H <span class="g">"X-Token: $GAMA_TOKEN"</span> \
+  -d <span class="g">'{"text":"koliko ima kupaca u bazi","sid":"demo-1"}'</span></div>
+        </div></div>
+
+        <div class="step reveal"><div class="n">04</div><div>
+          <h3>Provjeri dokaz</h3>
+          <p>GTL endpoint prima <code>id</code> ili cijeli <code>receipt</code> objekat.</p>
+          <div class="code">curl -sS http://127.0.0.1:7125/gtl/verify \
+  -H <span class="g">"X-Token: $GAMA_TOKEN"</span> \
+  -H <span class="g">"Content-Type: application/json"</span> \
+  -d <span class="g">'{"id":"&lt;receipt_id&gt;"}'</span></div>
+        </div></div>
+      </div>
+
+      <div class="split" style="margin-top:34px">
+        <div class="panel reveal">
+          <h3>Ključne rute</h3>
+          <ul class="ticklist">
+            <li><code>GET /health</code>, <code>GET /metrics</code></li>
+            <li><code>POST /chat</code> — jedan odgovor</li>
+            <li><code>POST /stream/ticket</code> + <code>GET /stream</code> — SSE</li>
+            <li><code>POST /session/upload</code> — fajlovi, slike, audio</li>
+            <li><code>POST /gtl/verify</code> — verifikacija receipts</li>
+            <li><code>GET /ui</code> — web interfejs</li>
+          </ul>
+        </div>
+        <div class="panel reveal">
+          <h3>Konfiguracija (env)</h3>
+          <ul class="ticklist">
+            <li><code>GAMA_HARNESS_TOKEN</code> / <code>GAMA_REQUIRE_TOKEN_LOOPBACK=1</code> — auth</li>
+            <li><code>GTL_SIGN_KEY</code> / <code>GTL_SIGN_PUB</code> — Ed25519 par</li>
+            <li><code>GTL_CHAIN_KEY</code> — HMAC za hash-lanac</li>
+            <li><code>GTL_RECEIPT_DB</code> — lokacija ledger baze</li>
+            <li><code>BH_SPECULATIVE_TIMEOUT</code> — budžet spekulativnog koraka (default 0.15 s)</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="callout warn reveal">
+        <b>Sigurnost prije svega:</b> ne izlažite harness na javni internet bez TLS-a, tokena i reverse proxyja.
+        Podrazumijevani režim je lokalni/serverski, single-tenant. Za produkciju koristite sistemd/Docker
+        iz dokumentacije i odvojene tokene po klijentu.
+      </div>
+    </div>
+  </section>
+
+  <section id="integracija" class="anchor">
+    <div class="wrap">
+      <div class="shead">
+        <div class="kicker">Integracija</div>
+        <h2>OpenCode i MCP</h2>
+        <p class="sub">Harness se registruje kao provajder modela i kao MCP server sa alatima; isti token i ista politika važe.</p>
+      </div>
+      <div class="split">
+        <div class="panel reveal"><h3>Kao provajder</h3><p>OpenCode vidi harness kao OpenAI-kompatibilan endpoint; modeli se biraju po imenu iz kataloga. Streaming i tool-call rade kroz isti loop.</p></div>
+        <div class="panel reveal"><h3>Kao MCP izvor</h3><p>Alati se izlažu po allowlisti. MCP klijent ne dobija pristup cijeloj mašini — samo onim alatima koje ste eksplicitno uključili.</p></div>
+      </div>
+      <p class="note">Broj alata (294) je izmjeren iz registra u <code>gama_harness.py</code> za 1.2.2. Broj vidljivih alata po sesiji je manji jer se dio učitava odloženo (deferred tools) — to je izvor smanjenja prompta od 86 %.</p>
+    </div>
+  </section>
+"""
+
+# ----------------------------------------------------------- benchmarks.html
+benchmarks_body = r"""
+  <section class="pagehero">
+    <div class="wrap">
+      __CRUMB__
+      <span class="eyebrow" style="margin-top:22px"><span class="dot"></span>Benchmark i open source</span>
+      <h1>Izmjereno, reproduktivno, sa izvorom</h1>
+      <p class="lede">
+        Rezultati iz naših runova — determinizam, iskrenost, sigurnost, modeli, harness i infrastruktura.
+        Gdje postoji arhiva, naveden je DOI. Sirovi JSONL, izvještaji i repro skripte su u repozitorijima;
+        brojevi su iz kontrolisanih runova, ne iz terenskih statistika.
+      </p>
+      <div class="chips">
+        <span class="chip live">LUMI job 23394156</span>
+        <span class="chip">CrossNode-Bench v1.4.0</span>
+        <span class="chip">Zenodo DOI 10.5281/zenodo.24092188</span>
+        <span class="chip">1.172 testa</span>
+        <span class="chip">6 čvorova flote</span>
+      </div>
+      <div class="cta">
+        <a class="btn primary" href="verify.html">Provjeri dokaz</a>
+        <a class="btn ghost" href="contact.html#demo">Zakaži demo</a>
+      </div>
+    </div>
+  </section>
+
+  <section id="false-success" class="anchor">
+    <div class="wrap">
+      <div class="shead">
+        <div class="kicker">Evidence gate</div>
+        <h2>False-success: koliko lažnih „done" kapija uhvati</h2>
+        <p class="sub">Tri runa: LUMI, honest flota i liar run. Isti gate, isti prag, različit izvor tvrdnji.</p>
+      </div>
+      <div class="tw reveal">
+        <table class="bench">
+          <thead><tr><th>Run</th><th>Proba</th><th>Rezultat</th><th>Latencija</th></tr></thead>
+          <tbody>
+            <tr><td>LUMI-G, 8 nodova</td><td class="num">25.600</td><td class="num win">6,25% fabrikovanih tvrdnji označeno</td><td>p50 2,4 ms / p95 10,8 ms</td></tr>
+            <tr><td>CrossNode honest fleet</td><td class="num">25.600</td><td class="num win">25.600 / 25.600 prošlo · 0 false-success</td><td>p50 64,8 ms</td></tr>
+            <tr><td>CrossNode liar run</td><td class="num">28.800</td><td class="num win">400 false-success · 400 / 400 uhvaćeno</td><td>p50 171 ms</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p class="note">Izvori: LUMI job <b>23394156</b> (01.11.2026); CrossNode-Bench <b>v1.4.0</b>, Zenodo DOI <a href="https://doi.org/10.5281/zenodo.24092188">10.5281/zenodo.24092188</a>. Liar run namjerno ubacuje lažne tvrdnje na jedan nod; sve 400 su uhvaćene upravo tamo.</p>
+    </div>
+  </section>
+
+  <section id="sigil-bench" class="anchor">
+    <div class="wrap">
+      <div class="shead">
+        <div class="kicker">SIGIL · harness · izolacija · model</div>
+        <h2>Receipti, testovi i sandbox</h2>
+      </div>
+      <div class="tw reveal">
+        <table class="bench">
+          <thead><tr><th>Metrika</th><th>Vrijednost</th><th>Kontekst</th></tr></thead>
+          <tbody>
+            <tr><td>SIGIL produkcijski receipti</td><td class="num win">1.000</td><td>lanac validan, 0 grešaka; Ed25519 potpis kada je ključ postavljen</td></tr>
+            <tr><td>GAMACODE harness</td><td class="num win">178 alata · 1.172 testa</td><td>code-bench 6/6 u ~16 s; live katalog (11.11.2026); harness 1.2.2 ima 294 alata</td></tr>
+            <tr><td>Firecracker izolacija</td><td class="num win">5,8 ms fork / VM</td><td>boot 1,846 s · restore 2,286 ms · vsock exec ~11 ms</td></tr>
+            <tr><td>AgentMujo v1.5.0</td><td class="num win">CUA 49,0%</td><td>ScreenSpot 76,3% · tool 95,2% · refusal 100% (DOI u repozitoriju)</td></tr>
+            <tr><td>L0 odluka / jezgro</td><td class="num win">2,31 ms / 0,30 ms</td><td>p50, n=500 / n=2000; determinističko jezgro bez mreže</td></tr>
+            <tr><td>Smanjenje prompta</td><td class="num win">−86,2%</td><td>544.470 → 75.113 tokena; 405 → 34–66 šema</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+
+  <section id="istrazivanje" class="anchor">
+    <div class="wrap">
+      <div class="shead">
+        <div class="kicker">Otkrića</div>
+        <h2>Novosti iz istraživanja</h2>
+        <p class="sub">Svaki nalaz nosi datum i kategoriju. Artefakti su na <a href="https://github.com/gamai-io">github.com/gamai-io</a>. Pretplata: <a href="news.xml">RSS</a> · zadnja izmjena 2026-11-11.</p>
+      </div>
+      <div class="grid3">
+        <div class="panel reveal"><h3>2026-11-10 · determinizam</h3><p><b>LUMI vLLM nije bit-determinističan na temp=0.</b> Dva prolaza kroz 700 zadataka: 660/700 identično (TP=4), 669/700 (TP=1). Needle i tool-JSON 100% stabilni; aritmetika (267–274/300) i iskrenost (93–95/100) variraju. TP=1 smanjio jaz 40→31, pa su uzrok nedeterministički ROCm kerneli/atomics. Repo: gama-lumi-bench.</p></div>
+        <div class="panel reveal"><h3>2026-11-01 · iskrenost</h3><p><b>False-success: 6,25% fabrikovanih tvrdnji (25.600 proba).</b> Run na 8 LUMI nodova; evidence gate označio 6,25% lažnih „done" tvrdnji. Verifikacija p50 2,4 ms, p95 10,8 ms.</p></div>
+        <div class="panel reveal"><h3>2026-11-09 · cross-node</h3><p><b>CrossNode-Bench: 400/400 laži uhvaćeno.</b> Honest flota 25.600/25.600 (0 false-success); liar run 28.800 proba, 400 false-success — sve 400 uhvaćene na injectovanom nodu. Zenodo DOI 10.5281/zenodo.24092188.</p></div>
+        <div class="panel reveal"><h3>2026-11-09 · model eval</h3><p><b>Pošten eval: adapteri nisu pobijedili base model.</b> 678 zapisa (greedy, tools u templateu): base 25/25 tool poziva (100%), 0/50 refusal; najbolji adapter 19/25. Nijedan adapter ne pobjeđuje — RiskGate ostaje obavezan. Objavljeno kao negativan rezultat.</p></div>
+        <div class="panel reveal"><h3>2026-11-01 · CUA</h3><p><b>Computer-use: v23 najbolji sa 49%.</b> LUMI grounding (600 uzoraka): v23 49,0% (ScreenSpot 76,3%, UI-Vision 26,3%), tool 95,2%, refusal 100%, multi 100%. Kasniji mixevi (v25–v27) degradirali.</p></div>
+        <div class="panel reveal"><h3>2026-10-12 · sigurnost</h3><p><b>Prompt-injection ASR 100% → 0–3,3%.</b> Antibody + source-trust odbrana (sanitize invisible/role markers, nonce fences): uspjeh napada pao na 0–3,3% uz utility 90–100%. Repo: gamai-guard.</p></div>
+        <div class="panel reveal"><h3>2026-11-06 · harness</h3><p><b>False-success guard u agent loop-u.</b> Lažni dokazi se redaktuju kada nijedan alat u trajektoriji nije vratio <code>ok:true</code>; screenshots/inventory/SQL fallback vraćaju stvarni status umjesto <code>ok:true</code>.</p></div>
+        <div class="panel reveal"><h3>2026-11-07 · benchmark</h3><p><b>AgentMujo-Bench v0.6: 49 slučajeva, 16 kategorija.</b> Sve 16 kategorija pokrivene (uključujući json_validity, terminal_accuracy); 0 preklapanja sa 4.375 trening tekstova; negativne kontrole 0; CI zelen.</p></div>
+        <div class="panel reveal"><h3>2026-10-31 · dataset</h3><p><b>AgentMujo dataset v0.4.0.</b> 4.496 redova, 10 datasetova, 13 kategorija, praznine 0. Tool-selection: Qwen3.6-35B-A3B 50%, gpt-oss-120b 56%.</p></div>
+        <div class="panel reveal"><h3>2026-11-07 · agent</h3><p><b>Hard user tier: GAMA 11/15 vs opencode 12/12.</b> 15 teških chat zadataka sa Docker verifikacijom. GAMA 11/15 (73%), opencode 12/12; pronađen i popravljen nested-percentage bug („17% of (2400 + 15% of 2400)" → 469,20).</p></div>
+        <div class="panel reveal"><h3>2026-10-22 · infra</h3><p><b>General-30: 30/30 @ p50 6,2 s.</b> 30 mješovitih code/research zadataka: 30/30, p50 6,218 s, p95 23,0 s, ~$0,22 ukupno.</p></div>
+        <div class="panel reveal"><h3>2026-10-10 · scale</h3><p><b>216 workera ≈ 96% throughput, ali PID limit.</b> Bulk test završio 207/216 (~96%) u ~70 s (~3 zadatka/s). Na 216 workera host je udario u fork limit; sigurni plafon ≈140 workera (load ~39).</p></div>
+        <div class="panel reveal"><h3>2026-11-10 · SIGIL</h3><p><b>SIGIL: 1.000 receipta, lanac verifikovan.</b> Gate/verify/anchor lanac validiran end-to-end: 1.000 receipta, 0 grešaka. Svaka akcija je dokaziva Ed25519-potpisanim receiptom.</p></div>
+      </div>
+    </div>
+  </section>
+
+  <section id="opensource" class="anchor">
+    <div class="wrap">
+      <div class="shead">
+        <div class="kicker">Open source</div>
+        <h2>Repozitoriji po sloju</h2>
+        <p class="sub">Sve na <a href="https://github.com/gamai-io">github.com/gamai-io</a>. DOI gdje je rezultat arhiviran.</p>
+      </div>
+      <div class="grid3">
+        <div class="panel reveal">
+          <h3>Core runtime &amp; proof</h3>
+          <ul class="ticklist">
+            <li><a href="https://github.com/gamai-io/sigil">sigil</a> — SIGIL/1 proof-carrying execution (gate, verify, anchor, conformance)</li>
+            <li><a href="https://github.com/gamai-io/sigil-tenant">sigil-tenant</a> — multi-tenant gate/verify/anchor API, API ključevi, metering, AI Act audit</li>
+            <li><a href="https://github.com/gamai-io/evidence-first-agent-runtime">evidence-first-agent-runtime</a> — proofgate + agent-immunity, fail-closed</li>
+            <li><a href="https://github.com/gamai-io/gamai-trust">gamai-trust</a> — evidence-bound trust layer</li>
+            <li><a href="https://github.com/gamai-io/mandate">mandate</a> — potpisane, provjerljive poslovne obaveze</li>
+            <li><a href="https://github.com/gamai-io/proofgate-runtime">proofgate-runtime</a> — ProofGate Runtime v0.2</li>
+            <li><a href="https://github.com/gamai-io/evidence-gate-runtime">evidence-gate-runtime</a> — record, verify i anchor svake akcije</li>
+            <li><a href="https://github.com/gamai-io/crossnode-bench">crossnode-bench</a> — mjerenje iskrenosti preko nodova (<a href="https://doi.org/10.5281/zenodo.24092188">DOI</a>)</li>
+            <li><a href="https://github.com/gamai-io/gamai-evals">gamai-evals</a> — eval harness: GUI grounding, tool/refusal/multi-step</li>
+            <li><a href="https://github.com/gamai-io/demo">demo</a> — statički dashboard sa izmjerenim dokazima</li>
+          </ul>
+        </div>
+        <div class="panel reveal">
+          <h3>Security &amp; isolation</h3>
+          <ul class="ticklist">
+            <li><a href="https://github.com/gamai-io/gama-sandbox">gama-sandbox</a> — fajl-sistem i mrežna izolacija (srt gate)</li>
+            <li><a href="https://github.com/gamai-io/gamai-guard">gamai-guard</a> — multilingual prompt-injection guard</li>
+            <li><a href="https://github.com/gamai-io/gnp-trust">gnp-trust</a> — GNP/1 trust plane: token gate, action leases</li>
+            <li><a href="https://github.com/gamai-io/polymorph">polymorph</a> — effect leases, pinned-hash execution, signed bundles</li>
+          </ul>
+          <h3 style="margin-top:24px">Infrastructure &amp; language</h3>
+          <ul class="ticklist">
+            <li><a href="https://github.com/gamai-io/gama-fastpath">gama-fastpath</a> — deterministički pre-LLM gate (offline), T1/T2</li>
+            <li><a href="https://github.com/gamai-io/gama-offline">gama-offline</a> — LLM-saving cache, CBR, skill router</li>
+            <li><a href="https://github.com/gamai-io/dsc">dsc</a> — Deterministic Semantic Core + GTL/1</li>
+            <li><a href="https://github.com/gamai-io/gama-lang">gama-lang</a> — GAMA-L, AI-first polymorphic jezik + GAMACODE</li>
+            <li><a href="https://github.com/gamai-io/agentmujo-training">agentmujo-training</a> — Training Framework + Dataset Factory</li>
+            <li><a href="https://github.com/gamai-io/gamai-plugins">gamai-plugins</a> — portable trust, sandbox i team plugins</li>
+          </ul>
+        </div>
+        <div class="panel reveal">
+          <h3>Research &amp; applications</h3>
+          <ul class="ticklist">
+            <li><a href="https://github.com/gamai-io/gama-lumi-bench">gama-lumi-bench</a> — honest LLM benchmark za LUMI (vLLM/harness)</li>
+            <li><a href="https://github.com/gamai-io/floor-copilot">floor-copilot</a> — evidence-gated invoice intake</li>
+            <li><a href="https://github.com/gamai-io/dag">dag</a> — deterministic risk trunk + DAG fan-out</li>
+            <li><a href="https://github.com/gamai-io/polyscope">polyscope</a> — container i program inspection</li>
+            <li><a href="https://github.com/gamai-io/risk-calib">risk-calib</a> — test-driven risk calibration</li>
+            <li><a href="https://github.com/gamai-io/gamai-skills">gamai-skills</a> — 992 open-source agent skills (GAMACODE)</li>
+          </ul>
+          <h3 style="margin-top:24px">Arhivirano</h3>
+          <ul class="ticklist">
+            <li><a href="https://github.com/gamai-io/gama-shard">gama-shard</a> — rani GAMA sharding eksperiment (zamijenjen sa sigil-tenant)</li>
+            <li><a href="https://github.com/gamai-io/gama-retrieval">gama-retrieval</a> — rani GAMA retrieval eksperiment (zamijenjen)</li>
+          </ul>
+          <p class="note" style="margin:14px 0 0">Metodologija i sirovi dokazi (JSONL, izvještaji, repro skripte) se objavljuju po runu u odgovarajućem repozitoriju.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+"""
+
+
+# --------------------------------------------------------------- verify.html
+verify_body = r"""
+  <section class="pagehero">
+    <div class="wrap">
+      __CRUMB__
+      <span class="eyebrow" style="margin-top:22px"><span class="dot"></span>Javna verifikacija</span>
+      <h1>Provjeri dokaz</h1>
+      <p class="lede">
+        Zalijepite SHA-256 receipt hasha ili cijeli receipt JSON. Ako je javni verifikator dostupan,
+        stranica će ga pitati; ako nije, dobićete tačan format i komande za lokalnu provjeru —
+        <b>bez lažnog „zelenog"</b>.
+      </p>
+      <div class="chips">
+        <span class="chip">SHA-256</span>
+        <span class="chip">Ed25519</span>
+        <span class="chip">GTL ledger</span>
+        <span class="chip warn">static fallback</span>
+      </div>
+    </div>
+  </section>
+
+  <section id="forma" class="anchor">
+    <div class="wrap">
+      <div class="contact">
+        <div class="card reveal">
+          <h3>Unos</h3>
+          <p>Hash je 64 heksadecimalna znaka. Ako zalijepite JSON, hash se računa u vašem browseru (Web Crypto) i ništa se ne šalje dok ne potvrdite.</p>
+          <form id="vform" autocomplete="off">
+            <div class="field">
+              <label for="vin">Receipt hash ili receipt JSON</label>
+              <textarea id="vin" name="hash" spellcheck="false" placeholder="{&quot;receipt_hash&quot;: &quot;…&quot;} ili 64-hex hash" required></textarea>
+            </div>
+            <button class="btn primary" type="submit" id="vbtn">Provjeri</button>
+            <p class="formmsg" id="vmsg">Podaci ne napuštaju vaš browser osim ako endpoint nije dostupan i vi potvrdite slanje.</p>
+          </form>
+          <div class="result" id="vout" role="status" aria-live="polite"></div>
+        </div>
+
+        <div class="card reveal">
+          <h3>Šta ćete vidjeti</h3>
+          <ul class="contactlist">
+            <li><span class="ic">ok</span><div><b>Potvrđeno</b>receipt postoji u ledgeru, hash se poklapa, potpis je valjan (ako je ključ postavljen).</div></li>
+            <li><span class="ic">no</span><div><b>Nije potvrđeno</b>hash ne postoji, ne poklapa se ili je lanac prekinut — sa razlogom.</div></li>
+            <li><span class="ic">n/a</span><div><b>Nije moguće provjeriti</b>javni endpoint nije izložen ili traži token. Tada slijedite lokalne komande ispod.</div></li>
+          </ul>
+          <p class="note" style="margin-top:16px">Ova stranica je statična. Ona ne posjeduje ključ i ne može sama izdati potvrdu — može samo prenijeti odgovor verifikatora.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section id="rucno" class="anchor">
+    <div class="wrap">
+      <div class="shead">
+        <div class="kicker">Ručna provjera</div>
+        <h2>Ako endpoint nije javan</h2>
+        <p class="sub">Dovoljan vam je javni ključ i receipt. Privatni ključ nikad ne treba napuštati vašu infrastrukturu.</p>
+      </div>
+      <div class="split">
+        <div class="panel reveal">
+          <h3>1. Harness endpoint</h3>
+          <div class="code">curl -sS http://127.0.0.1:7125/gtl/verify \
+  -H <span class="g">"X-Token: $GAMA_TOKEN"</span> \
+  -H <span class="g">"Content-Type: application/json"</span> \
+  -d <span class="g">'{"id":"&lt;receipt_id&gt;"}'</span>
+
+<span class="c"># ili cijeli objekat:</span>
+<span class="c"># -d '{"receipt":{...},"result":{...}}'</span></div>
+        </div>
+        <div class="panel reveal">
+          <h3>2. Lokalno, Python</h3>
+          <div class="code"><span class="c">from</span> gama_dsc.sigil <span class="c">import</span> load_public, verify_sigil
+<span class="c">import</span> json
+
+rec = json.load(open(<span class="g">"receipt.json"</span>))
+pub = load_public(<span class="g">"gtl_ed25519.pub"</span>)
+res = verify_sigil(rec, result=<span class="k">None</span>, public_key=pub)
+<span class="c">print</span>(res)</div>
+        </div>
+      </div>
+      <div class="callout warn reveal">
+        <b>Format:</b> receipt_hash je SHA-256 nad kanonskim JSON-om (sortirani ključevi, bez razmaka, UTF-8).
+        Ako hash računate sami, koristite istu kanonizaciju — inače ćete dobiti različit hash za isti sadržaj.
+      </div>
+    </div>
+  </section>
+
+  <section id="primer" class="anchor">
+    <div class="wrap">
+      <div class="shead">
+        <div class="kicker">Primjer</div>
+        <h2>Kako izgleda receipt</h2>
+      </div>
+      <div class="panel reveal" style="margin-top:30px">
+        <div class="code">{
+  <span class="b">"decision_id"</span>: <span class="g">"dec-216a6d18"</span>,
+  <span class="b">"decision_hash"</span>: <span class="g">"9f2c…a71b"</span>,
+  <span class="b">"tool"</span>: <span class="g">"mail"</span>,
+  <span class="b">"evidence_kind"</span>: <span class="g">"external_send"</span>,
+  <span class="b">"verified"</span>: true,
+  <span class="b">"reasons"</span>: [],
+  <span class="b">"receipt_hash"</span>: <span class="g">"5be1…0c9d"</span>,
+  <span class="b">"prev_hash"</span>: <span class="g">"3ad7…88e0"</span>,
+  <span class="b">"key_id"</span>: <span class="g">"gtl-2026-11"</span>,
+  <span class="b">"sig"</span>: <span class="g">"ed25519:base64…"</span>,
+  <span class="b">"ts"</span>: 1794609572.77
+}</div>
+        <p class="note">Brojevi i hash-evi u primjeru su skraćeni. Stvarni receipt ima punih 64 znaka po hash-u i base64 potpis.</p>
+      </div>
+    </div>
+  </section>
+"""
+
+# --------------------------------------------------------------- pricing.html
+pricing_body = r"""
+  <section class="pagehero">
+    <div class="wrap">
+      __CRUMB__
+      <span class="eyebrow" style="margin-top:22px"><span class="dot"></span>Cijene · v1.0 · 13.11.2026</span>
+      <h1>Plaćate kontrolu, ne zaključavanje</h1>
+      <p class="lede">
+        Cijena je po <b>čvoru</b>, ne po sjedištu: čvor je jedinica koja izvršava akcije i proizvodi dokaz.
+        Jezgro je Apache-2.0 i besplatno; Pro i Enterprise dodaju produkcijski build, dokaze za regulatore i podršku.
+      </p>
+      <div class="chips">
+        <span class="chip live">€0 Community</span>
+        <span class="chip">€299 / čvor / mj.</span>
+        <span class="chip">od €24k / god. Enterprise</span>
+        <span class="chip warn">bez PDV-a</span>
+      </div>
+    </div>
+  </section>
+
+  <section id="sigil-cloud" class="anchor">
+    <div class="wrap">
+      <div class="shead">
+        <div class="kicker">Hosted · early access Q1 2027</div>
+        <h2>SIGIL Cloud — cijene za hosted verziju</h2>
+        <p class="sub">Odvojeno od self-hosted Decision OS licenci ispod. Hosted gate/verify/anchor, jedan SDK, dashboard i AI Act evidence pack — bez vlastite infrastrukture. Lista čekanja je otvorena; naplata počinje sa early accessom.</p>
+      </div>
+      <div class="pricing">
+        <article class="tier reveal">
+          <h3>Free</h3>
+          <p class="desc">Evaluacija, ograničen broj akcija mjesečno, community podrška.</p>
+          <div class="price">€0</div>
+          <div class="price-note">bez kartice</div>
+          <ul>
+            <li>Hosted gate → execute → receipt → anchor</li>
+            <li>Ograničen broj akcija / mjesec</li>
+            <li>Osnovni dashboard</li>
+            <li>Community podrška</li>
+          </ul>
+          <a class="btn ghost" href="contact.html#demo">Lista čekanja</a>
+        </article>
+        <article class="tier hot reveal">
+          <span class="badge">Hosted</span>
+          <h3>Pro</h3>
+          <p class="desc">Timovi koji žele hosted SIGIL bez vlastitog gate/verify/anchor stacka.</p>
+          <div class="price">€49<small>/mj.</small></div>
+          <div class="price-note">mjesečno · viši limiti</div>
+          <ul>
+            <li>Team seats</li>
+            <li>Receipt export</li>
+            <li>Viši limiti akcija</li>
+            <li>Dashboard i chain health</li>
+            <li>E-mail podrška</li>
+          </ul>
+          <a class="btn primary" href="contact.html#demo">Lista čekanja</a>
+        </article>
+        <article class="tier reveal">
+          <h3>Enterprise</h3>
+          <p class="desc">Regulisane firme kojima treba anchoring SLA i AI Act paket u hostingu.</p>
+          <div class="price">€1,5k<small>+ / mj.</small></div>
+          <div class="price-note">custom ugovor</div>
+          <ul>
+            <li>SSO</li>
+            <li>Custom policy</li>
+            <li>Anchoring SLA</li>
+            <li>Dedicated support</li>
+            <li>AI Act evidence pack</li>
+          </ul>
+          <a class="btn ghost" href="contact.html#demo">Razgovaraj s nama</a>
+        </article>
+      </div>
+      <p class="note">Usage za hosted verziju: <b>€0,002–0,02 po izvršenju</b>, zavisno od volumena i anchoring tiera. Sve cijene bez PDV-a. Cijene ispod se odnose na <b>self-hosted Decision OS</b> licencu po čvoru i nisu ista ponuda.</p>
+    </div>
+  </section>
+
+  <section id="tieri" class="anchor">
+    <div class="wrap">
+      <div class="shead">
+        <div class="kicker">Tieri</div>
+        <h2>Tri nivoa, ista arhitektura</h2>
+        <p class="sub">Nema skrivenih dealova: popusti su objavljeni, a onboarding se ne diskontuje jer štiti kvalitet isporuke.</p>
+      </div>
+
+      <div class="pricing">
+        <article class="tier reveal">
+          <h3>Community</h3>
+          <p class="desc">Za pojedince, istraživanje, studente i prve prototipe.</p>
+          <div class="price">€0</div>
+          <div class="price-note">Apache-2.0 · zauvijek</div>
+          <ul>
+            <li>L0 risk engine i 4 tiera</li>
+            <li>TSR adapteri: runc, gVisor, Firecracker</li>
+            <li>Evidence Gate (SHA-256 + Ed25519)</li>
+            <li>CLI, REST i Python SDK</li>
+            <li>1 čvor, neograničeni lokalni runovi</li>
+            <li>Bez telemetrije</li>
+            <li>Community podrška (GitHub Discussions)</li>
+            <li class="off">SSO / SCIM, multi-tenant</li>
+            <li class="off">Potpisani audit export za regulatore</li>
+            <li class="off">ERP konektori, SLA</li>
+          </ul>
+          <a class="btn ghost" href="contact.html#demo">Počni besplatno</a>
+        </article>
+
+        <article class="tier hot reveal">
+          <span class="badge">Najpopularnije</span>
+          <h3>Pro</h3>
+          <p class="desc">Za timove koji puštaju agente u produkciju na svojoj infrastrukturi.</p>
+          <div class="price">€299<small>/čvor/mj.</small></div>
+          <div class="price-note">godišnje · min. 2 čvora · ili €349 mjesečno</div>
+          <ul>
+            <li>Sve iz Community + produkcijski build</li>
+            <li>Neograničeni agenti, sesije i receipts</li>
+            <li>Evidence export: JSON/CSV + verifikacija potpisa</li>
+            <li>Retention politike</li>
+            <li>2 konektora (PostgreSQL/MSSQL, REST/webhook)</li>
+            <li>Dodatni konektor €49/čvor/mj.</li>
+            <li>E-mail podrška, 2 radna dana</li>
+            <li>Besplatni upgrade-i unutar glavne verzije</li>
+            <li>Sigurnosni patchevi 12 mjeseci</li>
+          </ul>
+          <a class="btn primary" href="contact.html#demo">Zatraži probni ključ</a>
+        </article>
+
+        <article class="tier reveal">
+          <h3>Enterprise</h3>
+          <p class="desc">Za regulisane firme: banke, osiguranja, ERP distributeri, javni sektor.</p>
+          <div class="price">€24k<small>+ / god.</small></div>
+          <div class="price-note">do 10 čvorova · onboarding €7.500</div>
+          <ul>
+            <li>Sve iz Pro + neograničeni čvorovi (€1.800/čvor/god. preko 10)</li>
+            <li>Air-gapped instalacija i offline licenca</li>
+            <li>EU AI Act paket: mapiranje čl. 9–15, risk registar, tehnička dokumentacija, incident log</li>
+            <li>SSO (OIDC/SAML), SCIM, RBAC, multi-tenant</li>
+            <li>Audit log streaming (SIEM)</li>
+            <li>ERP konektori: vp2026, SAP (OData/BAPI), Odoo, Dynamics, custom</li>
+            <li>SLA 99.9 %, 24/7 eskalacija, imenovani inženjer</li>
+            <li>Kvartalni pregled i godišnji arhitektonski audit</li>
+            <li>DPA + lista podprocesora + security upitnik</li>
+          </ul>
+          <a class="btn ghost" href="contact.html#demo">Razgovaraj s nama</a>
+        </article>
+      </div>
+      <p class="note">Sve cijene bez PDV-a (BiH 17 %). Fiksni kurs €1 = 1,95583 BAM. Cijene su po pravnom licu, ne po korisniku.</p>
+    </div>
+  </section>
+
+  <section id="dodaci" class="anchor">
+    <div class="wrap">
+      <div class="shead">
+        <div class="kicker">Dodaci</div>
+        <h2>Fiksne, objavljene cijene</h2>
+      </div>
+      <div class="tw reveal">
+        <table class="bench">
+          <thead><tr><th>Dodatak</th><th>Cijena</th><th>Napomena</th></tr></thead>
+          <tbody>
+            <tr><td>Dodatni ERP konektor (Pro)</td><td class="num">€49 / čvor / mj.</td><td>Enterprise custom konektori po ponudi</td></tr>
+            <tr><td>Izrada custom konektora</td><td class="num">€4.500 jednokratno</td><td>5 dana, uključeni testovi i dokumentacija</td></tr>
+            <tr><td>EU AI Act readiness radionica</td><td class="num">€2.500</td><td>1 dan, remote, do 8 osoba</td></tr>
+            <tr><td>Pregled evidence paketa (godišnji)</td><td class="num">€3.500</td><td>Pregled izvoza za auditora</td></tr>
+            <tr><td>Premium podrška</td><td class="num">+20 % ACV</td><td>4 h odgovor, 12/5</td></tr>
+            <tr><td>On-site obuka</td><td class="num">€1.800 / dan + put</td><td>Preferirano Sarajevo / Balkan</td></tr>
+            <tr><td>Migracija historijskih dokaza</td><td class="num">€2.900</td><td>Do 1M receipts</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+
+  <section id="popusti" class="anchor">
+    <div class="wrap">
+      <div class="shead">
+        <div class="kicker">Popusti</div>
+        <h2>Objavljeni, bez tajnih dogovora</h2>
+      </div>
+      <div class="split">
+        <div class="panel reveal">
+          <h3>Ko ima pravo</h3>
+          <ul class="ticklist">
+            <li>Godišnje plaćanje unaprijed: 2 mjeseca gratis (već u cijeni)</li>
+            <li>Startupi (&lt; 3 godine, &lt; €2M ARR): 50 % na Pro 12 mjeseci</li>
+            <li>Akademija / non-profit: 50 % na Pro, trajno, 1–5 čvorova</li>
+            <li>Open-source maintaineri: besplatan Pro za 2 čvora uz javnu integraciju</li>
+            <li>Volumen Pro: 11–25 čvorova −10 %, 26–50 −18 %, 51+ po ponudi</li>
+            <li>Višegodišnji Enterprise: 3 godine −10 %, plaćeno godišnje</li>
+          </ul>
+        </div>
+        <div class="panel reveal">
+          <h3>Pravila</h3>
+          <ul class="ticklist">
+            <li>Popusti se ne slažu — primjenjuje se najveći</li>
+            <li>Onboarding se ne diskontuje</li>
+            <li>Nema popusta prije 20 razgovora sa kupcima</li>
+            <li>Cijena vrijedi za pravno lice, ne po korisniku</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section id="licence" class="anchor">
+    <div class="wrap">
+      <div class="shead">
+        <div class="kicker">Licenca</div>
+        <h2>Šta kupujete i kako se provjerava</h2>
+        <p class="sub">Licenca je vezana za čvor i provjerava se lokalno, bez „phone home" zahtjeva.</p>
+      </div>
+      <div class="split">
+        <div class="panel reveal">
+          <h3>Model</h3>
+          <ul class="ticklist">
+            <li>Community: Apache-2.0, bez ograničenja na 1 čvor u praksi</li>
+            <li>Pro / Enterprise: komercijalna licenca po čvoru</li>
+            <li>Token: <code>GAMA-XXXX-…</code>, vezan za <code>licence_id</code>, tier, broj čvorova, rok i feature flagove</li>
+            <li>Verifikacija offline, javnim ključem; nema obaveznog poziva nama</li>
+            <li>Istek: 30 dana grace u read-only režimu — odluke se i dalje bilježe, mutating akcije traže approval</li>
+          </ul>
+        </div>
+        <div class="panel reveal">
+          <h3>Ono što ne radimo</h3>
+          <ul class="ticklist">
+            <li class="x">Ne brišemo vaše podatke po isteku licence</li>
+            <li class="x">Ne ugrađujemo kill switch</li>
+            <li class="x">Ne obfuskujemo kod</li>
+            <li class="x">Ne naplaćujemo API pozive, receipts ni odluke po komadu</li>
+            <li class="x">Ne naplaćujemo izvoz i čitanje vaših dokaza nakon prestanka</li>
+          </ul>
+          <p style="margin-top:14px">Community → Pro je upgrade u mjestu: isti data folder, ista šema baze.</p>
+        </div>
+      </div>
+      <div class="callout reveal">
+        <b>Zašto €299:</b> ispod je granice od €500/mj. do koje većina SMB ne traži odobrenje boarda, a dovoljno da pokrije podršku.
+        Jedan incident uzrokovan neverifikovanom akcijom agenta tipično košta €5.000–€50.000 u ispravkama i povjerenju.
+      </div>
+    </div>
+  </section>
+
+  <section id="pitanja" class="anchor">
+    <div class="wrap">
+      <div class="shead">
+        <div class="kicker">Pitanja</div>
+        <h2>Tri stvari koje se najčešće pitaju</h2>
+      </div>
+      <div class="faq">
+        <details class="reveal"><summary>Da li je Community zaista besplatan?</summary><p>Jeste, Apache-2.0. Nema telemetrije i nema roka. Produkcijski build sa offline licencom, SSO i potpisanim izvozom za regulatore su Pro/Enterprise.</p></details>
+        <details class="reveal"><summary>Šta znači „po čvoru"?</summary><p>Čvor je jedna mašina/VM koja u produkciji vrti Decision OS servis. Dev, test i staging su besplatni na Pro i Enterprise planu. Cijena nije po korisniku.</p></details>
+        <details class="reveal"><summary>Mogu li dobiti fakturu umjesto kartice?</summary><p>Da. Prva faza je faktura + ručno izdata licenca; online checkout dolazi nakon toga. Pišite na info@gamai.io.</p></details>
+      </div>
+      <p class="note">Cijene i paketi su interni dokument v1.0 (13.11.2026) i mogu se mijenjati. Za ponudu sa PDV-om i BAM iznosom nas kontaktirajte.</p>
+    </div>
+  </section>
+"""
+
+# --------------------------------------------------------------- contact.html
+contact_body = r"""
+  <section class="pagehero" id="demo">
+    <div class="wrap">
+      __CRUMB__
+      <span class="eyebrow" style="margin-top:22px"><span class="dot"></span>Kontakt</span>
+      <h1>Razgovor od 30 minuta</h1>
+      <p class="lede">
+        Demo je najkorisniji kada donesete <b>stvarni scenario</b>: jedan zadatak, alate koje agent smije koristiti
+        i podatke koje ne smiju izaći. Vratićemo tier, dokaz koji bi se tražio i mjesto gdje bi petlja stala.
+      </p>
+      <div class="chips">
+        <span class="chip live">odgovor u 2 radna dana</span>
+        <span class="chip">bez obaveze</span>
+        <span class="chip">BiH / EU</span>
+      </div>
+    </div>
+  </section>
+
+  <section id="forma">
+    <div class="wrap">
+      <div class="contact">
+        <div class="card reveal">
+          <h3>Pošaljite poruku</h3>
+          <p>Forma otvara vaš mail klijent i ne šalje podatke na server. Ako mailto ne radi, pišite direktno na adresu desno.</p>
+          <form id="cform" autocomplete="on">
+            <div class="form-grid">
+              <div class="field"><label for="cn">Ime i prezime</label><input id="cn" name="name" required></div>
+              <div class="field"><label for="ce">E-mail</label><input id="ce" name="email" type="email" required></div>
+            </div>
+            <div class="form-grid">
+              <div class="field"><label for="cc">Firma</label><input id="cc" name="company"></div>
+              <div class="field"><label for="ct">Tema</label>
+                <select id="ct" name="topic">
+                  <option>Demo Decision OS</option>
+                  <option>Pro licenca</option>
+                  <option>Enterprise / EU AI Act</option>
+                  <option>Verifikacija dokaza</option>
+                  <option>Sigurnosno pitanje</option>
+                  <option>Ostalo</option>
+                </select>
+              </div>
+            </div>
+            <div class="field"><label for="cm">Poruka</label><textarea id="cm" name="message" placeholder="Scenario, alati, osjetljivost podataka, rok…" required></textarea></div>
+            <button class="btn primary" type="submit">Otvori mail</button>
+            <a class="btn ghost" href="mailto:info@gamai.io?subject=GAMA%20Decision%20OS" style="margin-left:8px">Direktno na e-mail</a>
+            <p class="formmsg" id="cmsg">Ništa se ne šalje automatski — pregledate poruku prije slanja.</p>
+          </form>
+        </div>
+
+        <div class="card reveal">
+          <h3>Podaci</h3>
+          <ul class="contactlist">
+            <li><span class="ic">@</span><div><b>E-mail</b><a href="mailto:info@gamai.io">info@gamai.io</a></div></li>
+            <li><span class="ic">HQ</span><div><b>Kolektiv d.o.o.</b>Bosna i Hercegovina</div></li>
+            <li><span class="ic">HQ</span><div><b>Gamatrade d.o.o.</b>Bosna i Hercegovina</div></li>
+            <li><span class="ic">SLA</span><div><b>Odgovor</b>2 radna dana (Pro) · 24/7 eskalacija (Enterprise)</div></li>
+            <li><span class="ic">SEC</span><div><b>Sigurnost</b>Ranjivosti prijavite na istu adresu sa temom „SECURITY"; ne otvarajte javni issue.</div></li>
+          </ul>
+          <p class="note" style="margin-top:16px">Tačna poštanska adresa i matični podaci se dostavljaju na zahtjev i nalaze se na fakturama.</p>
+        </div>
+      </div>
+
+      <div class="shead" style="margin-top:56px">
+        <div class="kicker">Priprema</div>
+        <h2>Šta ubrzava demo</h2>
+      </div>
+      <div class="grid3">
+        <div class="panel reveal"><h3>Scenario</h3><p>Jedan konkretan zadatak koji agent danas radi — ne „generalna AI strategija".</p></div>
+        <div class="panel reveal"><h3>Alati</h3><p>Šta agent smije: SQL read-only, fajlovi, mail, ERP upis. Šta nikako ne smije.</p></div>
+        <div class="panel reveal"><h3>Dokaz</h3><p>Šta za vas znači „urađeno": red u bazi, poslan mail, promijenjen fajl, izvještaj.</p></div>
+      </div>
+    </div>
+  </section>
+
+  <section id="uslovi" class="anchor">
+    <div class="wrap">
+      <div class="shead">
+        <div class="kicker">Pravno</div>
+        <h2>Uslovi korištenja sajta</h2>
+      </div>
+      <div class="prose reveal">
+        <p>Sadržaj ovog sajta je informativan. Benchmark brojevi su interni rezultati sa navedenim datumom i uslovima mjerenja i ne predstavljaju garanciju za vaš deployment. Gdje mjerenje nije završeno, vrijednost je označena kao cilj.</p>
+        <p>Korištenje softvera uređeno je licencom koja se isporučuje uz softver: Apache-2.0 za Community jezgro i komercijalnim uslovima za Pro i Enterprise. Ovaj sajt ne mijenja i ne zamjenjuje te uslove.</p>
+        <p>Sadržaj sajta nije pravni savjet i ne zamjenjuje procjenu usklađenosti sa EU AI Act ni sa lokalnim propisima.</p>
+        <h3>Uslovi za hosted SIGIL servis (sažeto)</h3>
+        <p>SIGIL Cloud se pruža kao hosted pretplata. API ključevi su povjerljivi i pod kontrolom kupca; kupac odgovara za svu aktivnost pod svojim ključevima. Prihvatljivo korištenje zabranjuje nezakonit sadržaj, napade na sisteme trećih strana, zaobilaženje audit logovanja i preprodaju bez ugovora. Dostupnost je „best-effort" osim ako potpisani SLA ne kaže drugačije. Servis se pruža „as is"; ukupna odgovornost ograničena je na naknade plaćene u prethodnih 12 mjeseci, isključujući odgovornost koja se ne može ograničiti. Mjerodavno pravo: Bosna i Hercegovina.</p>
+        <p>Za potpisanu kopiju uslova ili Data Processing Agreement (DPA) pišite na <a href="mailto:legal@gamai.io">legal@gamai.io</a>.</p>
+      </div>
+    </div>
+  </section>
+
+  <section id="privatnost" class="anchor">
+    <div class="wrap">
+      <div class="shead">
+        <div class="kicker">Privatnost</div>
+        <h2>Šta ovaj sajt radi sa vašim podacima</h2>
+      </div>
+      <div class="prose reveal">
+        <p>Sajt je statičan: nema analitike, nema reklamnih piksela, nema eksternih skripti ni fontova. Ne postavlja kolačiće.</p>
+        <p>Kontakt forma ne šalje podatke serveru — sastavlja <code>mailto:</code> link i otvara vaš mail klijent. Podaci tada idu kroz vaš mail provajder, ne kroz ovaj sajt.</p>
+        <p>Stranica <a href="verify.html">Verify</a> šalje hash verifikatoru samo ako je endpoint dostupan i ako vi pokrenete provjeru. Ako endpoint nije dostupan, hash ostaje u vašem browseru.</p>
+        <p>Za pitanja o obradi podataka pišite na <a href="mailto:info@gamai.io">info@gamai.io</a>.</p>
+        <h3>Hosted SIGIL servis — privatnost (sažeto)</h3>
+        <p><b>Kontrolor:</b> GAMA TRADE d.o.o., Bosna i Hercegovina. Kontakt: <a href="mailto:privacy@gamai.io">privacy@gamai.io</a>.</p>
+        <p><b>Podaci koje obrađujemo:</b> podaci računa i naplate, heširani API ključevi, audit receipti, event logovi i ograničeni tehnički metapodaci. Ne zadržavamo payload-e korisničkih agenata izvan onoga što je potrebno za audit zapise.</p>
+        <p><b>Pravni osnov:</b> ugovor (GDPR čl. 6(1)(b)); legitimni interes za sigurnost (f); pravne obaveze (c); saglasnost gdje je propisana (a).</p>
+        <p><b>Retencija:</b> audit zapisi 180 dana po defaultu, zatim brisanje ili nepovratna agregacija. Računovodstveni zapisi prema primjenjivom zakonu BiH.</p>
+        <p><b>Podprocesori:</b> Cloudflare (CDN/WAF/TLS), EU hosting provajderi, e-mail i payment provajderi. O materijalnim izmjenama obavještavamo 30 dana unaprijed i dajemo pravo na prigovor.</p>
+        <p><b>Vaša prava:</b> pristup, ispravka, brisanje, ograničenje, prenosivost i prigovor. Pritužbu možete podnijeti Agenciji za zaštitu ličnih podataka BiH ili nadležnom EU tijelu. Međunarodni transferi koriste SCC uz dodatne mjere.</p>
+        <h3>EU AI Act — izjava</h3>
+        <p>SIGIL isporučuje tehnički alat, ne pravnu kvalifikaciju. Kupac ostaje deployer/operator.</p>
+        <p><b>Čl. 12 (record-keeping):</b> automatski, append-only, hash-lančani receipti akcija agenta sa modelom, digestom ulaza i ishodom. <b>Čl. 19 (logovi):</b> zadržavanje po konfiguraciji kupca, 180 dana po defaultu. <b>Čl. 26 (dužnosti deployera):</b> human-oversight hooks, stop kontrole i izvoz incidenata. <b>Čl. 72 (post-market monitoring):</b> izvozni monitoring podaci za nadzor.</p>
+        <h3>DPA (sažeto)</h3>
+        <p>SIGIL je procesor; kupac je kontrolor. EU data residency na zahtjev. Sigurnost: enkripcija u tranzitu i na disku, least-privilege pristup, rotacija ključeva, audit logovanje i periodični pregled. Pomažemo sa zahtjevima ispitanika i obavještavamo o incidentima u roku od 48 h. Auditi na razuman rok. Pun DPA na zahtjev.</p>
+        <h3>Kolačići</h3>
+        <p>Ovaj statički sajt ne postavlja kolačiće. Hosted SIGIL servis koristi samo esencijalni session kolačić; nema reklamnog ni cross-site praćenja, a svaka analitika je uslovljena saglasnošću.</p>
+      </div>
+    </div>
+  </section>
+"""
+
+CONTACT_JS = r"""<script>
+(function(){
+  var f=document.getElementById('cform');
+  if(!f) return;
+  f.addEventListener('submit',function(ev){
+    ev.preventDefault();
+    var g=function(id){ var e=document.getElementById(id); return e?e.value.trim():''; };
+    var subject='['+g('ct')+'] '+(g('cc')||g('cn'))+' — GAMA Decision OS';
+    var body='Ime: '+g('cn')+'\nE-mail: '+g('ce')+'\nFirma: '+g('cc')+'\nTema: '+g('ct')+'\n\n'+g('cm')+'\n';
+    var url='mailto:info@gamai.io?subject='+encodeURIComponent(subject)+'&body='+encodeURIComponent(body);
+    window.location.href=url;
+    document.getElementById('cmsg').textContent='Otvoren je mail klijent. Ako se ništa nije otvorilo, kopirajte tekst i pošaljite na info@gamai.io.';
+  });
+})();
+</script>"""
+
+# ------------------------------------------------------------------ 404.html
+notfound_body = r"""
+  <section class="pagehero" style="padding-bottom:20px">
+    <div class="wrap">
+      __CRUMB__
+      <span class="eyebrow" style="margin-top:22px"><span class="dot"></span>404</span>
+      <h1>Stranica ne postoji</h1>
+      <p class="lede">Adresa je promijenjena ili nikad nije postojala. Ovo nije greška u dokazu — samo u linku.</p>
+      <div class="cta">
+        <a class="btn primary" href="index.html">Početna</a>
+        <a class="btn ghost" href="gamacode.html#docs">Dokumentacija</a>
+        <a class="btn ghost" href="verify.html">Verifikacija</a>
+      </div>
+    </div>
+  </section>
+  <section>
+    <div class="wrap">
+      <div class="grid3">
+        <div class="panel reveal"><h3>Proizvodi</h3><p><a href="decision-os.html">Decision OS</a> · <a href="sigil.html">SIGIL</a> · <a href="gamacode.html">GAMACODE</a></p></div>
+        <div class="panel reveal"><h3>Praktično</h3><p><a href="pricing.html">Cijene</a> · <a href="contact.html">Kontakt</a> · <a href="verify.html">Verify</a></p></div>
+        <div class="panel reveal"><h3>Ako je link iz maila</h3><p>Pošaljite nam originalni link na <a href="mailto:info@gamai.io">info@gamai.io</a> i ispravićemo.</p></div>
+      </div>
+    </div>
+  </section>
+"""
+
+NEWS_XML = """<?xml version="1.0" encoding="UTF-8"?>
+<rss version="2.0">
+<channel>
+<title>gamAI discoveries</title>
+<link>__BASE__/benchmarks.html</link>
+<description>Benchmark discoveries from everything we run</description>
+<language>en</language>
+<lastBuildDate>Wed, 11 Nov 2026 00:00:00 +0000</lastBuildDate>
+<item><title>LUMI vLLM is not bit-deterministic at temp=0</title><link>https://github.com/renatoschust-dot/gama-lumi-bench</link><guid>g-20261110-determinism</guid><pubDate>Tue, 10 Nov 2026 00:00:00 +0000</pubDate><description>660/700 (TP4) vs 669/700 (TP1) identical; ROCm kernels nondeterministic.</description></item>
+<item><title>False-success: 6.25% fabricated claims (25,600)</title><link>__BASE__/benchmarks.html</link><guid>g-20261101-fs</guid><pubDate>Sun, 01 Nov 2026 00:00:00 +0000</pubDate><description>Evidence gate flagged 6.25% false-success; p50 2.4 ms.</description></item>
+<item><title>CrossNode-Bench: 400/400 lies caught (DOI)</title><link>https://doi.org/10.5281/zenodo.24092188</link><guid>g-20261109-crossnode</guid><pubDate>Mon, 09 Nov 2026 00:00:00 +0000</pubDate><description>25,600 honest (0 FS) + 28,800 liar, 400/400 caught.</description></item>
+<item><title>Fair eval: adapters did not beat base</title><link>https://github.com/gamai-io/agentmujo-training</link><guid>g-20261109-faireval</guid><pubDate>Mon, 09 Nov 2026 00:00:00 +0000</pubDate><description>Base 25/25 tools; best adapter 19/25; RiskGate mandatory.</description></item>
+<item><title>Computer-use: v23 best at 49%</title><link>__BASE__/benchmarks.html</link><guid>g-20261101-cua</guid><pubDate>Sun, 01 Nov 2026 00:00:00 +0000</pubDate><description>ScreenSpot 76.3%, tool 95.2%, refusal 100%.</description></item>
+<item><title>Prompt-injection ASR 100% to 0-3.3%</title><link>https://github.com/gamai-io/gamai-guard</link><guid>g-20261012-injection</guid><pubDate>Mon, 12 Oct 2026 00:00:00 +0000</pubDate><description>Antibody + source-trust; utility 90-100%.</description></item>
+<item><title>False-success guard in agent loop</title><link>https://github.com/gamai-io/evidence-first-agent-runtime</link><guid>g-20261106-guard</guid><pubDate>Fri, 06 Nov 2026 00:00:00 +0000</pubDate><description>Fake proofs redacted when no tool returned ok:true.</description></item>
+<item><title>AgentMujo-Bench v0.6 (49 cases)</title><link>https://github.com/gamai-io/agentmujo-training</link><guid>g-20261107-bench06</guid><pubDate>Sat, 07 Nov 2026 00:00:00 +0000</pubDate><description>16 categories, 0 overlap, negative controls 0.</description></item>
+<item><title>AgentMujo dataset v0.4.0</title><link>https://huggingface.co/renatoschust/agentmujo-dataset</link><guid>g-20261031-dataset</guid><pubDate>Sat, 31 Oct 2026 00:00:00 +0000</pubDate><description>4,496 rows; tool-selection 50-56%.</description></item>
+<item><title>Hard user tier: GAMA 11/15 vs opencode 12/12</title><link>__BASE__/benchmarks.html</link><guid>g-20261107-hard</guid><pubDate>Sat, 07 Nov 2026 00:00:00 +0000</pubDate><description>Docker-verified; fixed nested-percentage bug.</description></item>
+<item><title>General-30: 30/30 at p50 6.2 s</title><link>__BASE__/benchmarks.html</link><guid>g-20261022-g30</guid><pubDate>Thu, 22 Oct 2026 00:00:00 +0000</pubDate><description>p95 23 s, ~$0.22 total.</description></item>
+<item><title>216 workers about 96% (PID limit)</title><link>__BASE__/benchmarks.html</link><guid>g-20261010-scale</guid><pubDate>Sat, 10 Oct 2026 00:00:00 +0000</pubDate><description>Safe ceiling about 140 workers (load ~39).</description></item>
+<item><title>SIGIL: 1,000 receipts, chain verified</title><link>__BASE__/sigil.html</link><guid>g-20261110-sigil</guid><pubDate>Tue, 10 Nov 2026 00:00:00 +0000</pubDate><description>Gate/verify/anchor valid, 0 errors.</description></item>
+</channel>
+</rss>
+"""
+
+
+ROBOTS = """User-agent: *
+Allow: /
+
+# Verifikator i API nisu za indeksiranje
+Disallow: /api/
+Disallow: /gtl/
+
+Sitemap: https://decision-os.gamai.io/sitemap.xml
+"""
+
+SITEMAP_URLS = [
+    ("index.html", "1.0"),
+    ("decision-os.html", "0.9"),
+    ("sigil.html", "0.9"),
+    ("gamacode.html", "0.9"),
+    ("benchmarks.html", "0.8"),
+    ("pricing.html", "0.8"),
+    ("verify.html", "0.7"),
+    ("contact.html", "0.7"),
+]
+
+
+def sitemap() -> str:
+    rows = []
+    for slug, prio in SITEMAP_URLS:
+        loc = BASE + "/" + ("" if slug == "index.html" else slug)
+        rows.append("  <url><loc>%s</loc><changefreq>weekly</changefreq><priority>%s</priority></url>" % (loc, prio))
+    return '<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n%s\n</urlset>\n' % "\n".join(rows)
+
+
+def build() -> list[str]:
+    pages = [
+        ("index.html", "GAMA Decision OS — sloj povjerenja za AI agente",
+         "Odluka prije akcije, izolovano izvršenje i dokaz koji se provjerava. L0 ispod 3 ms, Ed25519 receipts, 294 alata, EU AI Act spremnost.",
+         index_body, ""),
+        ("decision-os.html", "Decision OS — odluka prije akcije | GAMA",
+         "3-Gate arhitektura: L0 tiering (READ/DRAFT/SEND/IRREVERSIBLE), expected_evidence_spec, kalibracija T=0.2, RLDF petlja i benchmark tabela.",
+         decision_body, "decision-os.html"),
+        ("sigil.html", "SIGIL — potpisani dokazi i EU AI Act | GAMA",
+         "Ed25519 potpisani receipts, SHA-256 hash-lanac, GTL ledger, javna verifikacija i mapiranje na čl. 12/14/15 EU AI Act.",
+         sigil_body, "sigil.html"),
+        ("gamacode.html", "GAMACODE — harness 1.2.2 sa 294 alata | GAMA",
+         "Agent harness: 294 alata, flota od 6 čvorova, sandbox runc/gVisor/Firecracker, streaming, OpenCode i MCP integracija, BRAIN memorija.",
+         gamacode_body, "gamacode.html"),
+        ("benchmarks.html", "Benchmark i open source | GAMA",
+         "False-success 25.600 proba (6,25%), CrossNode 400/400 uhvaćeno, SIGIL 1.000 receipta, Firecracker 5,8 ms, open-source repozitoriji i DOI.",
+         benchmarks_body, "benchmarks.html"),
+        ("verify.html", "Verifikacija dokaza | GAMA Decision OS",
+         "Provjerite SHA-256 receipt hash ili receipt JSON. Javni verifikator uz pošten fallback i lokalne komande.",
+         verify_body, "verify.html"),
+        ("pricing.html", "Cijene — Community, Pro, Enterprise | GAMA",
+         "Community €0 (Apache-2.0), Pro €299/čvor/mj., Enterprise od €24k/god. Objavljeni popusti, licenca po čvoru, bez skrivenih troškova.",
+         pricing_body, "pricing.html"),
+        ("contact.html", "Kontakt i demo | GAMA Decision OS",
+         "Zakažite demo od 30 minuta, pitajte za Pro/Enterprise licencu ili prijavite sigurnosni problem. Kolektiv d.o.o. / Gamatrade d.o.o.",
+         contact_body, "contact.html"),
+        ("404.html", "Stranica ne postoji | GAMA Decision OS",
+         "Tražena stranica ne postoji. Vratite se na početnu, dokumentaciju ili verifikaciju dokaza.",
+         notfound_body, ""),
+    ]
+
+    written = []
+    for slug, title, desc, body, active in pages:
+        labels = {
+            "index.html": "",
+            "decision-os.html": "Decision OS",
+            "sigil.html": "SIGIL",
+            "gamacode.html": "GAMACODE",
+            "benchmarks.html": "Benchmark",
+            "verify.html": "Verify",
+            "pricing.html": "Pricing",
+            "contact.html": "Kontakt",
+            "404.html": "404",
+        }
+        body = body.replace("__DIAGRAM__", DIAGRAM)
+        body = body.replace("__CRUMB__", crumbs(labels.get(slug, ""), "x") if labels.get(slug) else "")
+        extra_js = ""
+        if slug == "verify.html":
+            extra_js = VERIFY_JS
+        elif slug == "contact.html":
+            extra_js = CONTACT_JS
+        html = page(slug, title, desc, body, active, extra_js)
+        with open(os.path.join(OUT, slug), "w", encoding="utf-8") as fh:
+            fh.write(html)
+        written.append(slug)
+
+    with open(os.path.join(OUT, "robots.txt"), "w", encoding="utf-8") as fh:
+        fh.write(ROBOTS)
+    written.append("robots.txt")
+    with open(os.path.join(OUT, "sitemap.xml"), "w", encoding="utf-8") as fh:
+        fh.write(sitemap())
+    written.append("sitemap.xml")
+    with open(os.path.join(OUT, "news.xml"), "w", encoding="utf-8") as fh:
+        fh.write(NEWS_XML.replace("__BASE__", BASE))
+    written.append("news.xml")
+    return written
+
+
+VERIFY_JS = r"""<script>
+(function(){
+  var form=document.getElementById('vform'), input=document.getElementById('vin'),
+      out=document.getElementById('vout'), msg=document.getElementById('vmsg'), btn=document.getElementById('vbtn');
+
+  function esc(s){ return String(s).replace(/[&<>"]/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c];}); }
+  function show(html){ out.innerHTML=html; out.className='result show'; }
+  function line(k,v){ return '<span class="dm">'+esc(k)+':</span> '+esc(v)+'\n'; }
+
+  function canon(v){
+    if(v===null||typeof v!=='object') return JSON.stringify(v);
+    if(Array.isArray(v)) return '['+v.map(canon).join(',')+']';
+    var ks=Object.keys(v).sort();
+    return '{'+ks.map(function(k){return JSON.stringify(k)+':'+canon(v[k]);}).join(',')+'}';
+  }
+  async function sha256hex(str){
+    if(!(window.crypto&&crypto.subtle)) return null;
+    var buf=new TextEncoder().encode(str);
+    var d=await crypto.subtle.digest('SHA-256',buf);
+    return Array.from(new Uint8Array(d)).map(function(b){return b.toString(16).padStart(2,'0');}).join('');
+  }
+
+  async function normalize(raw){
+    var s=raw.trim();
+    if(s.charAt(0)==='{'){
+      var obj;
+      try{ obj=JSON.parse(s); }catch(e){ return {err:'JSON nije validan: '+e.message}; }
+      var h=await sha256hex(canon(obj));
+      if(!h) return {err:'Vaš browser ne podržava Web Crypto; zalijepite receipt_hash direktno.'};
+      if(obj.receipt_hash && String(obj.receipt_hash).toLowerCase()!==h){
+        msg.innerHTML='<span class="wn">Napomena: receipt_hash u objektu se ne poklapa sa hash-om izračunatim u browseru. Provjeravam onaj iz objekta.</span>';
+        return {hash:String(obj.receipt_hash).toLowerCase(), computed:h, obj:obj};
+      }
+      return {hash:h, computed:h, obj:obj};
+    }
+    var hex=s.replace(/[^a-fA-F0-9]/g,'').toLowerCase();
+    if(hex.length!==64) return {err:'Očekujem 64 heksadecimalna znaka (SHA-256) ili cijeli receipt JSON. Pronašao sam '+hex.length+'.'};
+    return {hash:hex};
+  }
+
+  function render(data,status){
+    var ok=(data&&(data.ok===true||data.verified===true));
+    var head=ok?'<span class="ok">DOKAZ POTVRĐEN</span>':'<span class="er">DOKAZ NIJE POTVRĐEN</span>';
+    var body=head+'\n';
+    body+=line('HTTP',status);
+    if(data&&data.receipt_hash) body+=line('receipt_hash',data.receipt_hash);
+    if(data&&data.decision_hash) body+=line('decision_hash',data.decision_hash);
+    if(data&&typeof data.verified!=='undefined') body+=line('verified',data.verified);
+    if(data&&data.reasons&&data.reasons.length) body+=line('reasons',data.reasons.join(', '));
+    if(data&&data.err) body+=line('err',data.err);
+    if(!data||(!data.receipt_hash&&!data.err&&!data.reasons)){
+      body+='\n<span class="dm">'+esc(JSON.stringify(data,null,2).slice(0,1200))+'</span>';
+    }
+    show(body);
+  }
+
+  form.addEventListener('submit',async function(ev){
+    ev.preventDefault();
+    out.className='result'; out.textContent='';
+    msg.textContent='';
+    btn.disabled=true; btn.textContent='Provjeravam…';
+    try{
+      var n=await normalize(input.value||'');
+      if(n.err){ show('<span class="wn">'+esc(n.err)+'</span>'); return; }
+      show('<span class="dm">hash:</span> '+esc(n.hash)+'\n<span class="dm">tražim verifikator…</span>');
+      var attempts=[
+        {url:'/api/verify?hash='+encodeURIComponent(n.hash), opts:{headers:{'Accept':'application/json'}}},
+        {url:'/gtl/verify', opts:{method:'POST',headers:{'Content-Type':'application/json','Accept':'application/json'},body:JSON.stringify({id:n.hash})}},
+        {url:'/gtl/verify', opts:{method:'POST',headers:{'Content-Type':'application/json','Accept':'application/json'},body:JSON.stringify({receipt_id:n.hash})}}
+      ];
+      var lastErr=null;
+      for(var i=0;i<attempts.length;i++){
+        var a=attempts[i];
+        try{
+          var r=await fetch(a.url,a.opts);
+          if(r.status===404){ lastErr='404 na '+a.url; continue; }
+          var txt=await r.text(), data;
+          try{ data=JSON.parse(txt); }catch(e){ data={raw:txt.slice(0,800)}; }
+          if(r.status===401||r.status===403||r.status===422||r.status===200||r.status===400){
+            render(data,r.status); return;
+          }
+          lastErr='HTTP '+r.status+' na '+a.url;
+        }catch(e){ lastErr=e.message; }
+      }
+      show('<span class="wn">Javni verifikator sa ove adrese nije dostupan.</span>\n'+
+           '<span class="dm">Pokušano:</span> '+esc(lastErr||'nema odgovora')+'\n\n'+
+           '<span class="dm">Hash koji ste unijeli:</span>\n'+esc(n.hash)+'\n\n'+
+           'Pokrenite provjeru lokalno:\n'+
+           'curl -sS http://127.0.0.1:7125/gtl/verify \\\n'+
+           '  -H "X-Token: $GAMA_TOKEN" -H "Content-Type: application/json" \\\n'+
+           '  -d \'{"id":"'+esc(n.hash)+'"}\'\n\n'+
+           '<span class="dm">Ako nemate pristup harnessu, pošaljite hash i receipt na info@gamai.io.</span>');
+    }catch(e){
+      show('<span class="er">Greška pri provjeri: '+esc(e.message)+'</span>');
+    }finally{
+      btn.disabled=false; btn.textContent='Provjeri';
+    }
+  });
+})();
+</script>"""
+
+
+
+
+if __name__ == "__main__":
+    for name in build():
+        p = os.path.join(OUT, name)
+        print("%8d  %s" % (os.path.getsize(p), name))

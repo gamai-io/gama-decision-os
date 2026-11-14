@@ -1,0 +1,31 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="630" viewBox="0 0 1200 630" role="img" aria-label="GAMA Decision OS">
+  <defs>
+    <linearGradient id="g" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#0a111a"/><stop offset="1" stop-color="#080c11"/>
+    </linearGradient>
+    <radialGradient id="a" cx="0.2" cy="0" r="0.8">
+      <stop offset="0" stop-color="#4f8cff" stop-opacity="0.35"/><stop offset="1" stop-color="#4f8cff" stop-opacity="0"/>
+    </radialGradient>
+    <radialGradient id="b" cx="0.9" cy="0.1" r="0.6">
+      <stop offset="0" stop-color="#f2b45f" stop-opacity="0.22"/><stop offset="1" stop-color="#f2b45f" stop-opacity="0"/>
+    </radialGradient>
+  </defs>
+  <rect width="1200" height="630" fill="url(#g)"/>
+  <rect width="1200" height="630" fill="url(#a)"/>
+  <rect width="1200" height="630" fill="url(#b)"/>
+  <rect x="56" y="56" width="72" height="72" rx="18" fill="#0b1220" stroke="#1b2838"/>
+  <path d="M78 108V76h13c8 0 13 5 13 16s-5 16-13 16H78z" fill="none" stroke="#4f8cff" stroke-width="5"/>
+  <circle cx="109" cy="76" r="4" fill="#f2b45f"/>
+  <text x="152" y="104" font-family="system-ui,Segoe UI,Arial,sans-serif" font-size="34" font-weight="700" fill="#e9f0f8">GAMA Decision OS</text>
+  <text x="56" y="250" font-family="system-ui,Segoe UI,Arial,sans-serif" font-size="64" font-weight="750" fill="#e9f0f8">Decide before action.</text>
+  <text x="56" y="326" font-family="system-ui,Segoe UI,Arial,sans-serif" font-size="64" font-weight="750" fill="#9dbdff">Prove after.</text>
+  <text x="56" y="404" font-family="system-ui,Segoe UI,Arial,sans-serif" font-size="27" fill="#a5b5c9">Signed evidence · isolated execution · EU AI Act audit trail</text>
+  <g font-family="ui-monospace,Menlo,Consolas,monospace" fill="#39d98a" font-size="22">
+    <text x="56" y="520">L0 2.31 ms</text>
+    <text x="236" y="520">ECE 0.035</text>
+    <text x="420" y="520">294 tools</text>
+    <text x="590" y="520">1,000 receipts</text>
+    <text x="830" y="520">0 false done</text>
+  </g>
+  <text x="56" y="580" font-family="system-ui,Segoe UI,Arial,sans-serif" font-size="20" fill="#7c8da3">decision-os.gamai.io · Apache-2.0 core · Made in Bosnia</text>
+</svg>

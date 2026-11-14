@@ -278,7 +278,7 @@ GAMA trenutno radi sa DeepSeek/OpenRouter/Claude i lokalnim modelima kroz harnes
 
 | Niša | Kupac | Bolna tačka | Naš dokaz | Ponuda |
 |---|---|---|---|---|
-| **1. Regulisani ERP/finansije u BiH/EU** | CFO, CIO, compliance | Agent ne smije pisati u `kupdob`, glavnu knjigu ili fakture bez dokaza i rollback-a. | 3-Gate + SHA-256 + rollback + `vp2026`/`mp2026` kontekst `[S23]`. | Pilot 6 sedmica, 1 proces (ulaz robe ili faktura), mjerenje false-block i vremena odobrenja. |
+| **1. Regulisani ERP/finansije u BiH/EU** | CFO, CIO, compliance | Agent ne smije pisati u `customers`, glavnu knjigu ili fakture bez dokaza i rollback-a. | 3-Gate + SHA-256 + rollback + `erp_prod`/`erp_archive` kontekst `[S23]`. | Pilot 6 sedmica, 1 proces (ulaz robe ili faktura), mjerenje false-block i vremena odobrenja. |
 | **2. EU AI Act high-risk deploymenti** | Compliance, legal, security | Art 12/14/15 audit bez kriptografskog lanca je teško odbraniti pred regulatorom. | Hash-lanac + Ed25519 + HITL + mapiranje `[S23]`. | Conformity dossier + evidence export + human oversight workflow. |
 | **3. Agent platforme i system integratori** | CTO, product, SI partner | Treba im proof/guardrail layer, ne još jedan framework; ne žele da grade audit sami. | MCP + OpenCode plugin + 294 alata + flota `[S23]`. | White-label/OEM proof layer, revenue share, zajednički pilot. |
 
@@ -330,9 +330,9 @@ GAMA trenutno radi sa DeepSeek/OpenRouter/Claude i lokalnim modelima kroz harnes
 | S20 | Hermes Agent — GitHub (MIT, 6 backends, skills/memory) | https://github.com/NousResearch/hermes-agent |
 | S21 | GitHub API — stars/licence za repoe (povučeno 2026-11-13/14) | https://api.github.com/repos/ |
 | S22 | Stripe — Agentic Commerce docs (Agent Wallet, SPT, UCP, MPP/x402) | https://docs.stripe.com/agentic-commerce |
-| S23 | GAMA Decision OS Manifesto (interno) | `/opt/gama-harness/docs/GAMA_DECISION_OS_MANIFESTO.md` |
-| S24 | GAMA GATES (interno) | `/opt/gama-harness/GATES.md` |
-| S25 | GAMA API / arhitektura (interno) | `/opt/gama-harness/docs/API.md`, `/opt/gama-harness/docs/ARCHITECTURE.md` |
+| S23 | GAMA Decision OS Manifesto | `docs/GAMA_DECISION_OS_MANIFESTO.md` |
+| S24 | GAMA GATES | interno, nije javno |
+| S25 | GAMA API / arhitektura | interno, nije javno |
 | S26 | Cisco AI Defense / Robust Intelligence — stranica nije bila dostupna (403); `N/P` | https://www.cisco.com/site/us/en/products/security/ai-defense/index.html |
 
 ---
