@@ -38,3 +38,7 @@ eval_adapter_ece.json
 !.env.example
 *.pem
 *.key
+site/
+models/
+__pycache__/
+*.pyc

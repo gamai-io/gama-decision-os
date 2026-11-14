@@ -1,8 +1,0 @@
-User-agent: *
-Allow: /
-
-# Verifikator i API nisu za indeksiranje
-Disallow: /api/
-Disallow: /gtl/
-
-Sitemap: https://decision-os.gamai.io/sitemap.xml
