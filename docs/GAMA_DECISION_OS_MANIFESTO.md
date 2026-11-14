@@ -124,7 +124,7 @@ Za nivoe rizika `READ` i `DRAFT`, aktivira se automatski validacioni sloj:
 
 ### 2.3. Gate 2: Human-in-the-Loop (HITL) i Human Compute (HC)
 Za nivoe rizika `SEND` i `IRREVERSIBLE`, GAMA Decision OS **zabranjuje** potpuno autonomno izvršenje bez ljudske verifikacije. 
-*   Sistem automatski suspenduje agentsku sesiju i šalje vizuelni/podatkovni prikaz planirane akcije na **Human Compute (HC) interfejs** ili dispečersku konzolu.
+*   Sistem automatski suspenduje agentsku sesiju i šalje vizuelni/podatkovni prikaz planirane akcije na **Human Compute (HC) interfejs** ili operatersku konzolu.
 *   Akcija se izvršava tek kada ovlašteni operater fizički/digitalno potvrdi transakciju na svom ekranu ili putem sigurnog tokena.
 
 ### 2.4. Gate 3: Post-Execution Verification i Audit Trail
