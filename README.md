@@ -112,3 +112,18 @@ Svi brojevi u dokumentaciji i na sajtu dolaze iz `config/FACTS.json` u internom 
 | Tier model | **40/40 = 100 %** | held-out, 40 primjera |
 | ECE (kalibracija) | **0,2973 → 0,0347** | T=0,2 |
 | Tool paging | **97,3 %** | realni oblici izlaza |
+
+## Šta je novo (2026-11-15)
+
+| Sloj | Rezultat | Kako je izmjereno |
+|---|---|---|
+| **Code Mode** (kod umjesto tool-callova) | **−82,3 %** tokena na 3 koraka (−70,6 % na 1, −89,2 % na 10) | bench, 5 realnih multi-step zadataka, 40 alata |
+| **Deterministički obrasci** | **10 obrazaca = 27 %** stvarnog prometa, 0 tokena | regex na 318 stvarnih upita |
+| **Canary ramp** | 5 % (shadow mjeri prije 25 % / 100 %) | hash bucket po (sid, obrazac) |
+| **Gated semantički keš** | 89 % hit, **USR = 0 %** (20/20 trapova blokirano) | bench 200 upita |
+| **Exact cache na ingress** | −13,8 % ponovljenih poziva (prije se gubilo) | live, cache hit verifikovan |
+| **Brain v2** | 100.222 zapisa, sync 60 s, opoziv + stale detekcija | `/api/stats` |
+| **Javna verifikacija dokaza** | `https://gamai.io/api/verify?hash=...` → `chain_ok=true` | live curl |
+
+**Sigurnosne ograde Code Modea:** samo READ/DRAFT tier, AST validacija (bez importa/atributa/lambde),
+max 40 linija i 10 poziva, automatski fallback na normalan tok ako kod ne prođe.
