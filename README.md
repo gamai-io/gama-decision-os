@@ -119,9 +119,12 @@ Svi brojevi u dokumentaciji i na sajtu dolaze iz `config/FACTS.json` u internom 
 |---|---|---|
 | **Code Mode** (kod umjesto tool-callova) | **−82,3 %** tokena na 3 koraka (−70,6 % na 1, −89,2 % na 10) | bench, 5 realnih multi-step zadataka, 40 alata |
 | **Deterministički obrasci** | **10 obrazaca = 27 %** stvarnog prometa, 0 tokena | regex na 318 stvarnih upita |
-| **Canary ramp** | 5 % (shadow mjeri prije 25 % / 100 %) | hash bucket po (sid, obrazac) |
+| **Canary ramp** | 5 % (shadow mjeri prije 25 % / 100 %); sve uštede aktivne na **6 čvorova** (16 flagova) | hash bucket po (sid, obrazac) |
 | **Gated semantički keš** | 89 % hit, **USR = 0 %** (20/20 trapova blokirano) | bench 200 upita |
 | **Exact cache na ingress** | −13,8 % ponovljenih poziva (prije se gubilo) | live, cache hit verifikovan |
+| **Dedup tool rezultata** (TOOL_RESULT_DEDUP) | **0–37 %**, zavisno od ponavljanja: 0 % bez ponavljanja, 19,4 % na 10 %, 24,2 % na 25 %, 36,9 % na 40 % | bench sa realnim, unikatnim sadržajima (pošteno mjereno, bez lažnih dedupova) |
+| **Token ledger po fazi** (TOKEN_PHASE_V1) | ingress / loop / chat odvojeno; prvi snimak 26 zapisa, 8.670 prompt, 1.502.633 ušteđenih tokena | token ledger (SQLite), izvještaj po fazi i modelu |
+| **Audit popravke** (Claude + Codex) | decision cache scopiran po sid (sigurnosni), exact cache u stream putu, output budget u streamu, paging 4k / truncate 6k, Code Mode timeout guard | 79 testova prošlo; deploy na svih 6 čvorova |
 | **Brain v2** | 100.222 zapisa, sync 60 s, opoziv + stale detekcija | `/api/stats` |
 | **Javna verifikacija dokaza** | `https://gamai.io/api/verify?hash=...` → `chain_ok=true` | live curl |
 

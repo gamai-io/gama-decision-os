@@ -39,7 +39,7 @@ why.
   the fit sits on the boundary — stated on purpose.*
 - **RLDF DPO:** train_loss **0.10052**, 600 near-miss pairs (300 hard + 300
   controls).
-- **6-node fleet**, harness **1.2.2**, **294 tools** in the OpenCode/harness
+- **6-node fleet**, harness **1.2.2**, **296 tools** in the OpenCode/harness
   schema.
 - **Benchmark of 20 competitors:** no public solution combines pre-action L0 +
   sandbox ladder + Ed25519 receipts.
