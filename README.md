@@ -102,7 +102,7 @@ Svi brojevi u dokumentaciji i na sajtu dolaze iz `config/FACTS.json` u internom 
 |---|---|---|
 | Alati (katalog) | **398** | `len(all_tools())` |
 | Alati (runtime prompt) | **296** | `len(TOOLS)` |
-| Vještine (biblioteka) | **5.021** | direktoriji u `~/.agents/skills` |
+| Vještine (biblioteka) | **5.024** | direktoriji u `~/.agents/skills` |
 | Persone | **409** | `gama_persona_ondemand.list_personas()` |
 | Baseline šema | **53.226 tokena** | sve šeme prije kompresije |
 | Prosječno šema (live) | **2.312 tokena** | `_token_ledger.db`, 24 h |
