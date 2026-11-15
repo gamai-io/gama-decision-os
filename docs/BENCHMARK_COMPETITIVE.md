@@ -96,8 +96,8 @@ Svi imaju **logove, trace-ove i eval rezultate**. Skoro niko ne prodaje **neprom
 | **Gate 1: Pre-Action Decision** | L0 odluka ispod **2 ms**; klase **READ / DRAFT / SEND / IRREVERSIBLE**; `expected_evidence_spec`; kalibracija **T=0,2**, **ECE 0,035** | Interno mjerenje; dio manifesta `[S23]`. Nije nezavisno auditovano. |
 | **Gate 2: Sandboxed Execution** | runc **110 ns**, gVisor **751 ns**, Firecracker **54 ns**; cold boot **1,846 s**; snapshot restore **2,28 ms**; HITL za SEND/IRREVERSIBLE | VMLAB mjerenja `[S23]`. 54 ns je syscall/mem latencija, ne end-to-end. |
 | **Gate 3: Post-Action ProofGate** | SHA-256 hash-lanac + **Ed25519 potpisani receipts** u GTL SQLite ledgeru; rollback na grešci | Interni dizajn; implementacija nije treće-lice auditovana. |
-| **Tool schema compression** | **396 alata / 213.781 B → 20.076 B prosječno = 90,6%** ušteda na schema sloju | Interno izmjereno. Live A/B ukupne prompt uštede je **-12,3%** jer ToolRAG cap 64 već radi; vidi ograničenje u §7.4. |
-| **Flota i integracije** | 6 čvorova, MCP, OpenCode plugin, **294 alata**, RLDF (DPO near-miss, Llama-3.2-3B LoRA) | Interni inventar. Nije nezavisno verifikovano. |
+| **Tool schema compression** | **398 alata / 213.781 B → 20.076 B prosječno = 90,6% (semantička selekcija)** ušteda na schema sloju | Interno izmjereno. Live A/B ukupne prompt uštede je **-12,3%** jer ToolRAG cap 64 već radi; vidi ograničenje u §7.4. |
+| **Flota i integracije** | 6 čvorova, MCP, OpenCode plugin, **296 alata u runtime promptu / 398 u katalogu**, RLDF (DPO near-miss, Llama-3.2-3B LoRA) | Interni inventar. Nije nezavisno verifikovano. |
 | **EU AI Act** | Mapiranje na **Član 12 (record-keeping), 14 (human oversight), 15 (accuracy/robustness/cybersecurity)** | Mapiranje, ne certifikacija. Certifikacija je „u toku“ `[S23]`. |
 
 **Važna napomena o kalibraciji:** Gate 1 kalibracija (T=0,2, ECE 0,035) i RLDF near-miss eksperiment (Llama-3.2-3B LoRA, ECE 0,2992 na n=1200) su **dva različita mjerenja**. Ne spajati ih u istu tvrdnju. Prvo je kalibracija decision sloja; drugo je eval adaptera.
@@ -124,7 +124,7 @@ Svi imaju **logove, trace-ove i eval rezultate**. Skoro niko ne prodaje **neprom
 
 | # | Rješenje (izvor) | Kategorija | Pre-action | Runtime | Post-action dokaz | Observability / eval | Sandbox | Compliance | Cijena (list) | OSS (licenca / stars) | Snaga | Slabost |
 |---:|---|---|---|---|---|---|---|---|---|---|---|---|
-| 0 | **GAMA Decision OS** `[S23][S24]` | Control plane / proof layer | **DA** — L0 <2 ms, 4 klase, `expected_evidence_spec` | **DA** — HITL + policy + runtime ladder | **DA** — SHA-256 lanac + Ed25519 receipts | DJEL — trace + RLDF eval; nema javni SaaS | **DA** — runc/gVisor/Firecracker, 2,28 ms snapshot | DJEL — EU AI Act Art 12/14/15 mapiranje; certifikacija u toku | interno / nije javno | privatno; MCP + OpenCode plugin | Closed-loop proof, ERP/SQL fokus, 294 alata, flota | Nema hosted SaaS, SOC2, enterprise UI, case studies |
+| 0 | **GAMA Decision OS** `[S23][S24]` | Control plane / proof layer | **DA** — L0 <2 ms, 4 klase, `expected_evidence_spec` | **DA** — HITL + policy + runtime ladder | **DA** — SHA-256 lanac + Ed25519 receipts | DJEL — trace + RLDF eval; nema javni SaaS | **DA** — runc/gVisor/Firecracker, 2,28 ms snapshot | DJEL — EU AI Act Art 12/14/15 mapiranje; certifikacija u toku | interno / nije javno | privatno; MCP + OpenCode plugin | Closed-loop proof, ERP/SQL fokus, 296 alata, flota | Nema hosted SaaS, SOC2, enterprise UI, case studies |
 | 1 | **Guardrails AI** `[S1][S2]` | Guardrails / reliability | DJEL — input/output validatori; nema risk tier | DJEL — blokira/preradi output | NE | DA — evals + synthetic data (Snowglobe) | NE | N/P | nije javno; kontakt | Apache-2.0; 7.608 stars | Guardrails Hub, validatori, Harvey distribucija | Nema action gate, sandbox, signed proof; konsolidacija (Harvey) |
 | 2 | **NVIDIA NeMo Guardrails** `[S3]` | Guardrails toolkit | DJEL — input/dialog/execution/output rails | DJEL — rails | NE | DA — eval + vulnerability scan | NE | nema built-in certifikata; self-host | besplatno | Apache-2.0; 7.500 stars | Colang dialog rails, NVIDIA ekosistem | Nema risk tier/proof; self-host operacija |
 | 3 | **LangSmith + LangGraph** `[S4]` | Observability + agent runtime | DJEL — LLM Gateway, Agent Authorization beta | DA — gateway + sandbox | NE — traces only | DA — traces, evals, Engine | DA — Sandboxes, TTL, snapshot/fork, scale to 1000s | SOC2 Type II, ISO27001, HIPAA, GDPR, SLA (Enterprise) | Free; Plus $39/seat/mj; Enterprise custom; LSU $1 | platforma proprietary; LangGraph MIT 44.919 stars | Full lifecycle, managed, ogroman ekosistem | Nema signed receipts; nema deterministic L0; vendor lock-in |
@@ -226,11 +226,11 @@ Svi imaju **logove, trace-ove i eval rezultate**. Skoro niko ne prodaje **neprom
 
 ### 7.4 Tool schema compression: 90,6% na schema sloju
 
-**Tvrdnja:** 396 alata / 213.781 B → 20.076 B prosječno = 90,6% ušteda na schema sloju; to čini 294-tool agent praktičnim.
+**Tvrdnja:** 398 alata / 213.781 B → 20.076 B prosječno = 90,6% (semantička selekcija) ušteda na schema sloju; to čini 296-tool agent praktičnim.
 
 **Dokaz:**
 - Interno izmjereno; brojevi iz GAMA konteksta i mjerenja `[S23]`.
-- Bez kompresije, 396 tool schema troši ogroman dio konteksta i povećava cijenu/latenciju.
+- Bez kompresije, 398 tool schema troši ogroman dio konteksta i povećava cijenu/latenciju.
 
 **Ograničenje (obavezno navesti):** Live A/B je pokazao **-12,3% ukupne prompt uštede**, jer produkcijski ToolRAG cap 64 već radi. 90,6% je **schema-layer** ušteda, ne end-to-end. Ne prodavati kao „90% ukupne uštede“ — to bi bila lažna tvrdnja.
 
@@ -280,7 +280,7 @@ GAMA trenutno radi sa DeepSeek/OpenRouter/Claude i lokalnim modelima kroz harnes
 |---|---|---|---|---|
 | **1. Regulisani ERP/finansije u BiH/EU** | CFO, CIO, compliance | Agent ne smije pisati u `customers`, glavnu knjigu ili fakture bez dokaza i rollback-a. | 3-Gate + SHA-256 + rollback + `erp_prod`/`erp_archive` kontekst `[S23]`. | Pilot 6 sedmica, 1 proces (ulaz robe ili faktura), mjerenje false-block i vremena odobrenja. |
 | **2. EU AI Act high-risk deploymenti** | Compliance, legal, security | Art 12/14/15 audit bez kriptografskog lanca je teško odbraniti pred regulatorom. | Hash-lanac + Ed25519 + HITL + mapiranje `[S23]`. | Conformity dossier + evidence export + human oversight workflow. |
-| **3. Agent platforme i system integratori** | CTO, product, SI partner | Treba im proof/guardrail layer, ne još jedan framework; ne žele da grade audit sami. | MCP + OpenCode plugin + 294 alata + flota `[S23]`. | White-label/OEM proof layer, revenue share, zajednički pilot. |
+| **3. Agent platforme i system integratori** | CTO, product, SI partner | Treba im proof/guardrail layer, ne još jedan framework; ne žele da grade audit sami. | MCP + OpenCode plugin + 296 alata + flota `[S23]`. | White-label/OEM proof layer, revenue share, zajednički pilot. |
 
 ### 9.3 Messaging
 

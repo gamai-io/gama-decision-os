@@ -48,7 +48,7 @@ trenja.
 | L0 latencija odluke | **2,31 ms p50** | interni benchmark, ponovljiv |
 | Gate 2 izolacija | runc **110 ns** · gVisor **751 ns** · Firecracker **54 ns** | interni TSR benchmark |
 | Snapshot restore | **2,28 ms** | Firecracker mikro-VM, interni test |
-| Kompresija šeme alata | **90,6 %** (213.781 B → 20.076 B po upitu) | mjereno na 396 alata |
+| Kompresija šeme alata | **90,6 %** (213.781 B → 20.076 B po upitu) | mjereno na 398 alata |
 | Kalibracija | ECE **0,297 → 0,035** (T = 0,2), rangiranje **1,000** na held-out **1.200** | realni ECE eval |
 | RLDF DPO | train_loss **0,10052**, 600 near-miss parova | LUMI trening, završen 0:0 |
 | Receipt lanac | Ed25519 potpis + SHA-256 hash-lanac, javna provjera | `verify.html`, `/gtl/verify` |

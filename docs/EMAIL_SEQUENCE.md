@@ -39,7 +39,7 @@ Zdravo [Ime],
 
 kratko, bez ponavljanja prvog mejla. Tri mjerena broja iz internih testova:
 
-- **396 alata**, kompresija šeme **90,6 %** (213.781 B → 20.076 B po upitu) —
+- **398 alata**, kompresija šeme **90,6 %** (213.781 B → 20.076 B po upitu) —
   cijeli alatni set staje u kontekst.
 - **L0 odluka 2,31 ms p50** — gate prije izvršenja, ne poslije.
 - **Kalibracija ECE 0,297 → 0,035** (T = 0,2), rangiranje 1,000 na 1.200

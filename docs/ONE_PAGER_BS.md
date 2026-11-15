@@ -31,14 +31,14 @@ izoluje, i na kraju ostavlja kriptografski dokaz ko je šta odlučio i zašto.
 
 ## Dokaz da radi
 
-- **396 alata** u sistemu; **kompresija šeme 90,6 %** (213.781 B → 20.076 B po
+- **398 alata** u sistemu; **kompresija šeme 90,6 %** (213.781 B → 20.076 B po
   upitu) — cijeli alatni set staje u kontekst bez sečenja.
 - **Kalibracija:** ECE **0,297 → 0,035** (T = 0,2), rangiranje **1,000** na
   held-out **1.200** uzoraka. *Ograničenje: dataset je degenerisan, fit je na
   granici — navedeno namjerno.*
 - **RLDF DPO:** train_loss **0,10052**, 600 near-miss parova (300 teških + 300
   kontrole).
-- **Flota 6 čvorova**, harness **1.2.2**, **294 alata** u OpenCode/harness šemi.
+- **Flota 6 čvorova**, harness **1.2.2**, **296 alata u runtime promptu / 398 u katalogu** u OpenCode/harness šemi.
 - **Benchmark 20 konkurenata:** nijedno javno rješenje ne kombinuje pre-action
   L0 + sandbox ljestve + Ed25519 receipts.
 

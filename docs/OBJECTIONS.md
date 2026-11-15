@@ -83,11 +83,11 @@ i ne tvrdimo da je nula.
 
 ## 7. „Ovo je samo wrapper oko modela / premalo je."
 
-**Odgovor:** Nije. Iza njega je **396 alata** sa **90,6 % kompresijom šeme**
+**Odgovor:** Nije. Iza njega je **398 alata** sa **90,6 % kompresijom šeme**
 (213.781 B → 20.076 B po upitu), sandbox ljestve tri nivoa, i kriptografski
 receipt lanac. To je infrastruktura, ne prompt.
 
-**Dokaz:** kompresija 90,6 % mjerena po upitu; 294 alata u OpenCode/harness šemi,
+**Dokaz:** kompresija 90,6 % mjerena po upitu; 296 alata u OpenCode/harness šemi,
 harness 1.2.2 na floti od 6 čvorova. Benchmark 20 konkurenata: nijedno javno
 rješenje ne kombinuje pre-action L0 + sandbox + Ed25519 receipts.
 

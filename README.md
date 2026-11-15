@@ -92,3 +92,22 @@ The enterprise license template is in [`LICENSE-ENTERPRISE.md`](LICENSE-ENTERPRI
 ## License
 
 Apache License 2.0. See [`LICENSE`](LICENSE).
+
+## Brojevi (jedan izvor istine)
+
+Svi brojevi u dokumentaciji i na sajtu dolaze iz `config/FACTS.json` u internom repou:
+
+| Stavka | Vrijednost | Kako je izmjereno |
+|---|---|---|
+| Alati (katalog) | **398** | `len(all_tools())` |
+| Alati (runtime prompt) | **296** | `len(TOOLS)` |
+| Vještine (biblioteka) | **5.021** | direktoriji u `~/.agents/skills` |
+| Persone | **409** | `gama_persona_ondemand.list_personas()` |
+| Baseline šema | **53.226 tokena** | sve šeme prije kompresije |
+| Prosječno šema (live) | **2.312 tokena** | `_token_ledger.db`, 24 h |
+| Ušteda (live) | **81,67 %** | token_ledger; raspon 82–93 % |
+| Short-circuit | **28 %** upita | deterministički, 0 tokena |
+| L0 odluka | **2,31 ms** p50 | n=500 |
+| Tier model | **40/40 = 100 %** | held-out, 40 primjera |
+| ECE (kalibracija) | **0,2973 → 0,0347** | T=0,2 |
+| Tool paging | **97,3 %** | realni oblici izlaza |

@@ -102,7 +102,7 @@ curl -sS http://127.0.0.1:7125/gtl/verify -d '{"id":"<receipt_id>"}'
 
 ## 6:30–8:00 — Skala i kalibracija (dva broja, pa ograničenje)
 
-- **396 alata**, kompresija šeme **90,6 %** (213.781 B → 20.076 B po upitu).
+- **398 alata**, kompresija šeme **90,6 %** (213.781 B → 20.076 B po upitu).
 - **Kalibracija:** ECE **0,297 → 0,035** (T = 0,2), rangiranje **1,000** na
   held-out **1.200**.
 - **Odmah dodaj ograničenje:** „Dataset je degenerisan, fit je na granici — zato
