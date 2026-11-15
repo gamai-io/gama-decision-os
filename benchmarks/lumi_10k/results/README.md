@@ -1,3 +1,3 @@
 # LUMI 10k raw results
 
-Concurrency summaries for 1k/5k/10k agents. Quality/false-success detection is **not** part of this benchmark (the detector is noisy), so those fields are omitted. See `../README.md` and `../../docs/BENCHMARK_LUMI_10K.md`.
+Canonical clean run: `stress_v5_*.json` (LUMI job `23765235`, COMPLETED, exit 0:0). Quality/false-success is **not** part of this benchmark; the noisy detector field is omitted. See `../README.md` and `../../docs/BENCHMARK_LUMI_10K.md`.
