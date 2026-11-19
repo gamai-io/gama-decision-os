@@ -42,3 +42,13 @@ site/
 models/
 __pycache__/
 *.pyc
+
+# gama-secrets-guard
+.env
+*.token
+*.key
+*.pem
+tenants.json
+.git-credentials
+__pycache__/
+*.pyc
