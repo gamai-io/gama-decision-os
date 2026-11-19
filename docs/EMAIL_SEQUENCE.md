@@ -18,7 +18,7 @@ stigne u bazu?
 
 Većina timova ima logove **poslije**. Mi smo napravili gate **prije**: svaka
 akcija se klasifikuje za ~2 ms (READ / DRAFT / SEND / IRREVERSIBLE), destruktivna
-se blokira, mutacija čeka čovjeka, a na kraju ostaje Ed25519 potpisan receipt
+se blokira, mutacija čeka čovjeka, a na kraju ostaje SHA-256 hash-chained receipt (Ed25519 potpis planiran)
 koji revizor može sam provjeriti.
 
 Nije prezentacija — 10 minuta na živom sistemu: pokažem blokiran `DELETE`, propušten
@@ -49,7 +49,7 @@ Ograničenje odmah: kalibracija je rađena na **degenerisanom datasetu** i fit j
 na granici — zato to pišemo uz broj, a ne krijemo.
 
 Benchmark 20 konkurenata: nijedno javno rješenje ne kombinuje pre-action L0 +
-sandbox ljestve + Ed25519 receipts.
+sandbox ljestve + SHA-256 hash-chained receipts (Ed25519 planirano).
 
 Ako želite, pošaljem jedan ovakav izvještaj za vaš scenario. 10 minuta, [link].
 

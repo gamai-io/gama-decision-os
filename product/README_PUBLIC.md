@@ -33,7 +33,7 @@ After:    LLM ──▶ L0 ──▶ sandbox ──▶ evidence ──▶ done /
 |---|---|---|
 | **Pre-Action Decision (L0)** | Deterministic precheck + calibrated classifier maps every action to `READ / DRAFT / SEND / IRREVERSIBLE`, with expected evidence and confidence. | **0.05 ms** READ allow, **0.92 ms** IRREVERSIBLE ask |
 | **Sandboxed Execution (TSR)** | Risk selects isolation: `runc` (fast), `gVisor` (untrusted network), Firecracker microVM (transactions). | **2.28 ms** snapshot restore; **54 ns/op** Firecracker syscall |
-| **Post-Action Evidence** | SHA-256 result hash + Ed25519 signature in an append-only chain. No evidence, no "done". Automatic rollback. | **10/10** SWE-lite with independent pytest, **0 false-success** |
+| **Post-Action Evidence** | SHA-256 result hash in an append-only hash chain. No evidence, no "done". Automatic rollback. Keyed (Ed25519) signatures are a planned separate layer, not included in this build. | **10/10** SWE-lite with independent pytest, **0 false-success** |
 
 ---
 
@@ -45,6 +45,8 @@ Internal measurements, 13 Nov 2026. Reproduce with `make bench` (see [Benchmarks
 |---|---|---|
 | L0 precheck | **0.05 ms** | READ allow, p50 |
 | L0 IRREVERSIBLE routing | **0.92 ms** | ask + rationale |
+| L0 full decision | **2.31 ms** | p50, n=500 |
+| L0 deterministic core | **0.30 ms** | p50, n=2000, no network |
 | Firecracker snapshot restore | **2.28 ms** | pre-warm + mmap restore |
 | Firecracker syscall latency | **54 ns/op** | vs 92 ns bare metal |
 | runc syscall latency | **110 ns/op** | standard container |
@@ -53,9 +55,9 @@ Internal measurements, 13 Nov 2026. Reproduce with `make bench` (see [Benchmarks
 | Prompt token reduction | **−86.2%** | 544,470 → 75,113 tokens (405 → 34–66 schemas) |
 | SWE-bench-lite (10 tasks) | **10/10** | independent `fail_to_pass` + `pass_to_pass`; `tests/` restored to pristine |
 | Harness soak | **20/20 ok** | 30 min, 0 retry |
-| Evidence calibration (ECE) | **target < 0.05** | **not yet measured** — see note |
+| Evidence calibration (ECE) | **0.0347** (target < 0.05) | T=0.2, held-out n=240, accuracy 1.0 — degenerate/limited, see note |
 
-**Honest note on ECE:** the calibration evaluator (`calibration_evaluator.py`, ECE + Brier + ASCII reliability diagram) is implemented, but the adapter evaluation has not finished. We publish the target, not a number. When the run completes, the result and dataset hash will be added here. Do not cite an ECE value for this project until then.
+**Honest note on ECE:** ECE was measured at **0.0347** (T=0.2, held-out n=240) by `calibration_evaluator.py` (ECE + Brier + ASCII reliability diagram). The set is degenerate — empirical accuracy was 1.0 at n=240 — so this is a weak calibration signal, not a general guarantee. Target is < 0.05; cite 0.0347 only with this limitation and the dataset hash.
 
 ---
 
@@ -67,7 +69,7 @@ Internal measurements, 13 Nov 2026. Reproduce with `make bench` (see [Benchmarks
    (OpenCode, Claude,     │                                                          │
     LangGraph, custom)    │   ┌────────────┐        ┌────────────────────────────┐   │
           │               │   │  Gate L0   │        │  Evidence Gate             │   │
-          │  tool call    │   │  risk tier │        │  sha256 + ed25519          │   │
+          │  tool call    │   │  risk tier │        │  sha256 hash chain         │   │
           ├──────────────▶│   │  evidence  │        │  hash chain + checkpoint   │   │
           │               │   │  conf/abs. │        └────────────┬───────────────┘   │
           │               │   └─────┬──────┘                     │                   │
@@ -84,14 +86,14 @@ Internal measurements, 13 Nov 2026. Reproduce with `make bench` (see [Benchmarks
           │               └──────────────────────────┬───────────────────────────────┘
           │                                          │
           ▼                                          ▼
-   PASS → commit + signed receipt          FAIL → rollback + alert + audit entry
+   PASS → commit + hash-chained receipt     FAIL → rollback + alert + audit entry
 ```
 
 Components:
 
 - **L0 engine** — 12 deterministic rules (shell patterns, `dd of=/dev/`, fork bomb, base64|sh, quoted false positives), 4 tiers, temperature scaling, abstention, expected-evidence spec.
 - **TSR adapters** — `runc`, `gVisor`, Firecracker; a router picks the cheapest isolation that matches risk.
-- **Evidence Gate** — result hashing, Ed25519 signing, `prev_hash → hash` chain, SQLite receipts, checkpoint/rollback hooks.
+- **Evidence Gate** — result hashing, `prev_hash → hash` chain, SQLite receipts, checkpoint/rollback hooks (keyed Ed25519 signing is not included in this build).
 - **Integrations** — REST (`POST /decide`, `POST /verify`), Python SDK, CLI, agent middleware, MCP tool.
 
 ---
@@ -101,7 +103,7 @@ Components:
 ### From source (works today)
 
 ```bash
-git clone https://github.com/gama-ai/decision-os.git
+git clone https://github.com/gamai-io/gama-decision-os.git
 cd decision-os
 python3 -m venv .venv && . .venv/bin/activate
 pip install -e ".[server]"
@@ -113,7 +115,7 @@ gama-decision serve --host 127.0.0.1 --port 8443
 
 ```bash
 # image publishing is part of the v1.0 release checklist
-docker run --rm -p 8443:8443 -v "$PWD/data:/data" ghcr.io/gama-ai/decision-os:1.0.0
+docker run --rm -p 8443:8443 -v "$PWD/data:/data" ghcr.io/gamai-io/gama-decision-os:1.0.0
 ```
 
 ### PyPI
@@ -214,7 +216,7 @@ Secrets are read from the environment or `/etc/gama-decision/env`; never commit 
 ## Security
 
 - No privileged Docker daemon required for Firecracker. KVM access is the only elevated capability.
-- Evidence records are signed with Ed25519; verification is offline.
+- Evidence records are SHA-256 hash-chained and verified offline; this build does not include keyed (Ed25519) signatures.
 - The default L0 mode never sends prompts to a third party.
 - Report vulnerabilities to **security@gamai.io** (PGP on request). Please do not open public issues for security bugs.
 - This project is a control layer, not a compliance certificate. It produces evidence; your auditor and counsel decide sufficiency.

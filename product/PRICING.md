@@ -26,7 +26,7 @@ Why per node:
 **Target:** individual developers, researchers, students, first prototypes, open-source integrations.
 
 Included:
-- L0 risk engine (deterministic precheck + 4 tiers), TSR adapters (runc, gVisor, Firecracker), Evidence Gate (SHA-256 + Ed25519), CLI, REST, Python SDK.
+- L0 risk engine (deterministic precheck + 4 tiers), TSR adapters (runc, gVisor, Firecracker), Evidence Gate (SHA-256 hash chain; Ed25519 signing planned, not in this build), CLI, REST, Python SDK.
 - 1 node, unlimited local runs, no telemetry.
 - Community support via GitHub Discussions.
 

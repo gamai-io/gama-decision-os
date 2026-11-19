@@ -41,11 +41,11 @@ curl -fsS https://decision-os.gamai.io | grep -q "GAMA Decision OS"
 ```
 
 ### Repo and packages
-- Public repo: `github.com/gama-ai/decision-os` (create org if missing). Source-only, no runtime data.
+- Public repo: `github.com/gamai-io/gama-decision-os` (create org if missing). Source-only, no runtime data.
 - Branch protection on `main`, required CI (`ruff`, `pytest`, `make bench-l0`).
 - `SECURITY.md`, `CONTRIBUTING.md` (DCO), `CODE_OF_CONDUCT.md`, issue templates.
 - PyPI: reserve `gama-decision-os` (upload a `0.0.0` placeholder only if the name is at risk; otherwise publish real `1.0.0` at launch).
-- Container: `ghcr.io/gama-ai/decision-os:1.0.0` + `:latest`, multi-arch amd64/arm64, SBOM (syft), signed (cosign).
+- Container: `ghcr.io/gamai-io/gama-decision-os:1.0.0` + `:latest`, multi-arch amd64/arm64, SBOM (syft), signed (cosign).
 - Docs site: reuse README + `/docs`; no separate Docusaurus in month 1.
 
 Launch-day build:
@@ -53,8 +53,8 @@ Launch-day build:
 python -m build
 twine check dist/*
 twine upload dist/gama_decision_os-1.0.0*
-docker buildx build --platform linux/amd64,linux/arm64 -t ghcr.io/gama-ai/decision-os:1.0.0 --push .
-cosign sign ghcr.io/gama-ai/decision-os:1.0.0
+docker buildx build --platform linux/amd64,linux/arm64 -t ghcr.io/gamai-io/gama-decision-os:1.0.0 --push .
+cosign sign ghcr.io/gamai-io/gama-decision-os:1.0.0
 ```
 
 ### Checkout

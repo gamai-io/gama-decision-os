@@ -22,7 +22,7 @@ On top of that, the EU AI Act expects demonstrable records and human oversight
 |---|---|---|
 | **Gate 1 — L0 decision** | Classifies every action before execution: READ / DRAFT / SEND / IRREVERSIBLE → allow / ask / deny | **2.31 ms p50** |
 | **Gate 2 — Sandbox ladder** | Isolated execution matched to risk | runc **110 ns** · gVisor **751 ns** · Firecracker **54 ns** · snapshot restore **2.28 ms** |
-| **Gate 3 — Proof** | Ed25519-signed receipts + SHA-256 hash chain | Every receipt is publicly verifiable |
+| **Gate 3 — Proof** | SHA-256 hash-chained receipts (Ed25519 signing planned, not in this build) | Every receipt is verifiable offline (SHA-256 chain) |
 
 An agent cannot simply "just do" a destructive action. It is classified,
 isolated when needed, and leaves a cryptographic record of who decided what and
@@ -42,7 +42,7 @@ why.
 - **6-node fleet**, harness **1.2.2**, **296 tools** in the OpenCode/harness
   schema.
 - **Benchmark of 20 competitors:** no public solution combines pre-action L0 +
-  sandbox ladder + Ed25519 receipts.
+  sandbox ladder + SHA-256 hash-chained receipts (Ed25519 signing planned).
 
 ---
 

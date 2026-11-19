@@ -85,7 +85,7 @@ Airia javno mapira **EU AI Act, NIST AI RMF, SR 11-7, HIPAA, ISO 42001, SOC 2** 
 
 ### 2.6 Proof gap je naš wedge
 
-Svi imaju **logove, trace-ove i eval rezultate**. Skoro niko ne prodaje **nepromjenjiv, kriptografski potpisan dokaz da je konkretna akcija izvršena tačno kako je odobreno**. Airia ima audit evidence, AG2 ima WAL/audit trail, ali nijedno javno ne tvrdi Ed25519 potpisane receipts u hash-lancu. To je prostor za GAMA Decision OS.
+Svi imaju **logove, trace-ove i eval rezultate**. Skoro niko ne prodaje **nepromjenjiv, kriptografski potpisan dokaz da je konkretna akcija izvršena tačno kako je odobreno**. Airia ima audit evidence, AG2 ima WAL/audit trail, ali nijedno javno ne tvrdi kriptografski potpisane receipts u hash-lancu. To je planirani prostor za GAMA Decision OS (Ed25519 potpis još nije u ovom buildu).
 
 ---
 
@@ -95,7 +95,7 @@ Svi imaju **logove, trace-ove i eval rezultate**. Skoro niko ne prodaje **neprom
 |---|---|---|
 | **Gate 1: Pre-Action Decision** | L0 odluka ispod **2 ms**; klase **READ / DRAFT / SEND / IRREVERSIBLE**; `expected_evidence_spec`; kalibracija **T=0,2**, **ECE 0,035** | Interno mjerenje; dio manifesta `[S23]`. Nije nezavisno auditovano. |
 | **Gate 2: Sandboxed Execution** | runc **110 ns**, gVisor **751 ns**, Firecracker **54 ns**; cold boot **1,846 s**; snapshot restore **2,28 ms**; HITL za SEND/IRREVERSIBLE | VMLAB mjerenja `[S23]`. 54 ns je syscall/mem latencija, ne end-to-end. |
-| **Gate 3: Post-Action ProofGate** | SHA-256 hash-lanac + **Ed25519 potpisani receipts** u GTL SQLite ledgeru; rollback na grešci | Interni dizajn; implementacija nije treće-lice auditovana. |
+| **Gate 3: Post-Action ProofGate** | SHA-256 hash-lanac + hash-chained receipts u GTL SQLite ledgeru; rollback na grešci (Ed25519 potpis planiran) | Interni dizajn; implementacija nije treće-lice auditovana. |
 | **Tool schema compression** | **398 alata / 213.781 B → 20.076 B prosječno = 90,6% (semantička selekcija)** ušteda na schema sloju | Interno izmjereno. Live A/B ukupne prompt uštede je **-12,3%** jer ToolRAG cap 64 već radi; vidi ograničenje u §7.4. |
 | **Flota i integracije** | 6 čvorova, MCP, OpenCode plugin, **296 alata u runtime promptu / 398 u katalogu**, RLDF (DPO near-miss, Llama-3.2-3B LoRA) | Interni inventar. Nije nezavisno verifikovano. |
 | **EU AI Act** | Mapiranje na **Član 12 (record-keeping), 14 (human oversight), 15 (accuracy/robustness/cybersecurity)** | Mapiranje, ne certifikacija. Certifikacija je „u toku“ `[S23]`. |
@@ -124,7 +124,7 @@ Svi imaju **logove, trace-ove i eval rezultate**. Skoro niko ne prodaje **neprom
 
 | # | Rješenje (izvor) | Kategorija | Pre-action | Runtime | Post-action dokaz | Observability / eval | Sandbox | Compliance | Cijena (list) | OSS (licenca / stars) | Snaga | Slabost |
 |---:|---|---|---|---|---|---|---|---|---|---|---|---|
-| 0 | **GAMA Decision OS** `[S23][S24]` | Control plane / proof layer | **DA** — L0 <2 ms, 4 klase, `expected_evidence_spec` | **DA** — HITL + policy + runtime ladder | **DA** — SHA-256 lanac + Ed25519 receipts | DJEL — trace + RLDF eval; nema javni SaaS | **DA** — runc/gVisor/Firecracker, 2,28 ms snapshot | DJEL — EU AI Act Art 12/14/15 mapiranje; certifikacija u toku | interno / nije javno | privatno; MCP + OpenCode plugin | Closed-loop proof, ERP/SQL fokus, 296 alata, flota | Nema hosted SaaS, SOC2, enterprise UI, case studies |
+| 0 | **GAMA Decision OS** `[S23][S24]` | Control plane / proof layer | **DA** — L0 <2 ms, 4 klase, `expected_evidence_spec` | **DA** — HITL + policy + runtime ladder | **DA** — SHA-256 hash-lanac + hash-chained receipts (Ed25519 planirano) | DJEL — trace + RLDF eval; nema javni SaaS | **DA** — runc/gVisor/Firecracker, 2,28 ms snapshot | DJEL — EU AI Act Art 12/14/15 mapiranje; certifikacija u toku | interno / nije javno | privatno; MCP + OpenCode plugin | Closed-loop proof, ERP/SQL fokus, 296 alata, flota | Nema hosted SaaS, SOC2, enterprise UI, case studies |
 | 1 | **Guardrails AI** `[S1][S2]` | Guardrails / reliability | DJEL — input/output validatori; nema risk tier | DJEL — blokira/preradi output | NE | DA — evals + synthetic data (Snowglobe) | NE | N/P | nije javno; kontakt | Apache-2.0; 7.608 stars | Guardrails Hub, validatori, Harvey distribucija | Nema action gate, sandbox, signed proof; konsolidacija (Harvey) |
 | 2 | **NVIDIA NeMo Guardrails** `[S3]` | Guardrails toolkit | DJEL — input/dialog/execution/output rails | DJEL — rails | NE | DA — eval + vulnerability scan | NE | nema built-in certifikata; self-host | besplatno | Apache-2.0; 7.500 stars | Colang dialog rails, NVIDIA ekosistem | Nema risk tier/proof; self-host operacija |
 | 3 | **LangSmith + LangGraph** `[S4]` | Observability + agent runtime | DJEL — LLM Gateway, Agent Authorization beta | DA — gateway + sandbox | NE — traces only | DA — traces, evals, Engine | DA — Sandboxes, TTL, snapshot/fork, scale to 1000s | SOC2 Type II, ISO27001, HIPAA, GDPR, SLA (Enterprise) | Free; Plus $39/seat/mj; Enterprise custom; LSU $1 | platforma proprietary; LangGraph MIT 44.919 stars | Full lifecycle, managed, ogroman ekosistem | Nema signed receipts; nema deterministic L0; vendor lock-in |
@@ -156,7 +156,7 @@ Svi imaju **logove, trace-ove i eval rezultate**. Skoro niko ne prodaje **neprom
 |---|---|---|
 | **Guardrails AI** | Deterministički L0 + sandbox ladder + signed receipts. | Guardrails Hub validatori, Snowglobe synthetic data, Harvey enterprise distribucija. |
 | **NeMo Guardrails** | Closed-loop enforcement + kriptografski dokaz + ERP kontekst. | Colang dialog modeling, NVIDIA safety modeli, velika Apache-2.0 zajednica. |
-| **LangSmith** | L0 risk tier + `expected_evidence_spec` + Ed25519 receipts. | Managed observability/eval, Agent Server, Fleet, Engine, SOC2/ISO/HIPAA, SLA, ogroman ekosistem. |
+| **LangSmith** | L0 risk tier + `expected_evidence_spec` + hash-chained receipts (Ed25519 planirano). | Managed observability/eval, Agent Server, Fleet, Engine, SOC2/ISO/HIPAA, SLA, ogroman ekosistem. |
 | **Langfuse** | Action enforcement + sandbox + proof. | Zreo OSS observability, prompt mgmt, niska cijena, self-host, SOC2/ISO/HIPAA. |
 | **Arize Phoenix/AX** | Pre-action gate + signed receipts. | Dubok eval/experiment UI, Phoenix OSS, trajectory analytics, enterprise trust. |
 | **Humanloop** | Runtime enforcement + sandbox + proof. | Eval/prompt UI, enterprise compliance, Anthropic distribucija. |
@@ -184,7 +184,7 @@ Svi imaju **logove, trace-ove i eval rezultate**. Skoro niko ne prodaje **neprom
 **Tvrdnja:** GAMA je jedino rješenje u uzorku koje javno kombinuje pre-action odluku, izolovano izvršenje i post-action kriptografski dokaz.
 
 **Dokaz:**
-- GAMA Gate 1 + Gate 2 + Gate 3, SHA-256 lanac + Ed25519 receipts `[S23]`.
+- GAMA Gate 1 + Gate 2 + Gate 3, SHA-256 hash-lanac + hash-chained receipts `[S23]` (Ed25519 potpis planiran).
 - Airia ima pre-tool-call enforcement i audit evidence, ali ne tvrdi signed receipts `[S18]`.
 - AG2 ima WAL i audit trail, ali ne kriptografski potpisane receipts `[S12]`.
 - LangSmith, Langfuse, Arize, AgentOps imaju trace-ove/logove, ne tamper-evident receipts `[S4][S5][S6][S17]`.
@@ -238,7 +238,7 @@ Svi imaju **logove, trace-ove i eval rezultate**. Skoro niko ne prodaje **neprom
 
 ### 7.5 EU AI Act Art 12/14/15: dokaz vezan za akciju
 
-**Tvrdnja:** Hash-lanac + Ed25519 receipts + human gates mapiraju se na Art 12 (record-keeping), Art 14 (human oversight) i Art 15 (accuracy/robustness/cybersecurity) bolje od običnih logova i trace-ova.
+**Tvrdnja:** Hash-lanac + hash-chained receipts (Ed25519 planirano) + human gates mapiraju se na Art 12 (record-keeping), Art 14 (human oversight) i Art 15 (accuracy/robustness/cybersecurity) bolje od običnih logova i trace-ova.
 
 **Dokaz:**
 - GAMA mapiranje u manifestu `[S23]`.
@@ -279,7 +279,7 @@ GAMA trenutno radi sa DeepSeek/OpenRouter/Claude i lokalnim modelima kroz harnes
 | Niša | Kupac | Bolna tačka | Naš dokaz | Ponuda |
 |---|---|---|---|---|
 | **1. Regulisani ERP/finansije u BiH/EU** | CFO, CIO, compliance | Agent ne smije pisati u `customers`, glavnu knjigu ili fakture bez dokaza i rollback-a. | 3-Gate + SHA-256 + rollback + `erp_prod`/`erp_archive` kontekst `[S23]`. | Pilot 6 sedmica, 1 proces (ulaz robe ili faktura), mjerenje false-block i vremena odobrenja. |
-| **2. EU AI Act high-risk deploymenti** | Compliance, legal, security | Art 12/14/15 audit bez kriptografskog lanca je teško odbraniti pred regulatorom. | Hash-lanac + Ed25519 + HITL + mapiranje `[S23]`. | Conformity dossier + evidence export + human oversight workflow. |
+| **2. EU AI Act high-risk deploymenti** | Compliance, legal, security | Art 12/14/15 audit bez kriptografskog lanca je teško odbraniti pred regulatorom. | Hash-lanac + hash-chained receipts (Ed25519 planirano) + HITL + mapiranje `[S23]`. | Conformity dossier + evidence export + human oversight workflow. |
 | **3. Agent platforme i system integratori** | CTO, product, SI partner | Treba im proof/guardrail layer, ne još jedan framework; ne žele da grade audit sami. | MCP + OpenCode plugin + 296 alata + flota `[S23]`. | White-label/OEM proof layer, revenue share, zajednički pilot. |
 
 ### 9.3 Messaging

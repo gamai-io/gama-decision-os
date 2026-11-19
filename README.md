@@ -110,7 +110,7 @@ Svi brojevi u dokumentaciji i na sajtu dolaze iz `config/FACTS.json` u internom 
 | Short-circuit | **28 %** upita | deterministički, 0 tokena |
 | L0 odluka | **2,31 ms** p50 | n=500 |
 | Tier model | **40/40 = 100 %** | held-out, 40 primjera |
-| ECE (kalibracija) | **0,2973 → 0,0347** | T=0,2 |
+| ECE (kalibracija) | **0,2973 → 0,0347** | T=0,2; held-out n=240, accuracy 1.0 — degenerisano/ograničeno |
 | Tool paging | **97,3 %** | realni oblici izlaza |
 
 ## Šta je novo (2026-11-15)

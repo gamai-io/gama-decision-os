@@ -242,14 +242,14 @@
           <div class="tag live"><span class="bs">0 false-success</span><span class="en">0 false-success</span></div>
         </div>
         <div class="metric reveal">
-          <div class="v">ECE&nbsp;≤&nbsp;0.05</div>
-          <div class="k"><span class="bs">Cilj kalibracije pouzdanja</span><span class="en">Confidence calibration target</span></div>
-          <div class="tag cal"><span class="bs">kalibracija u toku</span><span class="en">calibration in progress</span></div>
+          <div class="v">ECE&nbsp;0.0347</div>
+          <div class="k"><span class="bs">Kalibracija pouzdanja (cilj &lt; 0.05)</span><span class="en">Confidence calibration (target &lt; 0.05)</span></div>
+          <div class="tag cal"><span class="bs">ograničeno: n=240, accuracy 1.0</span><span class="en">limited: n=240, accuracy 1.0</span></div>
         </div>
       </div>
       <p class="note">
-        <span class="bs">Izmjereno interno na našoj test infrastrukturi, 13.11.2026. ECE broj se objavljuje tek nakon evaluacije adaptera — do tada je prikazan cilj, ne rezultat. Metodologija u repozitoriju.</span>
-        <span class="en">Measured internally on our test infrastructure, 13 Nov 2026. The ECE value is published only after adapter evaluation — until then this is a target, not a result. Methodology in the repository.</span>
+        <span class="bs">Izmjereno interno 13.11.2026. ECE 0.0347 (T=0.2, held-out n=240) — set je degenerisan (accuracy 1.0), pa je to slab signal kalibracije, ne opšta garancija. Cilj &lt; 0.05; metodologija u repozitoriju.</span>
+        <span class="en">Measured internally 13 Nov 2026. ECE 0.0347 (T=0.2, held-out n=240) — the set is degenerate (accuracy 1.0), so this is a weak calibration signal, not a general guarantee. Target &lt; 0.05; methodology in the repository.</span>
       </p>
     </div>
   </section>
@@ -290,13 +290,13 @@
         <article class="pillar reveal">
           <div class="no">03 / POST-ACTION</div>
           <h3><span class="bs">Evidence Gate — dokaz ili rollback</span><span class="en">Evidence Gate — proof or rollback</span></h3>
-          <p><span class="bs">Svaki rezultat dobija SHA-256 hash, Ed25519 potpis i zapis u nepromjenjivi lanac. Nema dokaza — nema „gotovo&ldquo;; stanje se vraća.</span><span class="en">Every result gets a SHA-256 hash, an Ed25519 signature and an append-only chain entry. No evidence — no &ldquo;done&rdquo;; state is rolled back.</span></p>
+          <p><span class="bs">Svaki rezultat dobija SHA-256 hash i zapis u nepromjenjivi lanac (Ed25519 potpis je planirani sloj, nije u ovom buildu). Nema dokaza — nema „gotovo&ldquo;; stanje se vraća.</span><span class="en">Every result gets a SHA-256 hash and an append-only chain entry (Ed25519 signing is planned, not in this build). No evidence — no &ldquo;done&rdquo;; state is rolled back.</span></p>
           <ul>
             <li><span class="bs">Vezani hash-lanac (prev_hash → hash)</span><span class="en">Chained hashes (prev_hash → hash)</span></li>
             <li><span class="bs">Automatski checkpoint i rollback</span><span class="en">Automatic checkpoint and rollback</span></li>
             <li><span class="bs">Izvoz dokaza za EU AI Act čl. 12/15</span><span class="en">Evidence export for EU AI Act Art. 12/15</span></li>
           </ul>
-          <div class="code"><span class="c">// receipt</span><br>{ ok:<span class="g">true</span>, sha256:<span class="b">"9f2c…"</span>,<br>&nbsp; prev:<span class="b">"41ab…"</span>, sig:<span class="g">"ed25519:…"</span> }</div>
+          <div class="code"><span class="c">// receipt</span><br>{ ok:<span class="g">true</span>, sha256:<span class="b">"9f2c…"</span>,<br>&nbsp; prev:<span class="b">"41ab…"</span> }</div>
         </article>
       </div>
 
@@ -304,13 +304,13 @@
 <pre>
   <span class="d">Agent / LLM</span> ──▶ ┌─────────────────────────── GAMA Decision OS ───────────────────────────┐
                 │                                                                            │
-                │  <span class="a">Gate L0</span>  risk + expected_evidence          <span class="a">Audit</span>  hash chain + signatures     │
+                │  <span class="a">Gate L0</span>  risk + expected_evidence          <span class="a">Audit</span>  hash chain + receipts       │
                 │     │                                                                      │
                 │     ├── READ / DRAFT ──────────▶ <span class="b">TSR Router</span> ──▶ runc / gVisor / FC-µVM │
                 │     │                                              │                       │
                 │     └── SEND / IRREVERSIBLE ──▶ <span class="b">Human approval</span> ──┘                       │
                 │                                                    │                       │
-                │                              <span class="a">Evidence Gate</span> ◀──┘  sha256 + Ed25519      │
+                │                              <span class="a">Evidence Gate</span> ◀──┘  sha256 hash chain     │
                 │                                    │                                       │
                 └────────────────────────────────────┼───────────────────────────────────────┘
                                                      ▼
@@ -347,7 +347,7 @@
           <tr><td>Prompt token reduction</td><td class="num win">−86.2 %</td><td class="num">544,470 → 75,113 · 405→34–66 schemas</td><td><span class="bs">A/B izmjereno</span><span class="en">A/B measured</span></td></tr>
           <tr><td>SWE-bench-lite (10)</td><td class="num win">10/10</td><td class="num">independent pytest, tests restored</td><td><span class="bs">0 false-success</span><span class="en">0 false-success</span></td></tr>
           <tr><td>Harness stability soak</td><td class="num">20/20 ok</td><td class="num">30 min · 0 retry</td><td><span class="bs">izmjereno</span><span class="en">measured</span></td></tr>
-          <tr><td>Evidence calibration (ECE)</td><td class="num" style="color:#fbbf24">target &lt; 0.05</td><td class="num">RLDF adapter eval pending</td><td><span class="bs">u toku</span><span class="en">in progress</span></td></tr>
+          <tr><td>Evidence calibration (ECE)</td><td class="num win">0.0347</td><td class="num">T=0.2, held-out n=240, accuracy 1.0</td><td><span class="bs">ograničeno (degenerisano)</span><span class="en">limited (degenerate)</span></td></tr>
         </tbody>
       </table>
       </div>
@@ -480,7 +480,7 @@
             <li><span class="ic">@</span><div><b>prodaja@gamai.io</b><span class="bs">prodaja i demo</span><span class="en">sales and demos</span></div></li>
             <li><span class="ic">SEC</span><div><b>security@gamai.io</b><span class="bs">odgovorno prijavljivanje ranjivosti</span><span class="en">responsible disclosure</span></div></li>
             <li><span class="ic">LOC</span><div><b>Sarajevo · BiH</b><span class="bs">EU vremenska zona · remote-first</span><span class="en">EU timezone · remote-first</span></div></li>
-            <li><span class="ic">DOC</span><div><b>github.com/gama-ai/decision-os</b><span class="bs">jezgro, izdanja, benchmark</span><span class="en">core, releases, benchmarks</span></div></li>
+            <li><span class="ic">DOC</span><div><b>github.com/gamai-io/gama-decision-os</b><span class="bs">jezgro, izdanja, benchmark</span><span class="en">core, releases, benchmarks</span></div></li>
           </ul>
         </div>
       </div>
@@ -505,8 +505,8 @@
       </div>
     </div>
     <div class="fineprint">
-      <span class="bs">© 2026 GAMA. GAMA Decision OS je znak GAMA-e. Svi benchmark rezultati su interni i reproducibilni; ECE je ciljna vrijednost do završetka evaluacije. Sadržaj ove stranice nije pravni savjet.</span>
-      <span class="en">© 2026 GAMA. GAMA Decision OS is a GAMA trademark. All benchmark results are internal and reproducible; ECE is a target until evaluation completes. Nothing on this page is legal advice.</span>
+      <span class="bs">© 2026 GAMA. GAMA Decision OS je znak GAMA-e. Svi benchmark rezultati su interni i reproducibilni; ECE 0.0347 je izmjeren na ograničenom/degenerisanom setu (n=240). Sadržaj ove stranice nije pravni savjet.</span>
+      <span class="en">© 2026 GAMA. GAMA Decision OS is a GAMA trademark. All benchmark results are internal and reproducible; ECE 0.0347 was measured on a limited/degenerate set (n=240). Nothing on this page is legal advice.</span>
     </div>
   </div>
 </footer>

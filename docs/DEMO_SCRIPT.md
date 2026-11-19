@@ -25,7 +25,7 @@
 
 - Agent danas ima privilegije operatera, ali bez umora i odgovornosti.
 - Većina alata loguje **poslije**; mi odlučujemo **prije**.
-- Tri gate-a: **L0 odluka (~2 ms) → sandbox (ako treba) → Ed25519 receipt**.
+- Tri gate-a: **L0 odluka (~2 ms) → sandbox (ako treba) → SHA-256 hash-chained receipt** (Ed25519 potpis je planiran, nije u ovom buildu).
 
 Ne pričaj duže. Prelazi na ekran.
 
@@ -109,7 +109,7 @@ curl -sS http://127.0.0.1:7125/gtl/verify -d '{"id":"<receipt_id>"}'
   T = 0,2 i zato ovo pišemo uz broj."
 
 - **Benchmark:** 20 konkurenata; nijedno javno rješenje ne kombinuje pre-action
-  L0 + sandbox ljestve + Ed25519 receipts.
+  L0 + sandbox ljestve + SHA-256 hash-chained receipts (Ed25519 planirano).
 
 > Ako kupac pita za sandbox: runc **110 ns** / gVisor **751 ns** / Firecracker
 > **54 ns**, snapshot restore **2,28 ms** (interni test).
