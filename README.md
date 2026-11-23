@@ -109,10 +109,12 @@ Svi brojevi u dokumentaciji i na sajtu dolaze iz `config/FACTS.json` u internom 
 | Ušteda (live, 24 h) | **75,5 %** (n=2.021) | `python3 benchmarks/ledger_stats.py` (token_ledger, 2026-11-23) |
 | Ušteda (7 dana) | **70,9 %** (n=11.012) | isto; projekcija do 93 % važi samo za veći udio ponavljanja |
 | Short-circuit | **7,2 %** upita (24 h) · **3,0 %** (7 d) | isto. Ranije navedenih „28 %" **nije reproducirano** |
-| L0 odluka | **2,31 ms** p50 | n=500 |
-| Tier model | **40/40 = 100 %** | held-out, 40 primjera |
+| L0 odluka | **0,0026 ms** p50 (READ) · 0,0017 (IRREVERSIBLE) · 0,0020 (SEND) | `python3 benchmarks/decision_latency.py --n 500`, 0 pogrešnih odluka na 1.500 poziva, 2026-11-23 |
 | ECE (kalibracija) | **0,2973 → 0,0347** | T=0,2; held-out n=240, accuracy 1.0 — degenerisano/ograničeno |
-| Tool paging | **97,3 %** | realni oblici izlaza |
+
+### Nije reproducirano u ovom repou
+Sljedeće je mjereno interno, ali **artefakt nije objavljen** — tretirati kao nepotvrđeno dok se ne doda skripta:
+`Tier model 40/40 (100%)` · `Tool paging 97,3 %` · `Code Mode −82,3 % tokena`
 
 ## Šta je novo (2026-11-15)
 

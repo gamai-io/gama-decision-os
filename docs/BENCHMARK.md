@@ -61,3 +61,22 @@ The skipped test is the optional live speculative classifier; it runs only when
 - No claim of superiority over other agent frameworks.
 - No claim that these latencies hold under concurrent load.
 - No claim that the ECE above reflects production traffic.
+
+## Re-measured 2026-11-23 (this repo, x86-64)
+
+`python3 benchmarks/decision_latency.py --n 500` — warm-up first, then 500 calls per case,
+and **0 wrong decisions across 1,500 calls** (tier/verdict asserted per case):
+
+| Case | mean (ms) | p50 (ms) | p95 (ms) | wrong |
+| --- | ---: | ---: | ---: | ---: |
+| `READ` allow | 0.0033 | 0.0026 | 0.0100 | 0 |
+| `IRREVERSIBLE` deny | 0.0023 | 0.0017 | 0.0027 | 0 |
+| `SEND` ask | 0.0029 | 0.0020 | 0.0067 | 0 |
+
+Numbers differ from the v1.2.2 table above (same order of magnitude); the script is the
+source of truth — re-run it on your hardware rather than quoting this table.
+
+## Not reproduced in this repository
+
+`Tier model 40/40`, `Tool paging 97.3%` and `Code Mode -82.3% tokens` were measured
+internally but the benchmark scripts are **not shipped here**. Treat them as unconfirmed.
