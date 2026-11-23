@@ -106,8 +106,9 @@ Svi brojevi u dokumentaciji i na sajtu dolaze iz `config/FACTS.json` u internom 
 | Persone | **409** | `gama_persona_ondemand.list_personas()` |
 | Baseline šema | **53.226 tokena** | sve šeme prije kompresije |
 | Prosječno šema (live) | **2.312 tokena** | `_token_ledger.db`, 24 h |
-| Ušteda (live) | **81,67 %** (n=1.150) | token_ledger, 24 h; projekcija do 93 % za veći udio ponavljanja |
-| Short-circuit | **28 %** upita | deterministički, 0 tokena |
+| Ušteda (live, 24 h) | **75,5 %** (n=2.021) | `python3 benchmarks/ledger_stats.py` (token_ledger, 2026-11-23) |
+| Ušteda (7 dana) | **70,9 %** (n=11.012) | isto; projekcija do 93 % važi samo za veći udio ponavljanja |
+| Short-circuit | **7,2 %** upita (24 h) · **3,0 %** (7 d) | isto. Ranije navedenih „28 %" **nije reproducirano** |
 | L0 odluka | **2,31 ms** p50 | n=500 |
 | Tier model | **40/40 = 100 %** | held-out, 40 primjera |
 | ECE (kalibracija) | **0,2973 → 0,0347** | T=0,2; held-out n=240, accuracy 1.0 — degenerisano/ograničeno |
