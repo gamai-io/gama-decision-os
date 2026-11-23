@@ -87,7 +87,7 @@ The enterprise license template is in [`LICENSE-ENTERPRISE.md`](LICENSE-ENTERPRI
 - [`docs/GAMA_DECISION_OS_MANIFESTO.md`](docs/GAMA_DECISION_OS_MANIFESTO.md) — design principles.
 - [`docs/SITE_ARCHITECTURE.md`](docs/SITE_ARCHITECTURE.md) — public site and information architecture.
 - [`docs/BENCHMARK.md`](docs/BENCHMARK.md) — reproducible benchmark notes and caveats.
-- [`docs/BENCHMARK_LUMI_10K.md`](docs/BENCHMARK_LUMI_10K.md) — LUMI-G 10k async agents: 10,000/10,000, 0 errors, 0 retries (4× MI250X; 2026-11-15).
+- [`docs/BENCHMARK_LUMI_10K.md`](docs/BENCHMARK_LUMI_10K.md) — LUMI-G 10k async agents: 10.000/10.000, 0 grešaka, 0 retry (4× MI250X; 2026-11-15). Provjera: `python3 benchmarks/lumi_10k/verify_stress.py` (čita `results/stress_v5_*.json`).
 - [`docs/BENCHMARK_COMPETITIVE.md`](docs/BENCHMARK_COMPETITIVE.md) — competitive benchmark vs agent control-plane / guardrails / observability market (2026-11-13).
 
 ## License
