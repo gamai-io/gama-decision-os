@@ -106,11 +106,17 @@ Svi brojevi u dokumentaciji i na sajtu dolaze iz `config/FACTS.json` u internom 
 | Persone | **409** | `gama_persona_ondemand.list_personas()` |
 | Baseline šema | **53.226 tokena** | sve šeme prije kompresije |
 | Prosječno šema (live) | **2.312 tokena** | `_token_ledger.db`, 24 h |
-| Ušteda (live, 24 h) | **75,5 %** (n=2.021) | `python3 benchmarks/ledger_stats.py` (token_ledger, 2026-11-23) |
-| Ušteda (7 dana) | **70,9 %** (n=11.012) | isto; projekcija do 93 % važi samo za veći udio ponavljanja |
-| Short-circuit | **7,2 %** upita (24 h) · **3,0 %** (7 d) | isto. Ranije navedenih „28 %" **nije reproducirano** |
-| L0 odluka | **0,0026 ms** p50 (READ) · 0,0017 (IRREVERSIBLE) · 0,0020 (SEND) | `python3 benchmarks/decision_latency.py --n 500`, 0 pogrešnih odluka na 1.500 poziva, 2026-11-23 |
+| Ušteda (live, 24 h) | **85,4 %** (n=3.252) | `python3 benchmarks/ledger_stats.py` (token_ledger, 2026-11-26) |
+| Ušteda (7 dana) | **78,8 %** (n=14.669) | isto; projekcija do 93 % važi samo za veći udio ponavljanja |
+| Short-circuit | **0,6 %** upita (24 h) · **2,4 %** (7 d) | isto. Ranije navedenih „28 %" **nije reproducirano** |
+| L0 odluka | **0,0025 ms** p50 (READ) · 0,0021 (IRREVERSIBLE) · 0,0022 (SEND) | `python3 benchmarks/decision_latency.py --n 500`, 0 pogrešnih odluka, 2026-11-26 |
 | ECE (kalibracija, dry-run) | **0,407** (Brier 0,317, accuracy 0,643, n=42) | `python3 -m gama_decision.eval_adapter_ece --dry-run` (2026-11-23). Broj sa adapterom (0,2973 → 0,0347) traži GPU + adapter i **nije reproduciran ovdje** |
+
+> **Napomena o brojevima iz žive baze:** `token_ledger` raste, pa `ledger_stats.py`
+> danas vraća drugačiji `n` i procenat od onog u tabeli. Brojevi u tabeli su **snimak na
+> navedeni datum** i nisu CI-provjerljivi; provjerljiva je komanda, ne vrijednost.
+> „Short-circuit“ je 0,6 % (24 h) i 2,4 % (7 d); ranije je pisalo 7,2 % — udio zavisi od
+> sastava saobraćaja u prozoru i ne treba ga čitati kao fiksnu osobinu sistema.
 
 ### Nije reproducirano u ovom repou
 Sljedeće je mjereno interno, ali **artefakt nije objavljen** — tretirati kao nepotvrđeno dok se ne doda skripta:
